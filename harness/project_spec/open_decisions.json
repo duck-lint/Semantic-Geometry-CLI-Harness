@@ -24,7 +24,7 @@
         "context compiler",
         "PM pre-call validation"
       ],
-      "status": "active"
+      "status": "acknowledged"
     },
     {
       "id": "od-002",
@@ -35,7 +35,7 @@
         "provider route configuration",
         "dependency declaration"
       ],
-      "status": "active"
+      "status": "acknowledged"
     },
     {
       "id": "od-003",
@@ -47,7 +47,7 @@
         "runtime validators",
         "pre-call reference checks"
       ],
-      "status": "active"
+      "status": "acknowledged"
     },
     {
       "id": "od-004",
@@ -59,8 +59,23 @@
         "PM report expectations",
         "acceptance probes"
       ],
-      "status": "active"
+      "status": "closed"
+    },
+    {
+      "id": "Authority decision.",
+      "decision": "Implementation 02 will be Archive Manager.",
+      "rationale": "As implementation 01 is now complete, it requires archive instead of discovery and planning of next proof frontier, therefore, Archive Manager shall be implemented next.",
+      "affected_surfaces": [
+        "archive_manager.agent.json",
+        "archive_manager_agent.py",
+        "ArchiveManagerAgent.schema.json",
+        "archive_manager_report.example.json",
+        "archive_manager_report.py",
+        "ArchiveManagerReport.schema.json"
+      ],
+      "status": "acknowledged"
     }
+
   ],
   "pending_decisions": [],
   "notes": [

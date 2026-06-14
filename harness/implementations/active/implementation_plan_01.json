@@ -64,7 +64,6 @@
     }
   ],
   "non_goals": [
-    "Do not build planner, reviewer, adversary, implementer, or archivist routes in this implementation bundle.",
     "Do not add agent tool permissions to the Project Manager role.",
     "Do not add file-mutating worker behavior.",
     "Do not solve provider abstraction beyond the current OpenAI SDK path.",
@@ -220,6 +219,8 @@
   ],
   "closeout_notes": [
     "When this bundle completes, move it from ./active/ to ./archive/.",
-    "Archive should include the final PM report, validation/probe summary, and any schema/model corrections made during compiler readiness work."
+    "Archive should include the final PM report, validation/probe summary, and any schema/model corrections made during compiler readiness work.",
+    "Candidate next implementation target: The likely next bounded slice is the Archive Manager / archiver route, because the PM route now produces review artifacts and the harness needs a deterministic way to preserve completed run evidence, validation summaries, and transition records before adding more complex planning behavior. Evaluate whether this candidate is admissible. If it is not, name the smaller prior slice that should come first."
+
   ]
 }

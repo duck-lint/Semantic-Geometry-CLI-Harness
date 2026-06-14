@@ -3,13 +3,14 @@
   "metadata": {
     "document_id": "project_spec.json",
     "title": "Project Spec",
-    "purpose": "Authoritative invariant space for the CLI harness project. This spec describes the complete intended harness, while allowing the current implementation slice to focus on Pydantic cleanup, context compilation, and the first PM call.",
+    "purpose": "Authoritative invariant space for the CLI harness project.",
     "source_format": "json",
     "document_authority": "harness_target"
   },
   "project_thesis": {
     "project_is": [
-      "A local Python/JSON CLI harness for governed agent-assisted software work.",
+      "A CLI harness for governed agent-assisted software work.",
+      "A system that lets users implement ideas in code through explicit tasks, bounded agent roles, inspectable artifacts, approval gates, and runnable validation probes rather than requiring the user to infer or directly verify code internals.",
       "A repo-local coordination system that turns tasks, role contracts, context packets, runtime policies, reports, run artifacts, and probes into explicit inspectable surfaces.",
       "A harness for making agent participation bounded, reproducible, auditable, and approval-gated rather than chat-shaped or ambient."
     ],
@@ -62,25 +63,16 @@
       "Planner, reviewer, adversary, implementer, and archivist routes may be added later only as explicit governed routes.",
       "Worker adapters may mutate repository files only after an approval boundary and must remain separate from governance roles."
     ],
-    "primary_operator": "A local developer/operator using model assistance to build software while keeping context, authority, role behavior, tool permissions, and evidence inspectable.",
+    "primary_operator": "A local developer/operator using model assistance to build software while keeping context, authority, role behavior, tool permissions, and evidence inspectable with no formal coding experience.",
     "highest_value_workflow": {
-      "command": "python",
+      "command": "null",
       "args": [
-        "-m",
-        "harness",
-        "plan",
-        "TASK TEXT"
+        "null"
       ],
       "expectations": [
-        "Compile the project context packet from live repo-local sources.",
-        "Load the Project Manager role contract.",
-        "Call the configured model provider through the bounded PM route.",
-        "Validate the PM report against the PM report contract, including cross-field invariants.",
-        "Save task, context packet, PM report, and validation/probe evidence under a timestamped run directory.",
-        "Print a concise status summary and the next admissible transformation.",
-        "Stop before implementation or repository source mutation."
+        "null"
       ],
-      "stop_condition": "Stop after the validated PM report and run artifacts are saved."
+      "stop_condition": "null"
     }
   },
   "non_goals": {
@@ -195,11 +187,6 @@
       "Collapsing report_status and proof_frontier.blocked into the same axis."
     ],
     "deferred_surfaces": [
-      "Planner route beyond the PM-admissibility slice.",
-      "Reviewer route.",
-      "Adversary route.",
-      "Implementer route.",
-      "Archivist route.",
       "Codex CLI worker adapter execution.",
       "Apply workflow.",
       "Cross-provider abstraction beyond the first model provider path.",

@@ -14,5 +14,17 @@
     "Do not add placeholder failures just to satisfy a manifest or test scaffold.",
     "Promote repeated prevention rules into tooling, schema constraints, or runtime probes when possible."
   ],
-  "entries": []
+  "entries": [
+    {
+      "id": "kf-01",
+      "pattern": "chicken before the egg?",
+      "trigger": "asking PM for clearance from implementation 01",
+      "symptom": "cannot give clearance.",
+      "likely_cause": "cannot prove validation of an api call during an api call.",
+      "prevention_rule": "adding the schema validation in the ledger from the previous call.",
+      "easiest_check": "prevention_rule",
+      "last_seen": "last call",
+      "status": "pain in the ass"
+    }
+  ]
 }

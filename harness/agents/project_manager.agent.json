@@ -92,9 +92,10 @@
       "resolution": {
         "mode": "paths",
         "paths": [
-          "harness/runs/20260613-155133-agent-route/project_manager_report.json",
-          "harness/runs/20260613-155133-agent-route/project_manager_report.validation.json",
-          "harness/runs/20260613-155133-agent-route/raw_model_response.json"
+          "harness/state/ledgers/api_call_ledger.jsonl",
+          "harness/runs/20260614-140613-agent-route/project_manager_report.json",
+          "harness/runs/20260614-140613-agent-route/project_manager_report.validation.json",
+          "harness/runs/20260614-140613-agent-route/raw_model_response.json"
         ],
         "include_harness": false
       }
