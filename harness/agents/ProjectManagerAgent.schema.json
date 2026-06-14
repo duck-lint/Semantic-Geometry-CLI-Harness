@@ -239,6 +239,10 @@
           "title": "Dominant Tension Justification",
           "type": "string"
         },
+        "missing_basis": {
+          "title": "Missing Basis",
+          "type": "string"
+        },
         "next_admissible_transformation": {
           "title": "Next Admissible Transformation",
           "type": "string"
@@ -263,6 +267,7 @@
       "required": [
         "constraint_conflicts",
         "dominant_tension_justification",
+        "missing_basis",
         "next_admissible_transformation",
         "affected_surfaces",
         "non_affected_surfaces",

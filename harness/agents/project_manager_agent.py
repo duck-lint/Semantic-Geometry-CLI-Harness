@@ -38,6 +38,7 @@ class ProofFrontier(BaseModel):
 
   constraint_conflicts: str
   dominant_tension_justification: str
+  missing_basis: str
   next_admissible_transformation: str
   affected_surfaces: str
   non_affected_surfaces: str

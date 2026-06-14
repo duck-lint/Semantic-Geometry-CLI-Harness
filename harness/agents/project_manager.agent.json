@@ -57,8 +57,9 @@
         "structural_tension": "Identify the main actionable mismatch between current posture and realizing project thesis-attractor."
       },
       "proof_frontier": {
-        "constraint_conflicts": "Surface missing structure, code, conflicts, authority, context, validation gaps, or evidence gaps blocking project thesis-attractor.",
+        "constraint_conflicts": "List only established conflicts with global_harness authority, harness_target authority, route boundaries, or project thesis-attractor. Do not list missing basis, missing evidence, unresolved context, validation gaps, or incomplete implementation structure here; put those in missing_basis or blocking_reason. Empty unless the report_status is rejected.",
         "dominant_tension_justification": "When multiple tensions exist, explain which one currently limits trustworthy progress towards thesis-attractor most directly.",
+        "missing_basis": "List absent basis, context, approval, validation, runtime evidence, or implementation structure required before the requested transition can proceed. Use this for admissibility_blocked and needs_clarification blockers that are not authority conflicts.",
         "next_admissible_transformation": "Name the next admissible transition toward the thesis-attractor under current authority, context, route boundaries, and evidence state.",
         "affected_surfaces": "Name affected and non-affected surfaces truthfully. Do not widen blast radius silently.",
         "non_affected_surfaces": "Surfaces explicitly not touched.",
@@ -72,10 +73,10 @@
         "non_runtime_templates": "Do not treat examples, templates, fixtures, or sample outputs as live runtime evidence."
       },
       "status_semantics": {
-        "admissible": "The requested transition can proceed under current authority, context, route boundaries, and evidence requirements.",
-        "admissibility_blocked": "The requested transition cannot proceed because required basis, context, authority, approval, or evidence is missing, but a diagnostic or unblock transition may be nameable.",
-        "rejected": "The requested thesis or action conflicts with global_harness authority, harness_target authority, or route boundaries.",
-        "needs_clarification": "The request is ambiguous enough that user clarification is required before the report can choose an admissible transition."
+        "admissible": "The requested transition can proceed. proof_frontier.blocked must be false. blocking_reason must be null or absent. missing_basis and constraint_conflicts must be empty.",
+        "admissibility_blocked": "The requested transition cannot proceed because required basis, context, authority evidence, approval, validation, or implementation structure is missing. This is not an established authority conflict. constraint_conflicts must be empty. blocked must be true.",
+        "rejected": "The requested transition conflicts with global_harness authority, harness_target authority, project thesis-attractor, or route boundaries. constraint_conflicts must be non-empty. blocked must be true.",
+        "needs_clarification": "The request is ambiguous enough that user clarification is required before choosing a transition. This is not an established authority conflict. constraint_conflicts must be empty. blocked must be true."
       }
     }
     },
