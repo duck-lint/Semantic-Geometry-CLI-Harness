@@ -64,9 +64,9 @@
         "document_authority": {
           "enum": [
             "harness_target",
-            "compiled_runtime_artifact",
             "operational_state",
             "global_harness",
+            "compiled_runtime_artifact",
             "output_policy_artifact",
             "raw_provider_artifact"
           ],

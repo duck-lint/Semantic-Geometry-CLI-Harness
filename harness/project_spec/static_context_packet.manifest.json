@@ -10,7 +10,7 @@
       "scope": "harness_global",
       "required": true,
       "document_authority": "global_harness",
-      "document": "runtime/governance_primitives.json",
+      "document": "harness/runtime/governance_primitives.json",
       "schema_id": "governance_primitives",
       "cardinality": "exactly_one"
     },
@@ -19,7 +19,7 @@
       "scope": "target_repo",
       "required": true,
       "document_authority": "harness_target",
-      "document": "project_spec/project_spec.json",
+      "document": "harness/project_spec/project_spec.json",
       "schema_id": "project_spec",
       "cardinality": "exactly_one"
     },
@@ -28,7 +28,7 @@
       "scope": "target_repo",
       "required": true,
       "document_authority": "harness_target",
-      "document": "project_spec/known_failures.json",
+      "document": "harness/project_spec/known_failures.json",
       "schema_id": "known_failures",
       "cardinality": "exactly_one"
     },
@@ -37,7 +37,7 @@
       "scope": "target_repo",
       "required": true,
       "document_authority": "harness_target",
-      "document": "project_spec/open_decisions.json",
+      "document": "harness/project_spec/open_decisions.json",
       "schema_id": "open_decisions",
       "cardinality": "exactly_one"
     },
@@ -47,7 +47,7 @@
       "required": false,
       "required_when": "active_implementation_exists",
       "document_authority": "operational_state",
-      "document_glob": "implementations/active/implementation_plan_*.json",
+      "document_glob": "harness/implementations/active/implementation_plan_*.json",
       "schema_id": "implementation_plan",
       "cardinality": "zero_or_one"
     },
@@ -57,7 +57,7 @@
       "required": false,
       "required_when": "active_implementation_exists",
       "document_authority": "operational_state",
-      "document_glob": "implementations/active/implementation_tracker_*.json",
+      "document_glob": "harness/implementations/active/implementation_tracker_*.json",
       "schema_id": "implementation_tracker",
       "cardinality": "zero_or_one"
     }

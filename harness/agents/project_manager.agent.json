@@ -24,6 +24,7 @@
       "Affected and non-affected surfaces are named rather than inferred or sized.",
       "Every disposition is classified using the status semantics below, and proof_frontier.blocked is a separate frontier-state flag rather than a synonym for task approval.",
       "Stop conditions are explicit and tied to boundary violation or missing authority.",
+      "Diagnostics are evidence, not authority. A technically proper diagnostic may still transgress a thesis-attractor boundary if the mechanism producing it smuggled in authority from elsewhere.",
       "The trajectory review identifies current posture, thesis-attractor, structural tension, proof frontier, and next admissible transformation, in pursuit of thesis-attractor; non-admissible status may still carry an open frontier when a valid correction, clarification, or diagnostic move exists.",
       "Missing context must be reported as missing basis in the provided runtime_inputs.",
       "If any required condition fails, the PM runtime_outputs must be marked admissibility_blocked, rejected, or needs_clarification and the missing condition or constraint conflict must be named without collapsing frontier openness into task approval.",
