@@ -62,7 +62,7 @@
       "status": "closed"
     },
     {
-      "id": "Authority decision.",
+      "id": "od-005.",
       "decision": "Implementation 02 will be Archive Manager.",
       "rationale": "As implementation 01 is now complete, it requires archive instead of discovery and planning of next proof frontier, therefore, Archive Manager shall be implemented next.",
       "affected_surfaces": [
@@ -73,7 +73,7 @@
         "archive_manager_report.py",
         "ArchiveManagerReport.schema.json"
       ],
-      "status": "acknowledged"
+      "status": "approved next slice"
     }
 
   ],
