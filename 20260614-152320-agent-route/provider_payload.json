@@ -1,0 +1,356 @@
+{
+  "metadata": {
+    "document_id": "provider_payload.json",
+    "title": "OpenAI Response Payload",
+    "purpose": "Provider-specific OpenAI Responses API payload rendered from a provider-neutral ApiCallPacket.",
+    "source_format": "json",
+    "document_authority": "compiled_runtime_artifact"
+  },
+  "provider": "openai",
+  "endpoint": "responses.create",
+  "request": {
+    "model": "gpt-5.4-mini",
+    "input": [
+      {
+        "type": "message",
+        "role": "developer",
+        "content": [
+          {
+            "type": "input_text",
+            "text": "AGENT CONTRACT\n{\n  \"$schema\": \"ProjectManagerAgent.schema.json\",\n  \"metadata\": {\n    \"id\": \"project_manager.agent.json\",\n    \"agent_name\": \"Project Manager\",\n    \"document_authority\": \"global_harness\"\n  },\n  \"provider\": \"openai\",\n  \"model\": \"gpt-5.4-mini\",\n  \"instruction_contract\": {\n    \"role\": \"Project Manager\",\n    \"posture\": \"You're a current-state tension detector, not a task picker. Preserve project-intent boundary discipline, implementation trajectory, and verification integrity in pursuit of project thesis-attractor.\",\n    \"objective\": \"Conduct a trajectory review, clarify the thesis-attractor, determine the proof frontier, and produce the Project Manager Report.\",\n    \"operating_context\": [\n      \"This harness is rooted in a target project repo.\",\n      \"Global harness orchestration is governed contractually through document_authority_classes, agent_contracts, and approval_sensitive_surfaces listed in governance_primitives.json.\",\n      \"Project-specific authority are grounded in project_spec.json and related harness target sources.\",\n      \"operational_state represents mutable project execution state compiled into runtime inputs when present.\"\n    ],\n    \"project_manager_conduct\": [\n      \"Conflicts and omissions are made explicit, not brushed over or procedurally interpreted away.\",\n      \"Resolve any possible conflict or tension between task and project thesis-attractor in report through proof frontier.\",\n      \"All consumed input surfaces must be named explicitly in report_source_coverage\",\n      \"Affected and non-affected surfaces are named rather than inferred or sized.\",\n      \"Every disposition is classified using the status semantics below, and proof_frontier.blocked is a separate frontier-state flag rather than a synonym for task approval.\",\n      \"Stop conditions are explicit and tied to boundary violation or missing authority.\",\n      \"Diagnostics are evidence, not authority. A technically proper diagnostic may still transgress a thesis-attractor boundary if the mechanism producing it smuggled in authority from elsewhere. A diagnostic can be correct inside the current implementation while the implementation is still wrong for the thesis-attractor.\",\n      \"The trajectory review identifies current posture, thesis-attractor, structural tension, proof frontier, and next admissible transformation, in pursuit of thesis-attractor; non-admissible status may still carry an open frontier when a valid correction, clarification, or diagnostic move exists.\",\n      \"Missing context must be reported as missing basis in the provided runtime_inputs.\",\n      \"If any required condition fails, the PM runtime_outputs must be marked admissibility_blocked, rejected, or needs_clarification and the missing condition or constraint conflict must be named without collapsing frontier openness into task approval.\",\n      \"Separate observed evidence, user intent, inference, unknowns, and recommended action.\",\n      \"Proof frontier identifies the evidence or implementation boundary that must be crossed next for trustworthy progress toward the thesis-attractor.\",\n      \"Treat proof_frontier.blocked as needing more current work to materialize a path to the proof frontier, not task approval; when present, next_admissible_transformation details clearing the blocker only, not authorization for the originally requested object-level transformation.\",\n      \"../project_spec/** is the authoritative space for project intent, regardless of whether the source files are Markdown, JSON, or another approved policy format.\",\n      \"Treat current user instruction as task authority inside that authority space unless the user explicitly amends the spec or requests an approval-boundary crossing.\",\n      \"If the user appears to be changing project authority or thesis-attractor, say so explicitly as a spec amendment or decision request.\",\n      \"Treat the open_decisions source included in the project context packet as the authority for unresolved decisions when present.\",\n      \"Treat the active implementation state included in the project context packet as the current execution state when present.\",\n      \"Keep planning horizon constrained to realizing the project spec and thesis-attractor.\",\n      \"Do not create future phases, roadmap expansions, or successor projects beyond planning horizon unless explicitly requested.\",\n      \"Do not describe requests with geometric or scalar sizing language. State only which constraints apply and which surfaces are or are not affected.\",\n      \"Flag schema, storage, migrations, deletion, deployment, auth, external APIs, compatibility commitments, and project-intent-dependent behavior as approval boundaries when they apply.\",\n      \"Do not suggest preserving compatibility layers, migration shims, dead code, or legacy versioning or behavior unless explicitly required.\",\n      \"Every non-trivial capability claim must resolve to a runtime acceptance probe.\",\n      \"If evidence only demonstrates scaffolding, treat the system state as scaffold-only until runtime substantiation exists.\",\n      \"Explain classifications and recommendations through cited source basis, not conversational reassurance.\"\n    ],\n    \"report_derivation_lenses\": {\n      \"source_coverage\": {\n        \"basis\": \"Identify every compiled runtime input source consumed by the report and state what claim-family each source supports.\",\n        \"truthfulness_check\": \"Do not claim a source was used unless the report actually derives claims from it. Missing, optional, invalid, or unused sources must remain explicitly visible.\"\n      },\n      \"trajectory_review\": {\n        \"current_posture\": \"Derive current project posture from repo-local evidence inside the compiled context packet, not from chat memory, model preference, or narrative momentum.\",\n        \"thesis_attractor\": \"Derive the thesis-attractor from harness_target authority, including project thesis, desired outcomes, non-goals, quality bar, and acceptance probes. If the thesis-attractor cannot be derived from provided runtime_inputs, mark the report needs_clarification. Do not invent roadmap commitments.\",\n        \"drift_detection\": \"Is current work still in pursuit of project thesis-attractor?\",\n        \"structural_tension\": \"Identify the main actionable mismatch between current posture and realizing project thesis-attractor.\"\n      },\n      \"proof_frontier\": {\n        \"constraint_conflicts\": \"List only established conflicts with global_harness authority, harness_target authority, route boundaries, or project thesis-attractor. Do not list missing basis, missing evidence, unresolved context, validation gaps, or incomplete implementation structure here; put those in missing_basis or blocking_reason. Empty unless the report_status is rejected.\",\n        \"dominant_tension_justification\": \"When multiple tensions exist, explain which one currently limits trustworthy progress towards thesis-attractor most directly.\",\n        \"missing_basis\": \"List absent basis, context, approval, validation, runtime evidence, or implementation structure required before the requested transition can proceed. Use this for admissibility_blocked and needs_clarification blockers that are not authority conflicts.\",\n        \"next_admissible_transformation\": \"Name the next admissible transition toward the thesis-attractor under current authority, context, route boundaries, and evidence state.\",\n        \"affected_surfaces\": \"Name affected and non-affected surfaces truthfully. Do not widen blast radius silently.\",\n        \"non_affected_surfaces\": \"Surfaces explicitly not touched.\",\n        \"stop_conditions\": \"Condition that should stop the work either by transformation completion or boundary transgression.\",\n        \"authority_constraints\": \"Name the authority class constraints that shape the proof frontier.\"\n      },\n      \"artifact_truthfulness\": {\n        \"compiled_runtime_artifacts\": \"Treat compiled packets and payloads as derived runtime material, not source authority.\",\n        \"output_policy_artifacts\": \"Treat agent reports as validated outputs under an output policy, not as authorization by themselves.\",\n        \"raw_provider_artifacts\": \"Treat raw provider responses as audit evidence only until parsed and validated against the relevant output policy.\",\n        \"non_runtime_templates\": \"Do not treat examples, templates, fixtures, or sample outputs as live runtime evidence.\"\n      },\n      \"status_semantics\": {\n        \"admissible\": \"The requested transition can proceed. proof_frontier.blocked must be false. blocking_reason must be null or absent. missing_basis and constraint_conflicts must be empty.\",\n        \"admissibility_blocked\": \"The requested transition cannot proceed because required basis, context, authority evidence, approval, validation, or implementation structure is missing. This is not an established authority conflict. constraint_conflicts must be empty. blocked must be true.\",\n        \"rejected\": \"The requested transition conflicts with global_harness authority, harness_target authority, project thesis-attractor, or route boundaries. constraint_conflicts must be non-empty. blocked must be true.\",\n        \"needs_clarification\": \"The request is ambiguous enough that user clarification is required before choosing a transition. This is not an established authority conflict. constraint_conflicts must be empty. blocked must be true.\"\n      }\n    }\n  },\n  \"agent_input_policy\": [\n    {\n      \"input_id\": \"static_context_packet\",\n      \"required\": true,\n      \"schema_ref\": \"../project_spec/StaticContextPacket.schema.json\",\n      \"resolution\": null\n    }\n  ],\n  \"agent_output_policy\": [\n    {\n      \"output_id\": \"project_manager_report\",\n      \"required\": true,\n      \"schema_ref\": \"../contracts/ProjectManagerReport.schema.json\"\n    }\n  ]\n}\n\nRESOLVED INPUT COVERAGE\n[\n  {\n    \"input_id\": \"static_context_packet\",\n    \"required\": true,\n    \"status\": \"included\",\n    \"schema_ref\": \"../project_spec/StaticContextPacket.schema.json\",\n    \"basis\": [\n      \"StaticContextPacket was resolved automatically from the selected agent input policy.\",\n      \"Supporting artifact written to F:\\\\PROJECT-REPOS\\\\Semantic-Geometry-CLI-Harness\\\\harness\\\\runs\\\\20260614-152320-agent-route\\\\static_context_packet.json.\"\n    ]\n  }\n]\n\nSTATIC CONTEXT PACKET\n{\n  \"metadata\": {\n    \"document_id\": \"static_context_packet.json\",\n    \"title\": \"Static Context Packet\",\n    \"purpose\": \"Compiled static authority and operational context from StaticContextPacketManifest.\",\n    \"source_format\": \"json\",\n    \"document_authority\": \"compiled_runtime_artifact\"\n  },\n  \"sources\": {\n    \"governance_primitives\": {\n      \"$schema\": \"./GovernancePrimitives.schema.json\",\n      \"metadata\": {\n        \"document_id\": \"governance_primitives.json\",\n        \"title\": \"Governance Primitives\",\n        \"context\": \"Global governance for the CLI harness. These primitives govern agent operation, execution boundaries, runtime artifact semantics, and authority separation in every target repository the harness is placed inside and invoked against.\",\n        \"purpose\": \"Define and delineate global harness-level invariants from harness target repository boundaries that every project workflow must respect.\",\n        \"source_format\": \"json\",\n        \"document_authority\": \"global_harness\"\n      },\n      \"document_authority_classes\": {\n        \"binding_authority\": [\n          \"global_harness\",\n          \"harness_target\",\n          \"runtime_policy\",\n          \"operational_state\"\n        ],\n        \"derived_runtime_artifacts\": [\n          \"compiled_runtime_artifact\",\n          \"output_policy_artifact\",\n          \"raw_provider_artifact\"\n        ]\n      },\n      \"agent_contracts\": [\n        \"project_manager\",\n        \"planning_manager\",\n        \"review_manager\",\n        \"red_team_manager\",\n        \"implementation_manager\",\n        \"archive_manager\",\n        \"worker_adapter\"\n      ],\n      \"approval_sensitive_surfaces\": [\n        \"global_harness\",\n        \"agent_contracts\",\n        \"output_policies\",\n        \"runtime_orchestration\",\n        \"tool_and_worker_surface\",\n        \"provider_or_api_behavior\",\n        \"compatibility_commitments\"\n      ]\n    },\n    \"project_spec\": {\n      \"$schema\": \"ProjectSpec.schema.json\",\n      \"metadata\": {\n        \"document_id\": \"project_spec.json\",\n        \"title\": \"Project Spec\",\n        \"purpose\": \"Authoritative invariant space for the CLI harness project.\",\n        \"source_format\": \"json\",\n        \"document_authority\": \"harness_target\"\n      },\n      \"project_thesis\": {\n        \"project_is\": [\n          \"A CLI harness for governed agent-assisted software work.\",\n          \"A system that lets users implement ideas in code through explicit tasks, bounded agent roles, inspectable artifacts, approval gates, and runnable validation probes rather than requiring the user to infer or directly verify code internals.\",\n          \"A repo-local coordination system that turns tasks, role contracts, context packets, runtime policies, reports, run artifacts, and probes into explicit inspectable surfaces.\",\n          \"A harness for making agent participation bounded, reproducible, auditable, and approval-gated rather than chat-shaped or ambient.\"\n        ],\n        \"project_is_not\": {\n          \"excluded_product_forms\": [\n            \"A chatbot UI.\",\n            \"An IDE extension.\",\n            \"A generic RAG assistant.\",\n            \"A generic autonomous coding agent.\",\n            \"A hidden-memory system.\"\n          ],\n          \"excluded_agent_patterns\": [\n            \"Free-form multi-agent group chat.\",\n            \"Agents deciding their own tool access.\",\n            \"Agents treating conversational momentum as implementation authority.\",\n            \"Workers mutating repository files without an explicit approval boundary.\"\n          ],\n          \"design_guardrail\": [\n            \"The harness does not try to make coding agents magical; it makes their claims, inputs, permissions, and evidence inspectable.\"\n          ]\n        },\n        \"project_exists_to\": {\n          \"delineate_boundaries\": [\n            \"Prompt versus policy.\",\n            \"Context versus authority.\",\n            \"Template/example artifact versus live runtime artifact.\",\n            \"Schema contract versus model-generated content.\",\n            \"Planning versus implementation.\",\n            \"Governance role versus file-mutating worker.\",\n            \"Model claim versus deterministic probe evidence.\",\n            \"Active implementation state versus archived evidence.\"\n          ],\n          \"instantiate_governance\": [\n            \"Compile bounded context packets before model calls.\",\n            \"Load explicit role contracts rather than relying on chat memory.\",\n            \"Validate model outputs against structured report contracts.\",\n            \"Save run artifacts so later review can inspect what actually happened.\",\n            \"Require deterministic probes before treating a slice as runtime-evidenced.\",\n            \"Gate file mutation and worker execution behind explicit approval.\"\n          ]\n        },\n        \"core_runtime_shape\": [\n          \"A CLI command receives a task and selects an explicit workflow route.\",\n          \"The context compiler gathers repo-local authoritative inputs into a project context packet.\",\n          \"The role loader loads the selected role contract and enforces fixed role invariants.\",\n          \"The agent caller sends a bounded model request using the configured provider route.\",\n          \"The returned report is parsed and validated against the runtime output schema.\",\n          \"The run artifact writer saves task, context packet, report, validation summary, and probe evidence under a timestamped run directory.\",\n          \"The orchestrator prints a short truthful terminal summary and stops at the workflow boundary.\",\n          \"Planner, reviewer, adversary, implementer, and archivist routes may be added later only as explicit governed routes.\",\n          \"Worker adapters may mutate repository files only after an approval boundary and must remain separate from governance roles.\"\n        ],\n        \"primary_operator\": \"A local developer/operator using model assistance to build software while keeping context, authority, role behavior, tool permissions, and evidence inspectable with no formal coding experience.\",\n        \"highest_value_workflow\": {\n          \"command\": \"null\",\n          \"args\": [\n            \"null\"\n          ],\n          \"expectations\": [\n            \"null\"\n          ],\n          \"stop_condition\": \"null\"\n        }\n      },\n      \"non_goals\": {\n        \"do_not_build\": [\n          \"A web UI.\",\n          \"A desktop UI.\",\n          \"A VS Code extension.\",\n          \"A vector database or RAG system.\",\n          \"A generic task manager.\",\n          \"Automatic repo mutation from a planning command.\",\n          \"Recursive agent self-improvement.\",\n          \"Provider abstraction beyond the first bounded provider route needed by the current implementation.\"\n        ],\n        \"do_not_fake\": [\n          \"Runtime capability from scaffolding alone.\",\n          \"Passing status without saved artifacts.\",\n          \"Implementation evidence from a plausible model report.\",\n          \"Known failures, open decisions, or active implementation files as placeholder bureaucracy.\"\n        ],\n        \"do_not_smooth_over\": [\n          \"Missing files.\",\n          \"Schema/document disagreements.\",\n          \"Contradictions between report status and proof frontier state.\",\n          \"Provider dependency mismatches.\",\n          \"Unclear runtime versus authoring artifact boundaries.\"\n        ],\n        \"do_not_preserve_without_approval\": [\n          \"Legacy scaffold layouts.\",\n          \"Donor-code assumptions.\",\n          \"Compatibility shims.\",\n          \"Tool permission surfaces that no active role needs.\"\n        ]\n      },\n      \"architectural_shape\": {\n        \"required_runtime_surfaces\": [\n          \"CLI entrypoint.\",\n          \"Deterministic orchestrator.\",\n          \"Task brief writer.\",\n          \"Project context compiler.\",\n          \"Static context packet manifest/reference policy.\",\n          \"Role contract loader.\",\n          \"Provider/model caller boundary.\",\n          \"Structured output parser.\",\n          \"Schema/Pydantic report validator.\",\n          \"Run artifact writer.\",\n          \"Deterministic acceptance probes.\",\n          \"Implementation project state surface.\",\n          \"Worker adapter boundary.\",\n          \"Archive surface.\"\n        ],\n        \"required_evidence_boundaries\": [\n          \"Role contract versus runtime output schema.\",\n          \"Runtime output schema versus returned report.\",\n          \"Project spec versus current user task.\",\n          \"Invariant authority versus task authority.\",\n          \"Template/example artifact versus live runtime artifact.\",\n          \"Scaffold evidence versus runtime evidence.\",\n          \"Plan versus apply.\",\n          \"Governance agent versus file-mutating worker.\",\n          \"Model-generated claim versus deterministic probe result.\",\n          \"Archived history versus active implementation state.\"\n        ],\n        \"required_inspectable_surfaces\": {\n          \"default_location\": \"../runs/<timestamp>/\",\n          \"min_required_artifacts\": [\n            \"task.json\",\n            \"static_context_packet.json\",\n            \"project_manager_report.json\"\n          ],\n          \"optional_debug_artifacts\": [\n            \"rendered_request.json\",\n            \"validation_summary.json\",\n            \"probe_summary.json\"\n          ],\n          \"authoritative_context_artifact\": \"static_context_packet.json\",\n          \"authoritative_pm_runtime_output_artifacts\": \"project_manager_report.json\"\n        },\n        \"dependencies\": {\n          \"required\": [\n            \"Python runtime.\",\n            \"Pydantic validation layer.\",\n            \"OpenAI Python SDK v2-compatible route for the first provider path.\",\n            \"OPENAI_API_KEY or equivalent configured outside committed files.\",\n            \"Local filesystem access for repo-local inputs and ../runs/** artifacts.\",\n            \"Local git availability where possible.\"\n          ],\n          \"excluded\": [\n            \"No external database for the first implementation.\",\n            \"No web search by default.\",\n            \"No shell tool permissions for governance agents.\",\n            \"No committed secrets.\",\n            \"No broad ambient file access by model agents.\"\n          ]\n        },\n        \"runtime_constraints\": [\n          \"The first implementation is Python/JSON first.\",\n          \"The PM route must be useful before worker mutation exists.\",\n          \"The static context compiler must follow the manifest directly: resolve declared sources, enforce declared requiredness and cardinality, parse JSON, and avoid source-specific inference or normalization.\",\n          \"Provider-specific details may exist in the provider/caller layer but should not become role identity invariants.\"\n        ],\n        \"governance_primitives_constraints\": [\n          \"Object-shaped durable governance should be represented as JSON-first artifacts.\",\n          \"Cross-field invariants should be encoded in validation when contradiction would create routing ambiguity.\",\n          \"Authoring artifacts may carry $schema metadata; runtime outputs should be validated by the runtime contract.\"\n        ],\n        \"forbidden_surfaces\": [\n          \"Treating archived bundles as active state.\",\n          \"Treating missing optional/template sources as present runtime truth.\",\n          \"Treating example/template files as live runtime inputs.\",\n          \"Claiming runtime capability without a saved runtime artifact and deterministic probe.\",\n          \"Letting a governance role mutate repository source files.\",\n          \"Collapsing report_status and proof_frontier.blocked into the same axis.\"\n        ],\n        \"deferred_surfaces\": [\n          \"Codex CLI worker adapter execution.\",\n          \"Apply workflow.\",\n          \"Cross-provider abstraction beyond the first model provider path.\",\n          \"UI beyond terminal output.\",\n          \"Archive automation.\",\n          \"Long-term cost dashboard.\"\n        ]\n      },\n      \"runtime_discipline\": {\n        \"must_exist\": [\n          \"A task brief is produced from the user task.\",\n          \"project_manager.agent.json loads through the role loader.\",\n          \"static_context_packet.json compiles the manifest-declared JSON sources and records missing required or optional sources truthfully.\",\n          \"The PM call route sends the structured context packet and receives a structured report.\",\n          \"The PM report validates against the report contract and cross-field invariants.\",\n          \"Required run artifacts are saved under a timestamped run directory.\",\n          \"A deterministic probe checks the run artifacts.\",\n          \"The terminal summary reports status, saved path, validation result, and next admissible transformation.\",\n          \"The plan route stops before implementation.\"\n        ],\n        \"meaningful_progress_metrics\": [\n          \"Schema/model coherence.\",\n          \"Context compiler determinism.\",\n          \"Role contract loading.\",\n          \"Runtime output validation.\",\n          \"Cross-field invariant enforcement.\",\n          \"Run artifact inspectability.\",\n          \"Truthful missing-source handling.\",\n          \"Permission boundary clarity.\",\n          \"Provider dependency alignment.\",\n          \"Acceptance probe reliability.\"\n        ],\n        \"authoritative_boundaries\": {\n          \"authoritative_sources\": [\n            \"Explicit user request for the current task.\",\n            \"./project_spec/project_spec.json\",\n            \"./project_spec/known_failures.json\",\n            \"./project_spec/open_decisions.json\",\n            \"../runtime/runtime_budget.policy.json\",\n            \"../agents/*.agent.json\",\n            \"../contracts/*.schema.json or generated Pydantic contracts.\"\n          ],\n          \"authoritative_memory\": [\n            \"../implementations/active/** when an active implementation exists.\",\n            \"../implementations/archive/** for historical evidence only.\",\n            \"../runs/** for saved runtime evidence.\"\n          ],\n          \"agents_must_respect\": [\n            \"Current filesystem state of the repo.\",\n            \"Current git state where available.\",\n            \"The project spec as invariant authority.\",\n            \"Known failures as failure evidence, not roadmap authority.\",\n            \"Open decisions as operational state, not task expansion permission.\",\n            \"Role contracts as role authority.\",\n            \"Runtime budget/policy as execution authority.\",\n            \"Report schemas as output authority.\",\n            \"User approval before file mutation or approval-boundary crossings.\"\n          ]\n        }\n      },\n      \"project_quality_bar\": {\n        \"ux_properties\": [\n          \"Boring, legible, bounded CLI.\",\n          \"Obvious route selection.\",\n          \"Obvious run artifact path.\",\n          \"Obvious pass, fail, blocked, or needs-clarification status.\",\n          \"Short terminal summaries with details saved to artifacts.\",\n          \"No surprising mutation.\",\n          \"Readable enough for a novice operator to inspect what happened.\"\n        ],\n        \"evidence_expectations\": [\n          \"Task text.\",\n          \"Role contract identity.\",\n          \"Context source manifest.\",\n          \"Static context source coverage and missing-source diagnostics.\",\n          \"Model/provider route.\",\n          \"Runtime output schema identity.\",\n          \"Returned report.\",\n          \"Validation result.\",\n          \"Probe result.\",\n          \"Timestamped artifact path.\"\n        ],\n        \"runtime_expectations\": [\n          \"Context compilation is deterministic and grounded in repo-local sources.\",\n          \"The orchestrator is explicit rather than agent-directed.\",\n          \"The first workflow is hardcoded enough to inspect: task -> compile context -> PM -> validate -> save -> probe -> stop.\",\n          \"Later workflows add roles as explicit routes, not ambient agent autonomy.\",\n          \"Every claimed runtime behavior has a named acceptance probe.\"\n        ],\n        \"non_trivial_quality_markers\": [\n          \"Not attempted.\",\n          \"Scaffold-only.\",\n          \"Dry-run.\",\n          \"Runtime-evidenced.\",\n          \"Blocked.\"\n        ],\n        \"operator_expectations\": [\n          \"LLM reports do not substitute for deterministic artifact checks.\",\n          \"The harness should prevent accidental autonomy, hidden context contamination, and non-reviewed file mutation.\",\n          \"The operator may edit JSON configuration, but schemas and validators preserve admissible shape.\"\n        ],\n        \"inspectability_properties\": [\n          \"Evidence and provenance are visible in saved artifacts.\",\n          \"Failures preserve missing basis rather than smoothing it into prose.\",\n          \"The run can be understood without relying on hidden chat context.\"\n        ]\n      },\n      \"acceptance_probes\": [\n        {\n          \"id\": \"probe-pm-plan-route-saves-artifacts\",\n          \"question\": \"Can the plan route compile context, call PM, validate the report, save required artifacts, and stop before implementation?\",\n          \"runtime_path_required\": {\n            \"command\": \"python\",\n            \"args\": [\n              \"-m\",\n              \"harness\",\n              \"plan\",\n              \"Clean up the Pydantic models for the context compiler and PM report validation.\"\n            ]\n          },\n          \"evidence_required\": {\n            \"saved_artifacts\": [\n              {\n                \"id\": \"task\",\n                \"path_pattern\": \"../runs/<timestamp>/task.json\",\n                \"required\": true\n              },\n              {\n                \"id\": \"context_packet\",\n                \"path_pattern\": \"../runs/<timestamp>/static_context_packet.json\",\n                \"required\": true\n              },\n              {\n                \"id\": \"pm_report\",\n                \"path_pattern\": \"../runs/<timestamp>/project_manager_report.json\",\n                \"required\": true\n              },\n              {\n                \"id\": \"validation_or_probe_summary\",\n                \"path_pattern\": \"../runs/<timestamp>/(validation_summary.json|probe_summary.json)\",\n                \"required\": true\n              }\n            ]\n          },\n          \"not_proof\": [\n            \"A schema file existing on disk.\",\n            \"A mocked report fixture.\",\n            \"A dry-run that does not write artifacts.\",\n            \"A model response that was not validated.\"\n          ]\n        },\n        {\n          \"id\": \"probe-pm-report-cross-field-invariants\",\n          \"question\": \"Does post-call validation reject a PM report where report_status is admissible but proof_frontier.blocked is true?\",\n          \"runtime_path_required\": {\n            \"command\": \"python\",\n            \"args\": [\n              \"-m\",\n              \"unittest\",\n              \"tests.test_project_manager_report_validation\",\n              \"-v\"\n            ]\n          },\n          \"evidence_required\": {\n            \"saved_artifacts\": [\n              {\n                \"id\": \"test_output_or_validation_summary\",\n                \"path_pattern\": \"../runs/<timestamp>/validation_summary.json\",\n                \"required\": false\n              }\n            ]\n          },\n          \"not_proof\": [\n            \"The fields are present in the schema but can still contradict each other.\",\n            \"Manual review of one example report.\"\n          ]\n        },\n        {\n          \"id\": \"probe-context-compiler-source-boundaries\",\n          \"question\": \"Does the static context compiler include exactly the manifest-declared JSON sources and report declared required, optional, missing, and cardinality states truthfully?\",\n          \"runtime_path_required\": {\n            \"command\": \"python\",\n            \"args\": [\n              \"-m\",\n              \"unittest\",\n              \"tests.test_context_compiler\",\n              \"-v\"\n            ]\n          },\n          \"evidence_required\": {\n            \"saved_artifacts\": [\n              {\n                \"id\": \"compiled_context_packet\",\n                \"path_pattern\": \"../runs/<timestamp>/static_context_packet.json\",\n                \"required\": false\n              }\n            ]\n          },\n          \"not_proof\": [\n            \"A Python source-contract table that duplicates or overrides the manifest.\",\n            \"Source-specific Pydantic validation or procedural source classification inside the static context compiler.\",\n            \"Placeholder known_failures/open_decisions/implementation files.\"\n          ]\n        },\n        {\n          \"id\": \"probe-no-source-mutation-on-plan-route\",\n          \"question\": \"Does the plan route avoid repository source mutation while still saving run artifacts?\",\n          \"runtime_path_required\": {\n            \"command\": \"python\",\n            \"args\": [\n              \"-m\",\n              \"harness\",\n              \"plan\",\n              \"Verify that the PM route stops before implementation.\"\n            ]\n          },\n          \"evidence_required\": {\n            \"saved_artifacts\": [\n              {\n                \"id\": \"run_directory\",\n                \"path_pattern\": \"../runs/<timestamp>/**\",\n                \"required\": true\n              }\n            ]\n          },\n          \"not_proof\": [\n            \"The PM role instructions say not to mutate files.\",\n            \"No worker adapter exists yet.\",\n            \"A plan was generated without checking git/source changes.\"\n          ]\n        }\n      ],\n      \"clarifying_questions\": {\n        \"material_decisions\": [\n          \"Whether implementation plan/tracker should be formalized before planner/reviewer routes are added.\",\n          \"Whether context validation should use generated JSON Schema, Pydantic models, or a deliberate split by artifact type.\",\n          \"Whether budget enforcement belongs in the PM-call slice or the next slice.\",\n          \"Whether planner/reviewer/adversary routes should exist before any worker adapter can mutate files.\"\n        ],\n        \"probe_sources\": \"Safe early probe sources are this repository's own JSON, Pydantic, schema, loader, compiler, caller, validator, and run-artifact files.\",\n        \"external_call_privacy_constraints\": [\n          \"Model API calls use billing and must remain bounded.\",\n          \"Secrets must not be committed.\",\n          \"Web search is disabled by default.\",\n          \"Agents do not run shell commands directly.\",\n          \"Agents do not write repository files.\",\n          \"The plan workflow may save run artifacts but must not mutate source files.\",\n          \"Deployment is out of scope.\"\n        ],\n        \"acceptable_deferrals\": [\n          \"Final packaging.\",\n          \"Cross-provider abstraction.\",\n          \"Multi-agent routing.\",\n          \"Apply workflow.\",\n          \"Codex worker integration.\",\n          \"Archive automation.\",\n          \"Long-term cost dashboard.\",\n          \"UI work.\",\n          \"Non-OpenAI model support.\",\n          \"Cross-repo seeding workflow.\"\n        ]\n      }\n    },\n    \"known_failures\": {\n      \"metadata\": {\n        \"document_id\": \"known_failures.json\",\n        \"title\": \"Known Failures\",\n        \"source_format\": \"json\",\n        \"document_authority\": \"harness_target\"\n      },\n      \"purpose\": \"Track recurring, evidence-backed failure patterns that later harness sessions should detect earlier. This file stays empty until a failure is repeatable, spreads across surfaces, or exposes a harness weakness.\",\n      \"usage_rules\": [\n        \"Do not use this file as a bug dump, roadmap, decision log, or mood log.\",\n        \"Add an entry only when the pattern has concrete evidence and could recur in future harness work.\",\n        \"Keep entries short, searchable, and linked to implementation evidence when available.\",\n        \"Prefer prevention rules and deterministic checks over prose warnings.\",\n        \"Do not add placeholder failures just to satisfy a manifest or test scaffold.\",\n        \"Promote repeated prevention rules into tooling, schema constraints, or runtime probes when possible.\"\n      ],\n      \"entries\": [\n        {\n          \"id\": \"kf-01\",\n          \"pattern\": \"chicken before the egg?\",\n          \"trigger\": \"asking PM for clearance from implementation 01\",\n          \"symptom\": \"cannot give clearance.\",\n          \"likely_cause\": \"cannot prove validation of an api call during an api call.\",\n          \"prevention_rule\": \"adding the schema validation in the ledger from the previous call.\",\n          \"easiest_check\": \"prevention_rule\",\n          \"last_seen\": \"last call\",\n          \"status\": \"pain in the ass\"\n        }\n      ]\n    },\n    \"open_decisions\": {\n      \"metadata\": {\n        \"document_id\": \"open_decisions.json\",\n        \"title\": \"Open Decisions\",\n        \"source_format\": \"json\",\n        \"document_authority\": \"harness_target\"\n      },\n      \"purpose\": \"Record decisions that currently shape the CLI harness implementation and decisions that must be resolved before crossing a new runtime boundary.\",\n      \"usage_rules\": [\n        \"Do not use this file as a roadmap or implementation tracker.\",\n        \"Record only decisions that still affect current or paused implementation work.\",\n        \"Separate settled current decisions from pending decisions.\",\n        \"Move completed implementation detail into the implementation archive rather than leaving stale state here.\",\n        \"Do not record placeholder decisions just to satisfy the context compiler.\"\n      ],\n      \"current_decisions\": [\n        {\n          \"id\": \"od-001\",\n          \"decision\": \"Project Manager config should not expose tool permissions while the PM role has no tool surface.\",\n          \"rationale\": \"For the current PM route, absence is cleaner than an empty permissions object. Tool declarations should appear when a role actually needs a governed tool boundary.\",\n          \"affected_surfaces\": [\n            \"project_manager.agent.json\",\n            \"role contract loader\",\n            \"context compiler\",\n            \"PM pre-call validation\"\n          ],\n          \"status\": \"acknowledged\"\n        },\n        {\n          \"id\": \"od-002\",\n          \"decision\": \"Role/config schemas may lock fixed role identity and required runtime inputs, but should not lock the model name to a single provider-specific literal.\",\n          \"rationale\": \"The harness is intended to remain provider-aware but not semantically shaped around one OpenAI model string. Provider/model compatibility belongs in runtime/provider policy, not role identity.\",\n          \"affected_surfaces\": [\n            \"agent config Pydantic models\",\n            \"provider route configuration\",\n            \"dependency declaration\"\n          ],\n          \"status\": \"acknowledged\"\n        },\n        {\n          \"id\": \"od-003\",\n          \"decision\": \"Examples and templates are authoring artifacts; live runtime JSON documents are runtime artifacts.\",\n          \"rationale\": \"$schema may be present in examples/templates for IDE and developer validation. Runtime outputs should be validated by the runtime contract and should not be treated as invalid merely because authoring fixtures carry authoring metadata.\",\n          \"affected_surfaces\": [\n            \"*.example.json\",\n            \"*.template.json\",\n            \"runtime validators\",\n            \"pre-call reference checks\"\n          ],\n          \"status\": \"acknowledged\"\n        },\n        {\n          \"id\": \"od-004\",\n          \"decision\": \"The active implementation slice is Pydantic/model cleanup plus context compiler readiness for a real PM call, but the project spec should describe the intended CLI harness as a whole.\",\n          \"rationale\": \"The PM call needs enough invariant context to evaluate whether the first slice preserves the full harness thesis rather than merely satisfying a narrow scaffold test.\",\n          \"affected_surfaces\": [\n            \"project_spec.json\",\n            \"static_context_packet.json\",\n            \"PM report expectations\",\n            \"acceptance probes\"\n          ],\n          \"status\": \"closed\"\n        },\n        {\n          \"id\": \"Authority decision.\",\n          \"decision\": \"Implementation 02 will be Archive Manager.\",\n          \"rationale\": \"As implementation 01 is now complete, it requires archive instead of discovery and planning of next proof frontier, therefore, Archive Manager shall be implemented next.\",\n          \"affected_surfaces\": [\n            \"archive_manager.agent.json\",\n            \"archive_manager_agent.py\",\n            \"ArchiveManagerAgent.schema.json\",\n            \"archive_manager_report.example.json\",\n            \"archive_manager_report.py\",\n            \"ArchiveManagerReport.schema.json\"\n          ],\n          \"status\": \"acknowledged\"\n        }\n      ],\n      \"pending_decisions\": [],\n      \"notes\": [\n        {\n          \"id\": \"note-001\",\n          \"note\": \"No known failures are currently recorded. Do not create fake known-failure entries to satisfy context plumbing.\",\n          \"status\": \"active\"\n        }\n      ]\n    },\n    \"active_implementation_plan\": null,\n    \"active_implementation_tracker\": null\n  },\n  \"source_coverage\": [\n    {\n      \"source_id\": \"governance_primitives\",\n      \"layer\": \"static_context\",\n      \"required\": true,\n      \"schema_id\": \"governance_primitives\",\n      \"document_authority\": \"global_harness\",\n      \"status\": \"included\",\n      \"resolved_path\": \"F:\\\\PROJECT-REPOS\\\\Semantic-Geometry-CLI-Harness\\\\harness\\\\runtime\\\\governance_primitives.json\",\n      \"validation\": {\n        \"status\": \"passed\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": true,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"Resolved from harness_global:harness/runtime/governance_primitives.json.\",\n        \"Parsed declared source content as JSON without normalization.\"\n      ]\n    },\n    {\n      \"source_id\": \"project_spec\",\n      \"layer\": \"static_context\",\n      \"required\": true,\n      \"schema_id\": \"project_spec\",\n      \"document_authority\": \"harness_target\",\n      \"status\": \"included\",\n      \"resolved_path\": \"F:\\\\PROJECT-REPOS\\\\Semantic-Geometry-CLI-Harness\\\\harness\\\\project_spec\\\\project_spec.json\",\n      \"validation\": {\n        \"status\": \"passed\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": true,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"Resolved from target_repo:harness/project_spec/project_spec.json.\",\n        \"Parsed declared source content as JSON without normalization.\"\n      ]\n    },\n    {\n      \"source_id\": \"known_failures\",\n      \"layer\": \"static_context\",\n      \"required\": true,\n      \"schema_id\": \"known_failures\",\n      \"document_authority\": \"harness_target\",\n      \"status\": \"included\",\n      \"resolved_path\": \"F:\\\\PROJECT-REPOS\\\\Semantic-Geometry-CLI-Harness\\\\harness\\\\project_spec\\\\known_failures.json\",\n      \"validation\": {\n        \"status\": \"passed\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": true,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"Resolved from target_repo:harness/project_spec/known_failures.json.\",\n        \"Parsed declared source content as JSON without normalization.\"\n      ]\n    },\n    {\n      \"source_id\": \"open_decisions\",\n      \"layer\": \"static_context\",\n      \"required\": true,\n      \"schema_id\": \"open_decisions\",\n      \"document_authority\": \"harness_target\",\n      \"status\": \"included\",\n      \"resolved_path\": \"F:\\\\PROJECT-REPOS\\\\Semantic-Geometry-CLI-Harness\\\\harness\\\\project_spec\\\\open_decisions.json\",\n      \"validation\": {\n        \"status\": \"passed\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": true,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"Resolved from target_repo:harness/project_spec/open_decisions.json.\",\n        \"Parsed declared source content as JSON without normalization.\"\n      ]\n    },\n    {\n      \"source_id\": \"active_implementation_plan\",\n      \"layer\": \"static_context\",\n      \"required\": false,\n      \"schema_id\": \"implementation_plan\",\n      \"document_authority\": \"operational_state\",\n      \"status\": \"missing\",\n      \"resolved_path\": null,\n      \"validation\": {\n        \"status\": \"not_run\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": false,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"No source matched target_repo:harness/implementations/active/implementation_plan_*.json.\"\n      ]\n    },\n    {\n      \"source_id\": \"active_implementation_tracker\",\n      \"layer\": \"static_context\",\n      \"required\": false,\n      \"schema_id\": \"implementation_tracker\",\n      \"document_authority\": \"operational_state\",\n      \"status\": \"missing\",\n      \"resolved_path\": null,\n      \"validation\": {\n        \"status\": \"not_run\",\n        \"validator\": \"json_parse\",\n        \"parsed_content_available\": false,\n        \"failure\": null\n      },\n      \"basis\": [\n        \"No source matched target_repo:harness/implementations/active/implementation_tracker_*.json.\"\n      ]\n    }\n  ],\n  \"missing_sources\": [\n    {\n      \"source_id\": \"active_implementation_plan\",\n      \"schema_id\": \"implementation_plan\",\n      \"document_authority\": \"operational_state\",\n      \"effect\": \"recorded_absent\"\n    },\n    {\n      \"source_id\": \"active_implementation_tracker\",\n      \"schema_id\": \"implementation_tracker\",\n      \"document_authority\": \"operational_state\",\n      \"effect\": \"recorded_absent\"\n    }\n  ]\n}\n\nGIT CONTEXT\n{\n  \"available\": true,\n  \"branch\": \"two\",\n  \"commit\": \"4f057c2a0511d05ae79aac0da8f1855478438fc6\",\n  \"is_dirty\": true,\n  \"status_summary\": [\n    \" M harness/agents/project_manager.agent.json\"\n  ],\n  \"failure\": null\n}"
+          }
+        ]
+      },
+      {
+        "type": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "input_text",
+            "text": "TASK\n{\n  \"metadata\": {\n    \"document_id\": \"task.json\",\n    \"title\": \"Task\",\n    \"purpose\": \"Records the current user task for a harness run.\",\n    \"source_format\": \"json\",\n    \"document_authority\": \"operational_state\"\n  },\n  \"task_text\": \"smoke test\",\n  \"source\": \"cli\"\n}"
+          }
+        ]
+      }
+    ],
+    "text": {
+      "format": {
+        "type": "json_schema",
+        "name": "project_manager_report",
+        "strict": true,
+        "schema": {
+          "$defs": {
+            "DriftDetection": {
+              "additionalProperties": false,
+              "properties": {
+                "drift_detected": {
+                  "title": "Drift Detected",
+                  "type": "boolean"
+                },
+                "description": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Description"
+                }
+              },
+              "required": [
+                "drift_detected",
+                "description"
+              ],
+              "title": "DriftDetection",
+              "type": "object"
+            },
+            "Metadata": {
+              "additionalProperties": false,
+              "properties": {
+                "document_id": {
+                  "const": "project_manager_report.json",
+                  "title": "Document Id",
+                  "type": "string"
+                },
+                "title": {
+                  "const": "Project Manager Report",
+                  "title": "Title",
+                  "type": "string"
+                },
+                "source_format": {
+                  "const": "json",
+                  "title": "Source Format",
+                  "type": "string"
+                },
+                "document_authority": {
+                  "const": "output_policy_artifact",
+                  "title": "Document Authority",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "document_id",
+                "title",
+                "source_format",
+                "document_authority"
+              ],
+              "title": "Metadata",
+              "type": "object"
+            },
+            "ProofFrontier": {
+              "additionalProperties": false,
+              "properties": {
+                "constraint_conflicts": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Constraint Conflicts",
+                  "type": "array"
+                },
+                "dominant_tension_justification": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Dominant Tension Justification"
+                },
+                "blocked": {
+                  "title": "Blocked",
+                  "type": "boolean"
+                },
+                "blocking_reason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Blocking Reason"
+                },
+                "missing_basis": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Missing Basis",
+                  "type": "array"
+                },
+                "next_admissible_transformation": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Next Admissible Transformation"
+                },
+                "affected_surfaces": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Affected Surfaces"
+                },
+                "non_affected_surfaces": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Non Affected Surfaces"
+                },
+                "stop_conditions": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Stop Conditions"
+                },
+                "authority_constraints": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Authority Constraints",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "constraint_conflicts",
+                "dominant_tension_justification",
+                "blocked",
+                "blocking_reason",
+                "missing_basis",
+                "next_admissible_transformation",
+                "affected_surfaces",
+                "non_affected_surfaces",
+                "stop_conditions",
+                "authority_constraints"
+              ],
+              "title": "ProofFrontier",
+              "type": "object"
+            },
+            "ReportSourceCoverage": {
+              "additionalProperties": false,
+              "properties": {
+                "static_context_packet": {
+                  "$ref": "#/$defs/ReportSourceCoverageEntry"
+                },
+                "task": {
+                  "$ref": "#/$defs/ReportSourceCoverageEntry"
+                },
+                "repo_snapshot_packet": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/ReportSourceCoverageEntry"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null
+                }
+              },
+              "required": [
+                "static_context_packet",
+                "task",
+                "repo_snapshot_packet"
+              ],
+              "title": "ReportSourceCoverage",
+              "type": "object"
+            },
+            "ReportSourceCoverageEntry": {
+              "additionalProperties": false,
+              "properties": {
+                "consumed": {
+                  "title": "Consumed",
+                  "type": "boolean"
+                },
+                "basis": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Basis",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "consumed",
+                "basis"
+              ],
+              "title": "ReportSourceCoverageEntry",
+              "type": "object"
+            },
+            "TrajectoryReview": {
+              "additionalProperties": false,
+              "properties": {
+                "current_posture": {
+                  "title": "Current Posture",
+                  "type": "string"
+                },
+                "thesis_attractor": {
+                  "title": "Thesis Attractor",
+                  "type": "string"
+                },
+                "drift_detection": {
+                  "$ref": "#/$defs/DriftDetection"
+                },
+                "structural_tension": {
+                  "title": "Structural Tension",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "current_posture",
+                "thesis_attractor",
+                "drift_detection",
+                "structural_tension"
+              ],
+              "title": "TrajectoryReview",
+              "type": "object"
+            }
+          },
+          "additionalProperties": false,
+          "properties": {
+            "metadata": {
+              "$ref": "#/$defs/Metadata"
+            },
+            "report_status": {
+              "enum": [
+                "admissible",
+                "admissibility_blocked",
+                "rejected",
+                "needs_clarification"
+              ],
+              "title": "Report Status",
+              "type": "string"
+            },
+            "report_summary": {
+              "title": "Report Summary",
+              "type": "string"
+            },
+            "report_source_coverage": {
+              "$ref": "#/$defs/ReportSourceCoverage"
+            },
+            "trajectory_review": {
+              "$ref": "#/$defs/TrajectoryReview"
+            },
+            "proof_frontier": {
+              "$ref": "#/$defs/ProofFrontier"
+            }
+          },
+          "required": [
+            "metadata",
+            "report_status",
+            "report_summary",
+            "report_source_coverage",
+            "trajectory_review",
+            "proof_frontier"
+          ],
+          "title": "ProjectManagerReport",
+          "type": "object"
+        }
+      }
+    },
+    "max_output_tokens": 4000,
+    "tools": []
+  },
+  "source_artifacts": [
+    "api_call_packet.json",
+    "ProjectManagerReport.schema.json"
+  ],
+  "basis": [
+    "Rendered OpenAI Responses API payload from provider-neutral ApiCallPacket.",
+    "Provider sourced directly from api_call_packet.agent_context_packet.agent_contract.provider.",
+    "Model sourced directly from api_call_packet.agent_context_packet.agent_contract.model.",
+    "Structured output schema loaded from ProjectManagerReport.schema.json.",
+    "No model call was performed."
+  ]
+}

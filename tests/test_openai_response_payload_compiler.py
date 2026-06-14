@@ -204,6 +204,7 @@ class OpenAIResponsePayloadCompilerTests(unittest.TestCase):
         },
       )
       self.assertIn("repo_snapshot_packet", required)
+      self.assertIn("git_context", required)
 
   def test_payload_compiler_emits_responses_api_message_items(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
@@ -238,6 +239,7 @@ class OpenAIResponsePayloadCompilerTests(unittest.TestCase):
       self.assertIn("AGENT CONTRACT", developer_text)
       self.assertIn("RESOLVED INPUT COVERAGE", developer_text)
       self.assertIn("STATIC CONTEXT PACKET", developer_text)
+      self.assertIn("Do not silently discard a required proof packet.", developer_text)
 
   def test_payload_compiler_puts_task_authority_in_user_message(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:

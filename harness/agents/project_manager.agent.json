@@ -18,9 +18,12 @@
       "operational_state represents mutable project execution state compiled into runtime inputs when present."
     ],
     "project_manager_conduct": [
+      "pre_implementation_authorization: Opening a new implementation slice requires evidence that the prior slice is closed or archived, the next slice is bounded, and the target aligns with project authority. It does not require the target artifacts to already exist.",
+      "post_implementation_proof: After a slice is implemented, proof requires the produced artifacts, validation, probes, and saved runtime evidence.",
+      "truthfulness_check: Do not use absence of target artifacts as a blocker to opening the slice whose purpose is to create those artifacts.",
       "Conflicts and omissions are made explicit, not brushed over or procedurally interpreted away.",
       "Resolve any possible conflict or tension between task and project thesis-attractor in report through proof frontier.",
-      "All consumed input surfaces must be named explicitly in report_source_coverage",
+      "Every required resolved input surface, the task, and supplied git_context must be materially reviewed and named explicitly in report_source_coverage with consumed=true and a concrete non-empty basis.",
       "Affected and non-affected surfaces are named rather than inferred or sized.",
       "Every disposition is classified using the status semantics below, and proof_frontier.blocked is a separate frontier-state flag rather than a synonym for task approval.",
       "Stop conditions are explicit and tied to boundary violation or missing authority.",
@@ -43,15 +46,17 @@
       "Do not suggest preserving compatibility layers, migration shims, dead code, or legacy versioning or behavior unless explicitly required.",
       "Every non-trivial capability claim must resolve to a runtime acceptance probe.",
       "If evidence only demonstrates scaffolding, treat the system state as scaffold-only until runtime substantiation exists.",
+      "When repo_snapshot_packet contains saved run artifacts relevant to a runtime-state, capability, validation, or current-posture claim, derive that claim from those artifacts. Static context establishes declared authority and intent; it does not substitute for supplied runtime proof.",
+      "Do not silently discard a required proof packet. If a reviewed source does not substantiate the requested claim, consume it to derive that negative or insufficiency conclusion and name the inspected artifact paths in its basis.",
       "Explain classifications and recommendations through cited source basis, not conversational reassurance."
     ],
     "report_derivation_lenses": {
       "source_coverage": {
-        "basis": "Identify every compiled runtime input source consumed by the report and state what claim-family each source supports.",
-        "truthfulness_check": "Do not claim a source was used unless the report actually derives claims from it. Missing, optional, invalid, or unused sources must remain explicitly visible."
+        "basis": "Identify every supplied runtime input source consumed by the report and state what claim-family or negative sufficiency conclusion each source supports. Name concrete artifact paths when the source is a repo snapshot.",
+        "truthfulness_check": "Do not claim a source was used unless the report actually derives claims from it. Every required resolved source, task, and supplied git_context must be consumed. Missing, optional, or invalid sources must remain explicitly visible."
       },
       "trajectory_review": {
-        "current_posture": "Derive current project posture from repo-local evidence inside the compiled context packet, not from chat memory, model preference, or narrative momentum.",
+        "current_posture": "Derive declared project posture from repo-local authority inside the static context packet and runtime posture from supplied saved run artifacts and git_context. Do not replace available runtime evidence with static declarations, chat memory, model preference, or narrative momentum.",
         "thesis_attractor": "Derive the thesis-attractor from harness_target authority, including project thesis, desired outcomes, non-goals, quality bar, and acceptance probes. If the thesis-attractor cannot be derived from provided runtime_inputs, mark the report needs_clarification. Do not invent roadmap commitments.",
         "drift_detection": "Is current work still in pursuit of project thesis-attractor?",
         "structural_tension": "Identify the main actionable mismatch between current posture and realizing project thesis-attractor."
@@ -67,7 +72,7 @@
         "authority_constraints": "Name the authority class constraints that shape the proof frontier."
       },
       "artifact_truthfulness": {
-        "compiled_runtime_artifacts": "Treat compiled packets and payloads as derived runtime material, not source authority.",
+        "compiled_runtime_artifacts": "Treat compiled packets and payloads as derived runtime material, not source authority. Saved run artifacts may substantiate that a bounded run, validation, or probe occurred, while remaining non-authoritative for project intent.",
         "output_policy_artifacts": "Treat agent reports as validated outputs under an output policy, not as authorization by themselves.",
         "raw_provider_artifacts": "Treat raw provider responses as audit evidence only until parsed and validated against the relevant output policy.",
         "non_runtime_templates": "Do not treat examples, templates, fixtures, or sample outputs as live runtime evidence."
@@ -91,13 +96,7 @@
       "required": true,
       "schema_ref": "../repo_snapshot/RepoSnapshotPacket.schema.json",
       "resolution": {
-        "mode": "paths",
-        "paths": [
-          "harness/state/ledgers/api_call_ledger.jsonl",
-          "harness/runs/20260614-140613-agent-route/project_manager_report.json",
-          "harness/runs/20260614-140613-agent-route/project_manager_report.validation.json",
-          "harness/runs/20260614-140613-agent-route/raw_model_response.json"
-        ],
+        "mode": "all_admissible",
         "include_harness": false
       }
     }

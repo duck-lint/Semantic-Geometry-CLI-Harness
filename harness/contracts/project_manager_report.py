@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 from typing import Literal
-from pydantic import BaseModel, ConfigDict,  model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Metadata(BaseModel):
@@ -20,7 +20,7 @@ class ReportSourceCoverageEntry(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   consumed: bool
-  basis: list[str]
+  basis: list[str] = Field(min_length=1)
 
 class ReportSourceCoverage(BaseModel):
   model_config = ConfigDict(extra="forbid")
@@ -28,6 +28,7 @@ class ReportSourceCoverage(BaseModel):
   static_context_packet: ReportSourceCoverageEntry
   task: ReportSourceCoverageEntry
   repo_snapshot_packet: ReportSourceCoverageEntry | None = None
+  git_context: ReportSourceCoverageEntry | None = None
 
 
 class DriftDetection(BaseModel):
@@ -80,6 +81,28 @@ class ProjectManagerReport(BaseModel):
 
   @model_validator(mode="after")
   def enforce_report_truth_table(self):
+    coverage = self.report_source_coverage
+    required_coverage = {
+      "static_context_packet": coverage.static_context_packet,
+      "task": coverage.task,
+    }
+    optional_coverage = {
+      "repo_snapshot_packet": coverage.repo_snapshot_packet,
+      "git_context": coverage.git_context,
+    }
+
+    for source_id, entry in required_coverage.items():
+      if not entry.consumed:
+        raise ValueError(
+          f"report_source_coverage.{source_id}.consumed must be true."
+        )
+
+    for source_id, entry in optional_coverage.items():
+      if entry is not None and not entry.consumed:
+        raise ValueError(
+          f"report_source_coverage.{source_id} must be null or consumed=true."
+        )
+
     frontier = self.proof_frontier
 
     # Disposition and frontier openness are separate axes.

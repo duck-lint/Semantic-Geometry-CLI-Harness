@@ -195,6 +195,7 @@ class PackageRouteTests(unittest.TestCase):
         self.assertEqual(report["report_status"], "needs_clarification")
         self.assertTrue(report["proof_frontier"]["blocked"])
         self.assertTrue(report["report_source_coverage"]["repo_snapshot_packet"]["consumed"])
+        self.assertTrue(report["report_source_coverage"]["git_context"]["consumed"])
         self.assertTrue(
           any(
             "harness/runs/20260612-214948-agent-route/project_manager_report.json"
@@ -284,6 +285,17 @@ class PackageRouteTests(unittest.TestCase):
           self.assertTrue(
             all(file["explicit_requested_path"] for file in repo_snapshot_packet["files"])
           )
+        else:
+          repo_snapshot_packet = load_json(run_directory / "repo_snapshot_packet.json")
+          resolution = load_json(agent_path)["agent_input_policy"][1]["resolution"]
+          self.assertEqual(
+            repo_snapshot_packet["selection"]["mode"],
+            resolution["mode"],
+          )
+          self.assertEqual(
+            repo_snapshot_packet["selection"]["include_harness"],
+            resolution["include_harness"],
+          )
 
         for path in source_paths:
           self.assertEqual(path.read_bytes(), source_snapshots[path])
@@ -301,12 +313,6 @@ class PackageRouteTests(unittest.TestCase):
       ],
       expected_banner="PASS: Plan route completed.",
       expected_route="plan",
-      expected_repo_snapshot_paths=[
-        "harness/runs/20260612-214948-agent-route/project_manager_report.json",
-        "harness/runs/20260612-214948-agent-route/project_manager_report.validation.json",
-        "harness/runs/20260612-214948-agent-route/raw_model_response.json",
-        "harness/state/ledgers/api_call_ledger.jsonl",
-      ],
     )
 
   def test_package_cli_runs_generic_agent_route(self) -> None:
@@ -321,12 +327,6 @@ class PackageRouteTests(unittest.TestCase):
       ],
       expected_banner="PASS: Agent route completed.",
       expected_route="agent",
-      expected_repo_snapshot_paths=[
-        "harness/runs/20260612-214948-agent-route/project_manager_report.json",
-        "harness/runs/20260612-214948-agent-route/project_manager_report.validation.json",
-        "harness/runs/20260612-214948-agent-route/raw_model_response.json",
-        "harness/state/ledgers/api_call_ledger.jsonl",
-      ],
     )
 
   def test_package_cli_runs_non_pm_agent_route(self) -> None:
@@ -352,12 +352,6 @@ class PackageRouteTests(unittest.TestCase):
         ],
         expected_banner="PASS: Agent route completed.",
         expected_route="agent",
-        expected_repo_snapshot_paths=[
-          "harness/runs/20260612-214948-agent-route/project_manager_report.json",
-          "harness/runs/20260612-214948-agent-route/project_manager_report.validation.json",
-          "harness/runs/20260612-214948-agent-route/raw_model_response.json",
-          "harness/state/ledgers/api_call_ledger.jsonl",
-        ],
         agent_path=reviewer_agent_path,
       )
 
@@ -371,7 +365,11 @@ class PackageRouteTests(unittest.TestCase):
       agent_data = load_json(AGENT_PATH)
       agent_data["metadata"]["id"] = "reviewer_missing_snapshot.agent.json"
       agent_data["metadata"]["agent_name"] = "reviewer"
-      agent_data["agent_input_policy"][1]["resolution"]["paths"] = ["missing.txt"]
+      agent_data["agent_input_policy"][1]["resolution"] = {
+        "mode": "paths",
+        "paths": ["missing.txt"],
+        "include_harness": False,
+      }
       missing_agent_path.write_text(
         json.dumps(agent_data, indent=2) + "\n",
         encoding="utf-8",

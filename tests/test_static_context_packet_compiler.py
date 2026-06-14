@@ -49,13 +49,13 @@ def copy_target_sources(
   if include_active_implementation:
     active_root = target_root / "harness" / "implementations" / "active"
     active_root.mkdir(parents=True)
-    shutil.copy2(
-      HARNESS_ROOT / "implementations" / "active" / "implementation_plan_01.json",
-      active_root / "implementation_plan_01.json",
+    (active_root / "implementation_plan_01.json").write_text(
+      json.dumps({"fixture": "implementation_plan"}),
+      encoding="utf-8",
     )
-    shutil.copy2(
-      HARNESS_ROOT / "implementations" / "active" / "implementation_tracker_01.json",
-      active_root / "implementation_tracker_01.json",
+    (active_root / "implementation_tracker_01.json").write_text(
+      json.dumps({"fixture": "implementation_tracker"}),
+      encoding="utf-8",
     )
 
   return target_root
@@ -80,12 +80,17 @@ class StaticContextPacketCompilerTests(unittest.TestCase):
 
   def test_compiler_emits_valid_packet_with_all_live_sources(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
-      output_path = Path(temp_directory) / "static_context_packet.json"
+      temp_root = Path(temp_directory)
+      target_root = copy_target_sources(
+        temp_root,
+        include_active_implementation=True,
+      )
+      output_path = temp_root / "static_context_packet.json"
 
       packet = compile_static_context_packet(
         MANIFEST_PATH,
         REPO_ROOT,
-        REPO_ROOT,
+        target_root,
         output_path,
       )
 

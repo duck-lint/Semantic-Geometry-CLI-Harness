@@ -27,6 +27,12 @@
         "Used repo_snapshot_packet as historical artifact evidence for the current PM slice.",
         "Historical artifact paths named in the repo snapshot packet included harness/runs/20260612-214948-agent-route/project_manager_report.json and harness/runs/20260612-214948-agent-route/raw_model_response.json."
       ]
+    },
+    "git_context": {
+      "consumed": true,
+      "basis": [
+        "Used git_context to distinguish current worktree provenance from saved run artifacts."
+      ]
     }
   },
   "trajectory_review": {

@@ -121,6 +121,29 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
       self.assertEqual(report.report_status, "needs_clarification")
       self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
 
+  def test_extractor_rejects_missing_required_consumed_source_before_write(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      raw_response_path = temp_root / "raw_model_response.json"
+      output_path = temp_root / "project_manager_report.json"
+      raw_response = load_json(RAW_RESPONSE_FIXTURE_PATH)
+      report = json.loads(raw_response["output_text"])
+      report["report_source_coverage"]["repo_snapshot_packet"] = None
+      raw_response["output_text"] = json.dumps(report)
+      write_json(raw_response_path, raw_response)
+
+      with self.assertRaises(ProjectManagerReportExtractorError) as error:
+        extract_project_manager_report(
+          raw_response_path=raw_response_path,
+          schema_path=PM_SCHEMA_PATH,
+          output_path=output_path,
+          required_consumed_sources={"repo_snapshot_packet"},
+        )
+
+      self.assertIn("repo_snapshot_packet", str(error.exception))
+      self.assertFalse(output_path.exists())
+      self.assertFalse(default_validation_artifact_path(output_path).exists())
+
   def test_extractor_fails_if_raw_response_status_is_not_completed(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)

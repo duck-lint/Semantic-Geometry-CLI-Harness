@@ -74,6 +74,7 @@ def extract_project_manager_report(
   raw_response_path: Path,
   schema_path: Path,
   output_path: Path,
+  required_consumed_sources: set[str] | None = None,
 ) -> ProjectManagerReport:
   raw_response_data = _load_json_object(raw_response_path)
   raw_response = OpenAIRawResponse.model_validate(raw_response_data)
@@ -108,6 +109,21 @@ def extract_project_manager_report(
     ) from error
 
   report = ProjectManagerReport.model_validate(parsed_output)
+  if required_consumed_sources:
+    coverage = report.report_source_coverage
+    missing_or_unconsumed: list[str] = []
+    for source_id in sorted(required_consumed_sources):
+      entry = getattr(coverage, source_id, None)
+      if entry is None or not entry.consumed:
+        missing_or_unconsumed.append(source_id)
+
+    if missing_or_unconsumed:
+      raise ProjectManagerReportExtractorError(
+        "ProjectManagerReport did not consume required resolved input sources: "
+        + ", ".join(missing_or_unconsumed)
+        + "."
+      )
+
   _write_json_atomic(output_path, parsed_output)
 
   validation_artifact_path = default_validation_artifact_path(output_path)

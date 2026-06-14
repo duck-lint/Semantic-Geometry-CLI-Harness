@@ -1,0 +1,12 @@
+{
+  "report_artifact_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/runs/20260614-152320-agent-route/project_manager_report.json",
+  "report_artifact_sha256": "d781bb1e8d2d274957e29accd281010e8a1ea0a59bfa12e13167354856ebd269",
+  "schema_name": "project_manager_report",
+  "schema_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/contracts/ProjectManagerReport.schema.json",
+  "schema_sha256": "7e2db053372fd9082fc6f6e9c86518d7d21d65414814703785511366342061a8",
+  "validator": "harness.contracts.project_manager_report_extractor.extract_project_manager_report",
+  "validation_timestamp_utc": "2026-06-14T15:23:28.531756Z",
+  "validation_passed": true,
+  "report_status": "needs_clarification",
+  "proof_frontier_blocked": true
+}

@@ -198,12 +198,24 @@
             }
           ],
           "default": null
+        },
+        "git_context": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReportSourceCoverageEntry"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
         "static_context_packet",
         "task",
-        "repo_snapshot_packet"
+        "repo_snapshot_packet",
+        "git_context"
       ],
       "title": "ReportSourceCoverage",
       "type": "object"
@@ -219,6 +231,7 @@
           "items": {
             "type": "string"
           },
+          "minItems": 1,
           "title": "Basis",
           "type": "array"
         }

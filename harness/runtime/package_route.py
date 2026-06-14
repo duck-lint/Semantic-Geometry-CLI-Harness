@@ -233,10 +233,20 @@ def run_package_route(
     )
 
   try:
+    required_consumed_sources = {
+      entry.input_id
+      for entry in agent_context_packet.input_coverage
+      if entry.required and entry.status == "included"
+    }
+    required_consumed_sources.add("task")
+    if api_call_packet.git_context is not None:
+      required_consumed_sources.add("git_context")
+
     report = extract_project_manager_report(
       raw_response_path=raw_model_response_path,
       schema_path=schema_path,
       output_path=report_path,
+      required_consumed_sources=required_consumed_sources,
     )
   except (
     ProjectManagerReportExtractorError,

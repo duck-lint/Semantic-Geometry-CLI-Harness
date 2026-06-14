@@ -28,6 +28,7 @@ def build_report_data(
   next_admissible_transformation: str | None,
   include_repo_snapshot_packet: bool = True,
   repo_snapshot_packet_basis: list[str] | None = None,
+  include_git_context: bool = True,
 ) -> dict:
   report_source_coverage: dict[str, dict[str, object]] = {
     "static_context_packet": {
@@ -47,10 +48,21 @@ def build_report_data(
   if include_repo_snapshot_packet:
     report_source_coverage["repo_snapshot_packet"] = {
       "consumed": True,
-      "basis": repo_snapshot_packet_basis
-      or [
-        "Used repo_snapshot_packet as historical artifact evidence for the current PM slice.",
-        "Historical artifact paths named in the repo snapshot packet included harness/runs/20260612-214948-agent-route/project_manager_report.json and harness/runs/20260612-214948-agent-route/raw_model_response.json.",
+      "basis": (
+        repo_snapshot_packet_basis
+        if repo_snapshot_packet_basis is not None
+        else [
+          "Used repo_snapshot_packet as historical artifact evidence for the current PM slice.",
+          "Historical artifact paths named in the repo snapshot packet included harness/runs/20260612-214948-agent-route/project_manager_report.json and harness/runs/20260612-214948-agent-route/raw_model_response.json.",
+        ]
+      ),
+    }
+
+  if include_git_context:
+    report_source_coverage["git_context"] = {
+      "consumed": True,
+      "basis": [
+        "Used git_context to distinguish current worktree provenance from saved run artifacts.",
       ],
     }
 
@@ -71,12 +83,6 @@ def build_report_data(
         "drift_detected": True,
         "description": "Description of drift if detected.",
       },
-      "invariant_constraints": [
-        "Constraint from project context.",
-      ],
-      "task_constraints": [
-        "Constraint from task.",
-      ],
       "structural_tension": "Main actionable mismatch.",
     },
     "proof_frontier": {
@@ -94,6 +100,9 @@ def build_report_data(
       ],
       "stop_conditions": [
         "Condition that should stop the work.",
+      ],
+      "authority_constraints": [
+        "Constraint from task.",
       ],
     },
   }
@@ -141,6 +150,34 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     )
 
     self.assertIsNone(report.report_source_coverage.repo_snapshot_packet)
+
+  def test_report_source_coverage_rejects_empty_basis(self) -> None:
+    with self.assertRaises(ValueError):
+      ProjectManagerReport.model_validate(
+        build_report_data(
+          report_status="needs_clarification",
+          blocked=False,
+          blocking_reason=None,
+          missing_basis=["Clarify the target surface."],
+          constraint_conflicts=[],
+          next_admissible_transformation="Ask the user to name the target surface.",
+          repo_snapshot_packet_basis=[],
+        )
+      )
+
+  def test_report_source_coverage_rejects_unconsumed_supplied_source(self) -> None:
+    report_data = build_report_data(
+      report_status="needs_clarification",
+      blocked=False,
+      blocking_reason=None,
+      missing_basis=["Clarify the target surface."],
+      constraint_conflicts=[],
+      next_admissible_transformation="Ask the user to name the target surface.",
+    )
+    report_data["report_source_coverage"]["repo_snapshot_packet"]["consumed"] = False
+
+    with self.assertRaises(ValueError):
+      ProjectManagerReport.model_validate(report_data)
 
   def test_rejected_can_be_unblocked_with_next_move(self) -> None:
     raw_response = load_json(CANONICAL_REJECTED_UNBLOCKED_RESPONSE_PATH)
