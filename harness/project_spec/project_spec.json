@@ -178,7 +178,7 @@
     "runtime_constraints": [
       "The first implementation is Python/JSON first.",
       "The PM route must be useful before worker mutation exists.",
-      "The context compiler must distinguish required, optional, missing, template, and future/conditional sources.",
+      "The static context compiler must follow the manifest directly: resolve declared sources, enforce declared requiredness and cardinality, parse JSON, and avoid source-specific inference or normalization.",
       "Provider-specific details may exist in the provider/caller layer but should not become role identity invariants."
     ],
     "governance_primitives_constraints": [
@@ -212,7 +212,7 @@
     "must_exist": [
       "A task brief is produced from the user task.",
       "project_manager.agent.json loads through the role loader.",
-      "static_context_packet.json compiles from live repo-local context and records missing/conditional sources truthfully.",
+      "static_context_packet.json compiles the manifest-declared JSON sources and records missing required or optional sources truthfully.",
       "The PM call route sends the structured context packet and receives a structured report.",
       "The PM report validates against the report contract and cross-field invariants.",
       "Required run artifacts are saved under a timestamped run directory.",
@@ -274,7 +274,7 @@
       "Task text.",
       "Role contract identity.",
       "Context source manifest.",
-      "Missing/conditional source manifest.",
+      "Static context source coverage and missing-source diagnostics.",
       "Model/provider route.",
       "Runtime output schema identity.",
       "Returned report.",
@@ -379,7 +379,7 @@
     },
     {
       "id": "probe-context-compiler-source-boundaries",
-      "question": "Does the context compiler distinguish live runtime files from templates/examples and report missing optional or conditional sources truthfully?",
+      "question": "Does the static context compiler include exactly the manifest-declared JSON sources and report declared required, optional, missing, and cardinality states truthfully?",
       "runtime_path_required": {
         "command": "python",
         "args": [
@@ -399,7 +399,8 @@
         ]
       },
       "not_proof": [
-        "A manifest that lists files without checking whether they are live, missing, template, or conditional.",
+        "A Python source-contract table that duplicates or overrides the manifest.",
+        "Source-specific Pydantic validation or procedural source classification inside the static context compiler.",
         "Placeholder known_failures/open_decisions/implementation files."
       ]
     },

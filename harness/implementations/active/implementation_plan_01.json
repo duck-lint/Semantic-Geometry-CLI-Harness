@@ -98,7 +98,7 @@
       "criterion": "Context compiler can assemble a project context packet without treating templates/examples as live runtime requirements.",
       "required_evidence": [
         "static_context_packet.json records live included sources",
-        "static_context_packet.json records missing optional/conditional sources without claiming they were consumed"
+        "static_context_packet.json records missing optional sources without claiming they were consumed"
       ]
     },
     {
@@ -152,9 +152,9 @@
     {
       "id": "unknown-002",
       "type": "unknown",
-      "statement": "Whether the static_context_packet manifest should encode conditional requirements or whether the compiler should determine required inputs procedurally.",
+      "statement": "Resolved: the static_context_packet manifest is the sole authority for source selection, requiredness, cardinality, scope, and path resolution.",
       "risk_if_wrong": "",
-      "resolution_path": "Avoid pre-call false failures by making template/example and optional/conditional sources explicit."
+      "resolution_path": "The compiler parses and includes declared JSON without source-specific Pydantic validation or procedural source selection."
     },
     {
       "id": "unknown-003",

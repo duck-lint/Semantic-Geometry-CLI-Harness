@@ -407,8 +407,8 @@ def compile_agent_context_packet(
 
 def build_argument_parser() -> argparse.ArgumentParser:
   script_path = Path(__file__).resolve()
-  harness_root = script_path.parents[1]
   repo_root = script_path.parents[2]
+  harness_root = repo_root / "harness"
 
   parser = argparse.ArgumentParser(
     description="Compile and validate an AgentContextPacket artifact.",
@@ -440,14 +440,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
   parser.add_argument(
     "--harness-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve harness_global static context sources.",
+    default=repo_root,
+    help="Repository root used to resolve harness_global static context sources.",
   )
   parser.add_argument(
     "--target-repo-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve target_repo static context sources.",
+    default=repo_root,
+    help="Repository root used to resolve target_repo static context sources.",
   )
   parser.add_argument(
     "--output",

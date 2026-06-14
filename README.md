@@ -58,8 +58,16 @@ python harness/project_spec/static_context_packet_compiler.py
 This scaffold is currently exposed through directly executable compiler scripts,
 not through the package CLI.
 
-Compiles global harness governance and repo-local static/operational state into
-`static_context_packet.json`.
+Compiles every JSON source declared by
+`harness/project_spec/static_context_packet.manifest.json` into the `sources`
+map in `static_context_packet.json`. Source selection, requiredness,
+cardinality, scope, and paths come from the manifest. The compiler parses the
+declared JSON without applying source-specific Pydantic validation or
+normalization.
+
+Manifest paths are repository-root relative. `harness_global` entries resolve
+from `--harness-root`; `target_repo` entries resolve from
+`--target-repo-root`.
 
 ```powershell
 python harness/agents/agent_context_compiler.py --agent harness/agents/project_manager.agent.json

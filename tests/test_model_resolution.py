@@ -104,8 +104,8 @@ def build_agent_routed_api_call_packet(
       agent_path=agent_path,
       output_path=agent_context_path,
       manifest_path=MANIFEST_PATH,
-      harness_root=HARNESS_ROOT,
-      target_repo_root=HARNESS_ROOT,
+      harness_root=REPO_ROOT,
+      target_repo_root=REPO_ROOT,
       static_context_output_path=static_context_path,
     )
     return build_api_call_packet(

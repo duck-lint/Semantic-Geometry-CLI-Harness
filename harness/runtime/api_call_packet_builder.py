@@ -169,14 +169,14 @@ def build_argument_parser() -> argparse.ArgumentParser:
   parser.add_argument(
     "--harness-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve harness_global static context sources.",
+    default=repo_root,
+    help="Repository root used to resolve harness_global static context sources.",
   )
   parser.add_argument(
     "--target-repo-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve target_repo static context sources.",
+    default=repo_root,
+    help="Repository root used to resolve target_repo static context sources.",
   )
   parser.add_argument(
     "--output",

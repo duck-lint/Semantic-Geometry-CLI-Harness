@@ -10,13 +10,8 @@ from typing import Any
 if __package__ in {None, ""}:
   sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
-from harness.implementations.implementation_plan import ImplementationPlan
-from harness.implementations.implementation_tracker import ImplementationTracker
-from harness.project_spec.known_failures import KnownFailures
-from harness.project_spec.open_decisions import OpenDecisions
-from harness.project_spec.project_spec import ProjectSpec
 from harness.project_spec.static_context_packet import (
   CoverageStatus,
   MissingSourceEntry,
@@ -24,26 +19,12 @@ from harness.project_spec.static_context_packet import (
   SourceValidation,
   StaticContextPacket,
   StaticContextPacketMetadata,
-  StaticSchemaId,
   ValidationStatus,
 )
 from harness.project_spec.static_context_packet_manifest import (
   Source,
   StaticContextPacketManifest,
 )
-from harness.runtime.governance_primitives import GovernancePrimitives
-
-
-SOURCE_MODELS: dict[StaticSchemaId, type[BaseModel]] = {
-  "governance_primitives": GovernancePrimitives,
-  "project_spec": ProjectSpec,
-  "known_failures": KnownFailures,
-  "open_decisions": OpenDecisions,
-  "implementation_plan": ImplementationPlan,
-  "implementation_tracker": ImplementationTracker,
-}
-
-
 class SourceCardinalityError(ValueError):
   pass
 
@@ -69,6 +50,11 @@ def load_json(path: Path) -> dict[str, Any]:
     raise TypeError(f"Expected a JSON object in {path}.")
 
   return data
+
+
+def load_source_json(path: Path) -> Any:
+  with path.open("r", encoding="utf-8") as file:
+    return json.load(file)
 
 
 def write_json(path: Path, data: dict[str, Any]) -> None:
@@ -116,38 +102,27 @@ def enforce_cardinality(source: Source, paths: list[Path]) -> None:
     )
 
 
-def validate_source_document(
-  data: dict[str, Any],
-  schema_id: StaticSchemaId,
-) -> dict[str, Any]:
-  source_model = SOURCE_MODELS[schema_id]
-  validated = source_model.model_validate(data)
-  return validated.model_dump(mode="json")
-
-
 def _coverage_entry(
   source: Source,
   *,
   status: CoverageStatus,
   resolved_path: Path | None,
   validation_status: ValidationStatus,
-  normalized_output_available: bool,
+  parsed_content_available: bool,
   basis: list[str],
 ) -> SourceCoverageEntry:
   return SourceCoverageEntry(
     source_id=source.source_id,
     layer="static_context",
     required=source.required,
-    required_when=source.required_when,
     document_authority=source.document_authority,
     schema_id=source.schema_id,
     status=status,
     resolved_path=str(resolved_path.resolve()) if resolved_path is not None else None,
     validation=SourceValidation(
       status=validation_status,
-      validator="pydantic",
-      model=source.schema_id,
-      normalized_output_available=normalized_output_available,
+      validator="json_parse",
+      parsed_content_available=parsed_content_available,
     ),
     basis=basis,
   )
@@ -158,25 +133,6 @@ def _reference_description(source: Source) -> str:
   return f"{source.scope}:{reference}"
 
 
-def enforce_no_undeclared_included_sources(
-  included: dict[str, dict[str, Any] | None],
-  manifest: StaticContextPacketManifest,
-  *,
-  source_coverage: list[SourceCoverageEntry],
-  missing_sources: list[MissingSourceEntry],
-) -> None:
-  declared_source_ids = {source.source_id for source in manifest.sources}
-  undeclared_source_ids = sorted(set(included) - declared_source_ids)
-
-  if undeclared_source_ids:
-    raise StaticContextCompilationError(
-      "Static context compilation blocked because undeclared sources crossed "
-      f"the manifest boundary: {undeclared_source_ids}",
-      source_coverage=source_coverage,
-      missing_sources=missing_sources,
-    )
-
-
 def compile_static_context_packet(
   manifest_path: Path,
   harness_root: Path,
@@ -185,7 +141,7 @@ def compile_static_context_packet(
 ) -> StaticContextPacket:
   manifest = load_and_validate_manifest(manifest_path)
 
-  included: dict[str, dict[str, Any] | None] = {}
+  included: dict[str, Any] = {}
   source_coverage: list[SourceCoverageEntry] = []
   missing_sources: list[MissingSourceEntry] = []
 
@@ -207,7 +163,7 @@ def compile_static_context_packet(
           status="missing",
           resolved_path=None,
           validation_status="not_run",
-          normalized_output_available=False,
+          parsed_content_available=False,
           basis=[f"No source matched {_reference_description(source)}."],
         )
       )
@@ -223,72 +179,53 @@ def compile_static_context_packet(
           status="invalid",
           resolved_path=None,
           validation_status="not_run",
-          normalized_output_available=False,
+          parsed_content_available=False,
           basis=[str(error), *(str(path.resolve()) for path in paths)],
         )
       )
       continue
 
-    normalized_documents: list[dict[str, Any]] = []
+    parsed_documents: list[Any] = []
 
     try:
       for path in paths:
-        raw = load_json(path)
-        normalized_documents.append(
-          validate_source_document(raw, source.schema_id)
-        )
-    except (OSError, json.JSONDecodeError, TypeError, ValidationError) as error:
+        parsed_documents.append(load_source_json(path))
+    except (OSError, json.JSONDecodeError) as error:
       included[source.source_id] = None
       coverage = _coverage_entry(
         source,
         status="invalid",
         resolved_path=paths[0] if len(paths) == 1 else None,
         validation_status="failed",
-        normalized_output_available=False,
-        basis=[f"Validation failed: {error}"],
+        parsed_content_available=False,
+        basis=[f"JSON parsing failed: {error}"],
       )
       coverage.validation.failure = str(error)
       source_coverage.append(coverage)
       continue
 
-    if len(normalized_documents) != 1:
-      included[source.source_id] = None
-      source_coverage.append(
-        _coverage_entry(
-          source,
-          status="invalid",
-          resolved_path=None,
-          validation_status="passed",
-          normalized_output_available=True,
-          basis=[
-            "StaticContextPacket fields currently accept one document per source; "
-            f"{len(normalized_documents)} validated documents were resolved."
-          ],
-        )
-      )
-      continue
-
-    included[source.source_id] = normalized_documents[0]
+    if source.cardinality in {"zero_or_more", "one_or_more"}:
+      included[source.source_id] = parsed_documents
+    else:
+      included[source.source_id] = parsed_documents[0]
     source_coverage.append(
       _coverage_entry(
         source,
         status="included",
-        resolved_path=paths[0],
+        resolved_path=paths[0] if len(paths) == 1 else None,
         validation_status="passed",
-        normalized_output_available=True,
+        parsed_content_available=True,
         basis=[
           f"Resolved from {_reference_description(source)}.",
-          f"Validated against source model {source.schema_id}.",
+          "Parsed declared source content as JSON without normalization.",
+          *(
+            [f"Included {len(paths)} documents in resolved path order."]
+            if len(paths) > 1
+            else []
+          ),
         ],
       )
     )
-
-  enforce_no_undeclared_included_sources(
-    included,
-    manifest,
-    source_coverage=source_coverage,
-    missing_sources=missing_sources,
-  )
 
   blocking_missing = [
     entry for entry in missing_sources if entry.effect == "blocks_compilation"
@@ -314,12 +251,7 @@ def compile_static_context_packet(
       source_format="json",
       document_authority="compiled_runtime_artifact",
     ),
-    governance_primitives=included["governance_primitives"],
-    project_spec=included["project_spec"],
-    known_failures=included["known_failures"],
-    open_decisions=included["open_decisions"],
-    active_implementation_plan=included.get("active_implementation_plan"),
-    active_implementation_tracker=included.get("active_implementation_tracker"),
+    sources=included,
     source_coverage=source_coverage,
     missing_sources=missing_sources,
   )
@@ -331,10 +263,10 @@ def compile_static_context_packet(
 
 def build_argument_parser() -> argparse.ArgumentParser:
   script_path = Path(__file__).resolve()
-  harness_root = script_path.parents[1]
+  repo_root = script_path.parents[2]
 
   parser = argparse.ArgumentParser(
-    description="Compile and validate a StaticContextPacket artifact.",
+    description="Compile manifest-declared JSON into a StaticContextPacket artifact.",
   )
   parser.add_argument(
     "--manifest",
@@ -345,19 +277,19 @@ def build_argument_parser() -> argparse.ArgumentParser:
   parser.add_argument(
     "--harness-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve harness_global manifest sources.",
+    default=repo_root,
+    help="Repository root used to resolve harness_global manifest sources.",
   )
   parser.add_argument(
     "--target-repo-root",
     type=Path,
-    default=harness_root,
-    help="Root used to resolve target_repo manifest sources.",
+    default=repo_root,
+    help="Repository root used to resolve target_repo manifest sources.",
   )
   parser.add_argument(
     "--output",
     type=Path,
-    default=harness_root / "runs" / "static_context_packet.json",
+    default=repo_root / "harness" / "runs" / "static_context_packet.json",
     help="Destination for the emitted StaticContextPacket JSON.",
   )
   return parser

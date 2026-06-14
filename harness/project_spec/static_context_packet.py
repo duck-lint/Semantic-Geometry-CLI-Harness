@@ -1,25 +1,11 @@
 from __future__ import annotations
-from typing import Literal
+from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 
-SourceId = Literal[
-  "governance_primitives",
-  "project_spec",
-  "known_failures",
-  "open_decisions",
-  "active_implementation_plan",
-  "active_implementation_tracker",
-]
+SourceId = str
 
-StaticSchemaId = Literal[
-  "governance_primitives",
-  "project_spec",
-  "known_failures",
-  "open_decisions",
-  "implementation_plan",
-  "implementation_tracker",
-]
+StaticSchemaId = str
 
 DocumentAuthority = Literal[
   "harness_target",
@@ -69,9 +55,8 @@ class SourceValidation(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   status: ValidationStatus
-  validator: Literal["pydantic"]
-  model: StaticSchemaId
-  normalized_output_available: bool
+  validator: Literal["json_parse"]
+  parsed_content_available: bool
   failure: str | None = None
 
 
@@ -81,7 +66,6 @@ class SourceCoverageEntry(BaseModel):
   source_id: SourceId
   layer: Literal["static_context"]
   required: bool
-  required_when: str | None = None
   schema_id: StaticSchemaId
   document_authority: DocumentAuthority
   status: CoverageStatus
@@ -94,13 +78,6 @@ class StaticContextPacket(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   metadata: StaticContextPacketMetadata
-
-  governance_primitives: dict
-  project_spec: dict
-  known_failures: dict
-  open_decisions: dict
-  active_implementation_plan: dict | None = None
-  active_implementation_tracker: dict | None = None
-
+  sources: dict[str, Any]
   source_coverage: list[SourceCoverageEntry]
   missing_sources: list[MissingSourceEntry] = Field(default_factory=list)

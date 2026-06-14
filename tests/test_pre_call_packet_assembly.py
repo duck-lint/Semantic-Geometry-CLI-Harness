@@ -45,8 +45,8 @@ def load_json(path: Path) -> dict:
 def compile_static_packet(output_path: Path):
   return compile_static_context_packet(
     manifest_path=MANIFEST_PATH,
-    harness_root=HARNESS_ROOT,
-    target_repo_root=HARNESS_ROOT,
+    harness_root=REPO_ROOT,
+    target_repo_root=REPO_ROOT,
     output_path=output_path,
   )
 
@@ -98,8 +98,8 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
         agent_path=AGENT_PATH,
         output_path=output_path,
         manifest_path=MANIFEST_PATH,
-        harness_root=HARNESS_ROOT,
-        target_repo_root=HARNESS_ROOT,
+        harness_root=REPO_ROOT,
+        target_repo_root=REPO_ROOT,
         static_context_output_path=static_output_path,
       )
 
@@ -413,8 +413,8 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
         agent_path=AGENT_PATH,
         output_path=agent_path,
         manifest_path=MANIFEST_PATH,
-        harness_root=HARNESS_ROOT,
-        target_repo_root=HARNESS_ROOT,
+        harness_root=REPO_ROOT,
+        target_repo_root=REPO_ROOT,
         static_context_output_path=temp_root / "static_context_packet.compiled.json",
       )
       api_path = temp_root / "api_call_packet.json"
@@ -443,8 +443,8 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       run_directory, artifact_paths = build_pre_call_artifacts(
         task_text="Build the bounded pre-call packet.",
         repo_root=REPO_ROOT,
-        harness_root=HARNESS_ROOT,
-        target_repo_root=HARNESS_ROOT,
+        harness_root=REPO_ROOT,
+        target_repo_root=REPO_ROOT,
         manifest_path=MANIFEST_PATH,
         runs_root=runs_root,
         agent_path=AGENT_PATH,
@@ -493,9 +493,9 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
           "--manifest",
           str(MANIFEST_PATH),
           "--harness-root",
-          str(HARNESS_ROOT),
+          str(REPO_ROOT),
           "--target-repo-root",
-          str(HARNESS_ROOT),
+          str(REPO_ROOT),
           "--output",
           str(output_path),
         ],
@@ -631,9 +631,9 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
           "--manifest",
           str(MANIFEST_PATH),
           "--harness-root",
-          str(HARNESS_ROOT),
+          str(REPO_ROOT),
           "--target-repo-root",
-          str(HARNESS_ROOT),
+          str(REPO_ROOT),
           "--output",
           str(output_path),
         ],

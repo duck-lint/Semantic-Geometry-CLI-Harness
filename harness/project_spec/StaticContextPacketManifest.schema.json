@@ -26,14 +26,7 @@
       "additionalProperties": false,
       "properties": {
         "source_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "active_implementation_plan",
-            "active_implementation_tracker"
-          ],
+          "minLength": 1,
           "title": "Source Id",
           "type": "string"
         },
@@ -48,18 +41,6 @@
         "required": {
           "title": "Required",
           "type": "boolean"
-        },
-        "required_when": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Required When"
         },
         "document_authority": {
           "enum": [
@@ -98,14 +79,7 @@
           "title": "Document Glob"
         },
         "schema_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "implementation_plan",
-            "implementation_tracker"
-          ],
+          "minLength": 1,
           "title": "Schema Id",
           "type": "string"
         },
@@ -146,6 +120,7 @@
       "items": {
         "$ref": "#/$defs/Source"
       },
+      "minItems": 1,
       "title": "Sources",
       "type": "array"
     }

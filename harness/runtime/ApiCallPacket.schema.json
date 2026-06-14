@@ -287,7 +287,7 @@
           "type": "string"
         },
         "document_authority": {
-          "const": "global_harness",
+          "minLength": 1,
           "title": "Document Authority",
           "type": "string"
         }
@@ -467,26 +467,10 @@
       "additionalProperties": false,
       "properties": {
         "source_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "active_implementation_plan",
-            "active_implementation_tracker"
-          ],
           "title": "Source Id",
           "type": "string"
         },
         "schema_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "implementation_plan",
-            "implementation_tracker"
-          ],
           "title": "Schema Id",
           "type": "string"
         },
@@ -813,11 +797,17 @@
           "default": null,
           "title": "$Schema"
         },
+        "document_authority": {
+          "const": "runtime_policy",
+          "title": "Document Authority",
+          "type": "string"
+        },
         "default": {
           "$ref": "#/$defs/RuntimeBudgetDefaults"
         }
       },
       "required": [
+        "document_authority",
         "default"
       ],
       "title": "RuntimeBudgetPolicy",
@@ -827,14 +817,6 @@
       "additionalProperties": false,
       "properties": {
         "source_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "active_implementation_plan",
-            "active_implementation_tracker"
-          ],
           "title": "Source Id",
           "type": "string"
         },
@@ -847,27 +829,7 @@
           "title": "Required",
           "type": "boolean"
         },
-        "required_when": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Required When"
-        },
         "schema_id": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "implementation_plan",
-            "implementation_tracker"
-          ],
           "title": "Schema Id",
           "type": "string"
         },
@@ -940,24 +902,12 @@
           "type": "string"
         },
         "validator": {
-          "const": "pydantic",
+          "const": "json_parse",
           "title": "Validator",
           "type": "string"
         },
-        "model": {
-          "enum": [
-            "governance_primitives",
-            "project_spec",
-            "known_failures",
-            "open_decisions",
-            "implementation_plan",
-            "implementation_tracker"
-          ],
-          "title": "Model",
-          "type": "string"
-        },
-        "normalized_output_available": {
-          "title": "Normalized Output Available",
+        "parsed_content_available": {
+          "title": "Parsed Content Available",
           "type": "boolean"
         },
         "failure": {
@@ -976,8 +926,7 @@
       "required": [
         "status",
         "validator",
-        "model",
-        "normalized_output_available"
+        "parsed_content_available"
       ],
       "title": "SourceValidation",
       "type": "object"
@@ -988,51 +937,10 @@
         "metadata": {
           "$ref": "#/$defs/StaticContextPacketMetadata"
         },
-        "governance_primitives": {
+        "sources": {
           "additionalProperties": true,
-          "title": "Governance Primitives",
+          "title": "Sources",
           "type": "object"
-        },
-        "project_spec": {
-          "additionalProperties": true,
-          "title": "Project Spec",
-          "type": "object"
-        },
-        "known_failures": {
-          "additionalProperties": true,
-          "title": "Known Failures",
-          "type": "object"
-        },
-        "open_decisions": {
-          "additionalProperties": true,
-          "title": "Open Decisions",
-          "type": "object"
-        },
-        "active_implementation_plan": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Active Implementation Plan"
-        },
-        "active_implementation_tracker": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Active Implementation Tracker"
         },
         "source_coverage": {
           "items": {
@@ -1051,10 +959,7 @@
       },
       "required": [
         "metadata",
-        "governance_primitives",
-        "project_spec",
-        "known_failures",
-        "open_decisions",
+        "sources",
         "source_coverage"
       ],
       "title": "StaticContextPacket",

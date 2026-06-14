@@ -62,8 +62,8 @@ def build_agent_routed_api_call_packet(
       agent_path=AGENT_PATH,
       output_path=temp_root / "agent_context_packet.json",
       manifest_path=MANIFEST_PATH,
-      harness_root=HARNESS_ROOT,
-      target_repo_root=HARNESS_ROOT,
+      harness_root=REPO_ROOT,
+      target_repo_root=REPO_ROOT,
       static_context_output_path=temp_root / "static_context_packet.json",
     )
     packet = build_api_call_packet(
@@ -141,8 +141,8 @@ class OpenAIResponsePayloadCompilerTests(unittest.TestCase):
           agent_path=agent_path,
           output_path=temp_root / "agent_context_packet.json",
           manifest_path=MANIFEST_PATH,
-          harness_root=HARNESS_ROOT,
-          target_repo_root=HARNESS_ROOT,
+          harness_root=REPO_ROOT,
+          target_repo_root=REPO_ROOT,
           static_context_output_path=temp_root / "static_context_packet.json",
         )
         build_api_call_packet(

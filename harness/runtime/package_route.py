@@ -155,8 +155,8 @@ def run_package_route(
       output_path=agent_context_path,
       manifest_path=harness_root / "project_spec" / "static_context_packet.manifest.json",
       repo_root=repo_root.resolve(),
-      harness_root=harness_root.resolve(),
-      target_repo_root=harness_root.resolve(),
+      harness_root=harness_root.parent.resolve(),
+      target_repo_root=repo_root.resolve(),
       static_context_output_path=static_context_path,
       repo_snapshot_output_path=repo_snapshot_path,
     )
