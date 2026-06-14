@@ -31,9 +31,13 @@
       "The trajectory review identifies current posture, thesis-attractor, structural tension, proof frontier, and next admissible transformation, in pursuit of thesis-attractor; non-admissible status may still carry an open frontier when a valid correction, clarification, or diagnostic move exists.",
       "Missing context must be reported as missing basis in the provided runtime_inputs.",
       "If any required condition fails, the PM runtime_outputs must be marked admissibility_blocked, rejected, or needs_clarification and the missing condition or constraint conflict must be named without collapsing frontier openness into task approval.",
+      "Do not reject historical smoke-test evidence merely because it is not the current run, unless the task explicitly requires current-run proof.",
       "Separate observed evidence, user intent, inference, unknowns, and recommended action.",
       "Proof frontier identifies the evidence or implementation boundary that must be crossed next for trustworthy progress toward the thesis-attractor.",
       "Treat proof_frontier.blocked as needing more current work to materialize a path to the proof frontier, not task approval; when present, next_admissible_transformation details clearing the blocker only, not authorization for the originally requested object-level transformation.",
+      "Prior saved run artifacts may prove a bounded historical smoke test.",
+      "The current report must not require its own future validation artifacts as evidence.",
+      "Current-run save/validation proof belongs to the harness wrapper/validator after the PM returns.",
       "../project_spec/** is the authoritative space for project intent, regardless of whether the source files are Markdown, JSON, or another approved policy format.",
       "Treat current user instruction as task authority inside that authority space unless the user explicitly amends the spec or requests an approval-boundary crossing.",
       "If the user appears to be changing project authority or thesis-attractor, say so explicitly as a spec amendment or decision request.",
@@ -98,7 +102,10 @@
       "resolution": {
         "mode": "paths",
         "paths": [
-          "harness/runs/20260614-155205-agent-route/project_manager_report.json"
+          "harness/runs/20260614-192022-agent-route/project_manager_report.json",
+          "harness/runs/20260614-192022-agent-route/project_manager_report.validation.json",
+          "harness/runs/20260614-192022-agent-route/raw_model_response.json",
+          "harness/state/ledgers/api_call_ledger.jsonl"
         ],
         "include_harness": false
       }

@@ -24,7 +24,7 @@
         "context compiler",
         "PM pre-call validation"
       ],
-      "status": "acknowledged"
+      "status": "closed"
     },
     {
       "id": "od-002",
@@ -35,7 +35,7 @@
         "provider route configuration",
         "dependency declaration"
       ],
-      "status": "acknowledged"
+      "status": "closed"
     },
     {
       "id": "od-003",
@@ -47,7 +47,7 @@
         "runtime validators",
         "pre-call reference checks"
       ],
-      "status": "acknowledged"
+      "status": "closed"
     },
     {
       "id": "od-004",
