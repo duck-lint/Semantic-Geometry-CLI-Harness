@@ -191,7 +191,6 @@
       "Apply workflow.",
       "Cross-provider abstraction beyond the first model provider path.",
       "UI beyond terminal output.",
-      "Archive automation.",
       "Long-term cost dashboard."
     ]
   },
@@ -231,7 +230,7 @@
       ],
       "authoritative_memory": [
         "../implementations/active/** when an active implementation exists.",
-        "../implementations/archive/** for historical evidence only.",
+        "../implementations/archive/** for historical evidence.",
         "../runs/** for saved runtime evidence."
       ],
       "agents_must_respect": [
@@ -442,7 +441,6 @@
       "Multi-agent routing.",
       "Apply workflow.",
       "Codex worker integration.",
-      "Archive automation.",
       "Long-term cost dashboard.",
       "UI work.",
       "Non-OpenAI model support.",

@@ -96,7 +96,10 @@
       "required": true,
       "schema_ref": "../repo_snapshot/RepoSnapshotPacket.schema.json",
       "resolution": {
-        "mode": "all_admissible",
+        "mode": "paths",
+        "paths": [
+          "harness/runs/20260614-155205-agent-route/project_manager_report.json"
+        ],
         "include_harness": false
       }
     }
