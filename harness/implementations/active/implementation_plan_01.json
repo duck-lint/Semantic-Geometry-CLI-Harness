@@ -29,7 +29,7 @@
       "id": "seam-001",
       "title": "Normalize live support documents",
       "description": "Create live known_failures.json, open_decisions.json, project_spec.json, implementation_plan.json, and implementation_tracker.json documents with operational authority values.",
-      "status": "active",
+      "status": "complete",
       "evidence_target": [
         "Each live document exists in the active implementation context and either validates against its runtime schema or records a schema defect that blocks validation."
       ]
@@ -38,25 +38,16 @@
       "id": "seam-002",
       "title": "Clean Pydantic model invariants",
       "description": "Encode true fixed invariants in Pydantic models, including fixed role/document identities, required PM task inputs, forbidden unexpected fields, and post-call coherence checks where state can otherwise contradict itself.",
-      "status": "active",
+      "status": "onging, to continue into next implementation as progress develops.",
       "evidence_target": [
         "Unit or validation checks reject false PM identity, optional task requirements, unexpected tool surfaces, and invalid coupling of report_status and proof_frontier.blocked."
-      ]
-    },
-    {
-      "id": "seam-003",
-      "title": "Separate authoring artifacts from runtime artifacts",
-      "description": "Do not treat .template.json and .example.json files as live runtime inputs. Allow authoring metadata such as $schema where useful for IDE/schema validation, but keep runtime loaders pointed at live .json artifacts.",
-      "status": "active",
-      "evidence_target": [
-        "Compiler or manifest logic distinguishes template/example files from live required inputs."
       ]
     },
     {
       "id": "seam-004",
       "title": "Prepare context compiler input assembly",
       "description": "Compile the task text, project spec, governance primitives, known failures, open decisions, active implementation plan, active implementation tracker, and relevant runtime policy surfaces into static_context_packet.json.",
-      "status": "proposed",
+      "status": "complete",
       "evidence_target": [
         "A generated static_context_packet.json is saved under a run directory and records present and missing sources explicitly."
       ]
@@ -65,9 +56,10 @@
       "id": "seam-005",
       "title": "Run the first PM route as a runtime proof",
       "description": "Call the PM route with the compiled packet, validate the returned report, save required run artifacts, and stop before implementation.",
-      "status": "proposed",
+      "status": "complete",
       "evidence_target": [
-        "A timestamped run directory contains task.json, static_context_packet.json, project_manager_report.json, validation summary, and deterministic probe result."
+        "A timestamped run directory contains task.json, static_context_packet.json, project_manager_report.json, validation summary, and deterministic probe result.",
+        "This evidence target has been achieved with the implementation of the extra ledger entry that validates the PM report after it comes back from the provider, proving live runtime state has been achieved."
       ]
     }
   ],
@@ -131,28 +123,8 @@
   "current_repo_runtime_state": [
     {
       "surface": "Pydantic document models",
-      "state": "active_cleanup",
-      "notes": "Known failures, open decisions, project spec, implementation plan, and implementation tracker models/schemas/templates exist, but some generated contracts still need cleanup."
-    },
-    {
-      "surface": "Known failures",
-      "state": "empty_by_design",
-      "notes": "No recurring known failure has been intentionally recorded yet; cleanup of schema/template mismatch is being handled separately."
-    },
-    {
-      "surface": "Open decisions",
-      "state": "minimal_live_context",
-      "notes": "Current decisions should capture only choices that affect the compiler/PM-call readiness path."
-    },
-    {
-      "surface": "Implementation plan/tracker",
-      "state": "active_bundle_bootstrap",
-      "notes": "These files provide the active implementation state needed for the first PM context packet test."
-    },
-    {
-      "surface": "PM route",
-      "state": "not_yet_runtime_proven",
-      "notes": "The target proof remains compile packet -> call PM -> validate report -> save run artifacts -> probe -> stop before implementation."
+      "state": "Pre-archive implementation.",
+      "notes": "The batch of seams proposed in implementation 01 are now complete. Awaiting closeout and archive."
     }
   ],
   "assumptions_and_unknowns": [

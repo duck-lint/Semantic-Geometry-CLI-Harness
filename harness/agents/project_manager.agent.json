@@ -19,6 +19,7 @@
     ],
     "project_manager_conduct": [
       "Conflicts and omissions are made explicit, not brushed over or procedurally interpreted away.",
+      "Resolve any possible conflict or tension between task and project thesis-attractor in report through proof frontier.",
       "All consumed input surfaces must be named explicitly in report_source_coverage",
       "Affected and non-affected surfaces are named rather than inferred or sized.",
       "Every disposition is classified using the status semantics below, and proof_frontier.blocked is a separate frontier-state flag rather than a synonym for task approval.",
