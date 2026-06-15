@@ -1,20 +1,53 @@
 {
+  "$schema": "../../implementations/ImplementationTracker.schema.json",
   "metadata": {
-    "document_id": "implementation_tracker.json",
-    "title": "Implementation <#> Tracker",
+    "document_id": "implementation_tracker_02.json",
+    "title": "Implementation 02 Tracker",
     "purpose": "This file tracks an implementation plan.",
     "source_format": "json",
-    "document_authority": "operational_state.template"
+    "document_authority": "operational_state"
   },
   "status": "",
   "state": "proposed",
   "tracker": [
     {
-      "date": "date",
-      "seam": "implementation seam number",
-      "agent": "agent role",
-      "change": "work being done",
+      "date": "20260615",
+      "seam": "01",
+      "agent": "Project Authority",
+      "change": "Archive record schema",
       "evidence": "evidence of completion",
+      "status": "proposed"
+    },
+    {
+      "date": "20260615",
+      "seam": "20",
+      "agent": "Project Authority",
+      "change": "Artifact classification",
+      "evidence": "evidence of completion",
+      "status": "proposed"
+    },
+    {
+      "date": "20260615",
+      "seam": "03",
+      "agent": "Codex",
+      "change": "PM coverage disposition",
+      "evidence": "evidence of completion",
+      "status": "proposed"
+    },
+    {
+      "date": "20260615",
+      "seam": "04",
+      "agent": "Project Authority",
+      "change": "PM prose migration",
+      "evidence": "Completion of seam 03 and reduction of prose in project_manager.agent.json",
+      "status": "proposed"
+    },
+    {
+      "date": "20260615",
+      "seam": "05",
+      "agent": "Project Authority",
+      "change": "AM creation",
+      "evidence": "archive_manager.agent.json, archive_manager_agent.py, ArchiveManagerAgent.schema.json, archive_manager_report.example.json, archive_manager_report.py, ArchiveManagerReport.schema.json complete and functional for live API call.",
       "status": "proposed"
     }
   ],
