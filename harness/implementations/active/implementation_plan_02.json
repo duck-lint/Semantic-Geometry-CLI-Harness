@@ -64,8 +64,12 @@
       "id": "seam-03",
       "title": "PM coverage disposition",
       "description": "Adds explicit source coverage disposition so PM reports distinguish used, insufficient, irrelevant, invalid, and missing sources.",
-      "status": "proposed",
-      "evidence_target": ["ProjectManagerReport validation accepts valid dispositions and rejects empty required coverage."]
+      "status": "complete",
+      "evidence_target": [
+        "ProjectManagerReport validation accepts all valid dispositions, rejects empty required coverage and consumed/disposition mismatches, and preserves the existing proof-frontier and constraint-conflict truth tables.",
+        "Focused validation passes 67 tests and full unittest discovery passes 167 tests.",
+        "The migrated Implementation 02 PM smoke report validates against both ProjectManagerReport.schema.json and the ProjectManagerReport Pydantic model."
+      ]
     },
     {
       "id": "seam-04",

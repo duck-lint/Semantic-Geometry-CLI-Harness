@@ -26,28 +26,30 @@ def build_report_data(
   missing_basis: list[str],
   constraint_conflicts: list[str],
   next_admissible_transformation: str | None,
-  include_repo_snapshot_packet: bool = True,
+  repo_snapshot_packet_consumed: bool = True,
+  repo_snapshot_packet_disposition: str = "used",
   repo_snapshot_packet_basis: list[str] | None = None,
-  include_git_context: bool = True,
+  git_context_consumed: bool = True,
+  git_context_disposition: str = "used",
 ) -> dict:
   report_source_coverage: dict[str, dict[str, object]] = {
     "static_context_packet": {
       "consumed": True,
+      "disposition": "used",
       "basis": [
         "Used project_spec, governance_primitives, open_decisions, active_implementation_plan, and active_implementation_tracker.",
       ],
     },
     "task": {
       "consumed": True,
+      "disposition": "used",
       "basis": [
         "Used the task text as current task authority.",
       ],
     },
-  }
-
-  if include_repo_snapshot_packet:
-    report_source_coverage["repo_snapshot_packet"] = {
-      "consumed": True,
+    "repo_snapshot_packet": {
+      "consumed": repo_snapshot_packet_consumed,
+      "disposition": repo_snapshot_packet_disposition,
       "basis": (
         repo_snapshot_packet_basis
         if repo_snapshot_packet_basis is not None
@@ -56,15 +58,15 @@ def build_report_data(
           "Historical artifact paths named in the repo snapshot packet included harness/runs/20260612-214948-agent-route/project_manager_report.json and harness/runs/20260612-214948-agent-route/raw_model_response.json.",
         ]
       ),
-    }
-
-  if include_git_context:
-    report_source_coverage["git_context"] = {
-      "consumed": True,
+    },
+    "git_context": {
+      "consumed": git_context_consumed,
+      "disposition": git_context_disposition,
       "basis": [
         "Used git_context to distinguish current worktree provenance from saved run artifacts.",
       ],
-    }
+    },
+  }
 
   return {
     "metadata": {
@@ -136,7 +138,7 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
       "Produce the validated PM report.",
     )
 
-  def test_report_source_coverage_allows_omitting_repo_snapshot_packet(self) -> None:
+  def test_report_source_coverage_accepts_explicit_missing_repo_snapshot_packet(self) -> None:
     report = ProjectManagerReport.model_validate(
       build_report_data(
         report_status="needs_clarification",
@@ -145,27 +147,69 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
         missing_basis=["Clarify the target surface."],
         constraint_conflicts=[],
         next_admissible_transformation="Ask the user to name the target surface.",
-        include_repo_snapshot_packet=False,
+        repo_snapshot_packet_consumed=False,
+        repo_snapshot_packet_disposition="missing",
+        repo_snapshot_packet_basis=[
+          "No repo_snapshot_packet was supplied for this task.",
+        ],
       )
     )
 
-    self.assertIsNone(report.report_source_coverage.repo_snapshot_packet)
+    self.assertFalse(report.report_source_coverage.repo_snapshot_packet.consumed)
+    self.assertEqual(
+      report.report_source_coverage.repo_snapshot_packet.disposition,
+      "missing",
+    )
 
   def test_report_source_coverage_rejects_empty_basis(self) -> None:
-    with self.assertRaises(ValueError):
-      ProjectManagerReport.model_validate(
-        build_report_data(
+    dispositions = (
+      ("used", True),
+      ("inspected_insufficient", True),
+      ("inspected_not_relevant", True),
+      ("inspected_contradictory", True),
+      ("missing", False),
+      ("invalid", False),
+      ("not_required_for_task", False),
+    )
+    for disposition, consumed in dispositions:
+      with self.subTest(disposition=disposition):
+        with self.assertRaises(ValueError):
+          ProjectManagerReport.model_validate(
+            build_report_data(
+              report_status="needs_clarification",
+              blocked=False,
+              blocking_reason=None,
+              missing_basis=["Clarify the target surface."],
+              constraint_conflicts=[],
+              next_admissible_transformation="Ask the user to name the target surface.",
+              repo_snapshot_packet_consumed=consumed,
+              repo_snapshot_packet_disposition=disposition,
+              repo_snapshot_packet_basis=[],
+            )
+          )
+
+  def test_report_source_coverage_requires_every_fixed_key(self) -> None:
+    for source_id in (
+      "static_context_packet",
+      "task",
+      "repo_snapshot_packet",
+      "git_context",
+    ):
+      with self.subTest(source_id=source_id):
+        report_data = build_report_data(
           report_status="needs_clarification",
           blocked=False,
           blocking_reason=None,
           missing_basis=["Clarify the target surface."],
           constraint_conflicts=[],
           next_admissible_transformation="Ask the user to name the target surface.",
-          repo_snapshot_packet_basis=[],
         )
-      )
+        del report_data["report_source_coverage"][source_id]
 
-  def test_report_source_coverage_rejects_unconsumed_supplied_source(self) -> None:
+        with self.assertRaises(ValueError):
+          ProjectManagerReport.model_validate(report_data)
+
+  def test_report_source_coverage_requires_disposition(self) -> None:
     report_data = build_report_data(
       report_status="needs_clarification",
       blocked=False,
@@ -174,7 +218,120 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
       constraint_conflicts=[],
       next_admissible_transformation="Ask the user to name the target surface.",
     )
-    report_data["report_source_coverage"]["repo_snapshot_packet"]["consumed"] = False
+    del report_data["report_source_coverage"]["repo_snapshot_packet"]["disposition"]
+
+    with self.assertRaises(ValueError):
+      ProjectManagerReport.model_validate(report_data)
+
+  def test_report_source_coverage_rejects_unknown_disposition(self) -> None:
+    report_data = build_report_data(
+      report_status="needs_clarification",
+      blocked=False,
+      blocking_reason=None,
+      missing_basis=["Clarify the target surface."],
+      constraint_conflicts=[],
+      next_admissible_transformation="Ask the user to name the target surface.",
+    )
+    report_data["report_source_coverage"]["repo_snapshot_packet"]["disposition"] = (
+      "ignored"
+    )
+
+    with self.assertRaises(ValueError):
+      ProjectManagerReport.model_validate(report_data)
+
+  def test_report_source_coverage_accepts_inspected_dispositions(self) -> None:
+    for disposition in (
+      "inspected_insufficient",
+      "inspected_not_relevant",
+      "inspected_contradictory",
+    ):
+      with self.subTest(disposition=disposition):
+        report = ProjectManagerReport.model_validate(
+          build_report_data(
+            report_status="needs_clarification",
+            blocked=False,
+            blocking_reason=None,
+            missing_basis=["Clarify the target surface."],
+            constraint_conflicts=[],
+            next_admissible_transformation="Ask the user to name the target surface.",
+            repo_snapshot_packet_disposition=disposition,
+            repo_snapshot_packet_basis=[
+              f"Reviewed the repo snapshot and classified it as {disposition}.",
+            ],
+          )
+        )
+
+        self.assertTrue(report.report_source_coverage.repo_snapshot_packet.consumed)
+        self.assertEqual(
+          report.report_source_coverage.repo_snapshot_packet.disposition,
+          disposition,
+        )
+
+  def test_report_source_coverage_accepts_unconsumed_dispositions(self) -> None:
+    for disposition in ("missing", "invalid", "not_required_for_task"):
+      with self.subTest(disposition=disposition):
+        report = ProjectManagerReport.model_validate(
+          build_report_data(
+            report_status="needs_clarification",
+            blocked=False,
+            blocking_reason=None,
+            missing_basis=["Clarify the target surface."],
+            constraint_conflicts=[],
+            next_admissible_transformation="Ask the user to name the target surface.",
+            repo_snapshot_packet_consumed=False,
+            repo_snapshot_packet_disposition=disposition,
+            repo_snapshot_packet_basis=[
+              f"The repo snapshot was classified as {disposition} for this task.",
+            ],
+          )
+        )
+
+        self.assertFalse(report.report_source_coverage.repo_snapshot_packet.consumed)
+        self.assertEqual(
+          report.report_source_coverage.repo_snapshot_packet.disposition,
+          disposition,
+        )
+
+  def test_report_source_coverage_rejects_consumed_disposition_mismatches(self) -> None:
+    cases = (
+      (False, "used"),
+      (False, "inspected_insufficient"),
+      (False, "inspected_not_relevant"),
+      (False, "inspected_contradictory"),
+      (True, "missing"),
+      (True, "invalid"),
+      (True, "not_required_for_task"),
+    )
+    for consumed, disposition in cases:
+      with self.subTest(consumed=consumed, disposition=disposition):
+        with self.assertRaises(ValueError):
+          ProjectManagerReport.model_validate(
+            build_report_data(
+              report_status="needs_clarification",
+              blocked=False,
+              blocking_reason=None,
+              missing_basis=["Clarify the target surface."],
+              constraint_conflicts=[],
+              next_admissible_transformation="Ask the user to name the target surface.",
+              repo_snapshot_packet_consumed=consumed,
+              repo_snapshot_packet_disposition=disposition,
+            )
+          )
+
+  def test_required_static_context_cannot_be_unconsumed(self) -> None:
+    report_data = build_report_data(
+      report_status="needs_clarification",
+      blocked=False,
+      blocking_reason=None,
+      missing_basis=["Clarify the target surface."],
+      constraint_conflicts=[],
+      next_admissible_transformation="Ask the user to name the target surface.",
+    )
+    report_data["report_source_coverage"]["static_context_packet"] = {
+      "consumed": False,
+      "disposition": "not_required_for_task",
+      "basis": ["Static context was incorrectly classified as not required."],
+    }
 
     with self.assertRaises(ValueError):
       ProjectManagerReport.model_validate(report_data)

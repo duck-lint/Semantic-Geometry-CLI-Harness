@@ -10,6 +10,7 @@
   "report_source_coverage": {
     "static_context_packet": {
       "consumed": true,
+      "disposition": "used",
       "basis": [
         "Reviewed the compiled static_context_packet.json, including project_spec thesis, runtime discipline, acceptance probes, known_failures, open_decisions, and the missing active implementation sources.",
         "Used the declared project thesis and evidence boundaries to keep the conclusion limited to historical smoke-test viability and not to later routes or future-run proof."
@@ -17,12 +18,14 @@
     },
     "task": {
       "consumed": true,
+      "disposition": "used",
       "basis": [
         "Reviewed the current task requesting a minimal PM smoke-test closeout report for Implementation 01 and explicitly limiting the claim to prior saved run artifacts proving call/return/parse/validation/save viability."
       ]
     },
     "repo_snapshot_packet": {
       "consumed": true,
+      "disposition": "used",
       "basis": [
         "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.json, which is the prior PM report artifact for the bounded smoke test.",
         "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.validation.json, which shows validation_passed=true and proof_frontier_blocked=true for that prior report artifact.",
@@ -32,6 +35,7 @@
     },
     "git_context": {
       "consumed": true,
+      "disposition": "used",
       "basis": [
         "Reviewed the supplied git context showing branch two at commit 15b4bbb23a51645d167034a24c9d05a1a2b1ecb5 with a clean worktree.",
         "Used git context only as current-state metadata; it does not change the historical evidence supported by the supplied prior run artifacts."

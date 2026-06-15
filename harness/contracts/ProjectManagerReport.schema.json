@@ -189,26 +189,10 @@
           "$ref": "#/$defs/ReportSourceCoverageEntry"
         },
         "repo_snapshot_packet": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/ReportSourceCoverageEntry"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/ReportSourceCoverageEntry"
         },
         "git_context": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/ReportSourceCoverageEntry"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
+          "$ref": "#/$defs/ReportSourceCoverageEntry"
         }
       },
       "required": [
@@ -227,6 +211,19 @@
           "title": "Consumed",
           "type": "boolean"
         },
+        "disposition": {
+          "enum": [
+            "used",
+            "inspected_insufficient",
+            "inspected_not_relevant",
+            "inspected_contradictory",
+            "missing",
+            "invalid",
+            "not_required_for_task"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
         "basis": {
           "items": {
             "type": "string"
@@ -238,6 +235,7 @@
       },
       "required": [
         "consumed",
+        "disposition",
         "basis"
       ],
       "title": "ReportSourceCoverageEntry",

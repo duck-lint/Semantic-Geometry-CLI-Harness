@@ -23,7 +23,9 @@
       "truthfulness_check: Do not use absence of target artifacts as a blocker to opening the slice whose purpose is to create those artifacts.",
       "Conflicts and omissions are made explicit, not brushed over or procedurally interpreted away.",
       "Resolve any possible conflict or tension between task and project thesis-attractor in report through proof frontier.",
-      "Every required resolved input surface, the task, and supplied git_context must be materially reviewed and named explicitly in report_source_coverage with consumed=true and a concrete non-empty basis.",
+      "Every fixed report_source_coverage key must be present with consumed, disposition, and a concrete non-empty basis. Required resolved input surfaces, the task, and supplied git_context must be materially reviewed with consumed=true.",
+      "Use disposition=used when a source supports a report claim; inspected_insufficient when reviewed but inadequate; inspected_not_relevant when reviewed but outside the task; inspected_contradictory when reviewed and contrary to a requested claim; missing when absent; invalid when unusable; and not_required_for_task when present or representable but unnecessary.",
+      "used and inspected_* require consumed=true. missing, invalid, and not_required_for_task require consumed=false.",
       "Affected and non-affected surfaces are named rather than inferred or sized.",
       "Every disposition is classified using the status semantics below, and proof_frontier.blocked is a separate frontier-state flag rather than a synonym for task approval.",
       "Stop conditions are explicit and tied to boundary violation or missing authority.",
@@ -56,8 +58,8 @@
     ],
     "report_derivation_lenses": {
       "source_coverage": {
-        "basis": "Identify every supplied runtime input source consumed by the report and state what claim-family or negative sufficiency conclusion each source supports. Name concrete artifact paths when the source is a repo snapshot.",
-        "truthfulness_check": "Do not claim a source was used unless the report actually derives claims from it. Every required resolved source, task, and supplied git_context must be consumed. Missing, optional, or invalid sources must remain explicitly visible."
+        "basis": "Identify every fixed report input source, assign its precise disposition, and state what claim-family, negative sufficiency conclusion, absence, invalidity, or task relevance the source establishes. Name concrete artifact paths when the source is a repo snapshot.",
+        "truthfulness_check": "Do not use disposition=used unless the report actually derives claims from the source. Reviewed sources that do not positively support a claim still use an inspected_* disposition with consumed=true. Missing, invalid, and not-required sources remain explicitly visible with consumed=false and concrete basis."
       },
       "trajectory_review": {
         "current_posture": "Derive declared project posture from repo-local authority inside the static context packet and runtime posture from supplied saved run artifacts and git_context. Do not replace available runtime evidence with static declarations, chat memory, model preference, or narrative momentum.",

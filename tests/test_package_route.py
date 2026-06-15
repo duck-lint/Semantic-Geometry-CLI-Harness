@@ -198,6 +198,24 @@ class PackageRouteTests(unittest.TestCase):
         self.assertTrue(report["proof_frontier"]["blocked"])
         self.assertTrue(report["report_source_coverage"]["repo_snapshot_packet"]["consumed"])
         self.assertTrue(report["report_source_coverage"]["git_context"]["consumed"])
+        self.assertIn(
+            report["report_source_coverage"]["repo_snapshot_packet"]["disposition"],
+            {
+                "used",
+                "inspected_insufficient",
+                "inspected_not_relevant",
+                "inspected_contradictory",
+            },
+        )
+        self.assertIn(
+            report["report_source_coverage"]["git_context"]["disposition"],
+            {
+                "used",
+                "inspected_insufficient",
+                "inspected_not_relevant",
+                "inspected_contradictory",
+            },
+        )
         self.assertTrue(
           any(
             "harness/runs/20260612-214948-agent-route/project_manager_report.json"

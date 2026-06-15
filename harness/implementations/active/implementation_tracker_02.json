@@ -31,8 +31,8 @@
       "seam": "03",
       "agent": "Codex",
       "change": "PM coverage disposition",
-      "evidence": "evidence of completion",
-      "status": "proposed"
+      "evidence": "PASS: python -m unittest -v tests.test_project_manager_report_validation tests.test_project_manager_report_extractor tests.test_project_manager_report_validation_artifact tests.test_openai_response_payload_compiler tests.test_package_route (67 tests); PASS: python -m unittest discover -s tests -v (167 tests); implementation_02_admissibility_report.json validates against ProjectManagerReport.schema.json and ProjectManagerReport Pydantic.",
+      "status": "reviewing"
     },
     {
       "date": "20260615",

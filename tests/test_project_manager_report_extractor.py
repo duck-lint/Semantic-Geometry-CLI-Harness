@@ -60,6 +60,10 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
       self.assertTrue(report.proof_frontier.blocked)
       self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
       self.assertTrue(report.report_source_coverage.repo_snapshot_packet.consumed)
+      self.assertEqual(
+        report.report_source_coverage.repo_snapshot_packet.disposition,
+        "inspected_insufficient",
+      )
       self.assertTrue(
         any(
           "harness/runs/20260612-214948-agent-route/project_manager_report.json"
@@ -85,6 +89,10 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
       self.assertIsNone(report.proof_frontier.blocking_reason)
       self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
       self.assertTrue(report.report_source_coverage.repo_snapshot_packet.consumed)
+      self.assertEqual(
+        report.report_source_coverage.repo_snapshot_packet.disposition,
+        "inspected_contradictory",
+      )
       self.assertTrue(
         any(
           "harness/runs/20260612-214948-agent-route/project_manager_report.json"
@@ -128,7 +136,11 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
       output_path = temp_root / "project_manager_report.json"
       raw_response = load_json(RAW_RESPONSE_FIXTURE_PATH)
       report = json.loads(raw_response["output_text"])
-      report["report_source_coverage"]["repo_snapshot_packet"] = None
+      report["report_source_coverage"]["repo_snapshot_packet"] = {
+        "consumed": False,
+        "disposition": "missing",
+        "basis": ["The required route source was not supplied."],
+      }
       raw_response["output_text"] = json.dumps(report)
       write_json(raw_response_path, raw_response)
 
@@ -141,6 +153,29 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
         )
 
       self.assertIn("repo_snapshot_packet", str(error.exception))
+      self.assertFalse(output_path.exists())
+      self.assertFalse(default_validation_artifact_path(output_path).exists())
+
+  def test_extractor_rejects_missing_disposition_before_write(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      raw_response_path = temp_root / "raw_model_response.json"
+      output_path = temp_root / "project_manager_report.json"
+      raw_response = load_json(RAW_RESPONSE_FIXTURE_PATH)
+      report = json.loads(raw_response["output_text"])
+      del report["report_source_coverage"]["repo_snapshot_packet"]["disposition"]
+      raw_response["output_text"] = json.dumps(report)
+      write_json(raw_response_path, raw_response)
+
+      with self.assertRaises(ProjectManagerReportExtractorError) as error:
+        extract_project_manager_report(
+          raw_response_path=raw_response_path,
+          schema_path=PM_SCHEMA_PATH,
+          output_path=output_path,
+        )
+
+      self.assertIn("$.report_source_coverage.repo_snapshot_packet", str(error.exception))
+      self.assertIn("'disposition' is a required property", str(error.exception))
       self.assertFalse(output_path.exists())
       self.assertFalse(default_validation_artifact_path(output_path).exists())
 

@@ -16,19 +16,48 @@ class Metadata(BaseModel):
   document_authority: Literal["output_policy_artifact"]
 
 
+SourceCoverageDisposition = Literal[
+  "used",
+  "inspected_insufficient",
+  "inspected_not_relevant",
+  "inspected_contradictory",
+  "missing",
+  "invalid",
+  "not_required_for_task",
+]
+
+
 class ReportSourceCoverageEntry(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   consumed: bool
+  disposition: SourceCoverageDisposition
   basis: list[str] = Field(min_length=1)
+
+  @model_validator(mode="after")
+  def enforce_consumed_disposition_consistency(self):
+    consumed_dispositions = {
+      "used",
+      "inspected_insufficient",
+      "inspected_not_relevant",
+      "inspected_contradictory",
+    }
+    expected_consumed = self.disposition in consumed_dispositions
+    if self.consumed != expected_consumed:
+      raise ValueError(
+        f"disposition={self.disposition!r} requires consumed={expected_consumed}."
+      )
+
+    return self
+
 
 class ReportSourceCoverage(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   static_context_packet: ReportSourceCoverageEntry
   task: ReportSourceCoverageEntry
-  repo_snapshot_packet: ReportSourceCoverageEntry | None = None
-  git_context: ReportSourceCoverageEntry | None = None
+  repo_snapshot_packet: ReportSourceCoverageEntry
+  git_context: ReportSourceCoverageEntry
 
 
 class DriftDetection(BaseModel):
@@ -86,21 +115,11 @@ class ProjectManagerReport(BaseModel):
       "static_context_packet": coverage.static_context_packet,
       "task": coverage.task,
     }
-    optional_coverage = {
-      "repo_snapshot_packet": coverage.repo_snapshot_packet,
-      "git_context": coverage.git_context,
-    }
 
     for source_id, entry in required_coverage.items():
       if not entry.consumed:
         raise ValueError(
           f"report_source_coverage.{source_id}.consumed must be true."
-        )
-
-    for source_id, entry in optional_coverage.items():
-      if entry is not None and not entry.consumed:
-        raise ValueError(
-          f"report_source_coverage.{source_id} must be null or consumed=true."
         )
 
     frontier = self.proof_frontier
