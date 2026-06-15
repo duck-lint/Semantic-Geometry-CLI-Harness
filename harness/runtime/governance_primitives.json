@@ -18,7 +18,10 @@
     "derived_runtime_artifacts": [
       "compiled_runtime_artifact",
       "output_policy_artifact",
-      "raw_provider_artifact"
+      "raw_provider_artifact",
+      "validation_artifact",
+      "ledger_artifact",
+      "archive_record"
     ]
   },
   "agent_contracts": [
@@ -38,5 +41,44 @@
     "tool_and_worker_surface",
     "provider_or_api_behavior",
     "compatibility_commitments"
-  ]
+  ],
+  "evidence_classes": {
+    "runtime_evidence": [
+      "compiled_runtime_artifact",
+      "output_policy_artifact",
+      "raw_provider_artifact",
+      "validation_artifact",
+      "ledger_artifact",
+      "archive_record"
+    ],
+    "valid_claim_families": {
+      "compiled_runtime_artifact": [
+        "context_was_compiled",
+        "payload_was_constructed"
+      ],
+      "output_policy_artifact": [
+        "agent_output_was_parsed",
+        "agent_output_matched_schema",
+        "bounded_report_claim_was_emitted"
+      ],
+      "raw_provider_artifact": [
+        "provider_returned_response",
+        "audit_trace_exists"
+      ],
+      "validation_artifact": [
+        "schema_validation_passed_or_failed",
+        "probe_result_was_recorded"
+      ],
+      "ledger_artifact": [
+        "api_call_was_recorded",
+        "route_invocation_was_recorded",
+        "token_usage_was_recorded"
+      ],
+      "archive_record": [
+        "bounded_historical_claim_was_preserved",
+        "future_reports_may_cite_record_without_reconstructing_raw_artifacts"
+      ]
+    },
+    "boundary_rule": "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority."
+  }
 }
