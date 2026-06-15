@@ -1,60 +1,154 @@
 {
+  "$schema": "../../implementations/ImplementationPlan.schema.json",
   "metadata": {
-    "document_id": "implementation_plan.template.json",
-    "title": "Implementation <#> Plan",
+    "document_id": "implementation_plan_02.json",
+    "title": "Implementation 02 Plan",
     "purpose": "This file outlines an implementation plan.",
     "source_format": "json",
-    "document_authority": "operational_state.template"
+    "document_authority": "operational_state"
   },
   "implementation_intent": [
     {
-      "id": "",
-      "summary": "",
-      "why_it_matters": ""
+      "id": "intent-01",
+      "summary": "Create Archive Manager as the place where evidence taxonomy, run phase summaries, closeout records, and citation-ready archive records become concrete.",
+      "why_it_matters": "Archive Manager turns run evidence, validation results, and closeout claims into durable citation-ready records instead of leaving future PM reports to reconstruct state from raw artifacts."
+    },
+    {
+      "id": "intent-02",
+      "summary": "Define historical/current evidence taxonomy and per-file artifact classification.",
+      "why_it_matters": "Interactions with PM reinforcing state mechanics of implementations, close-out of current and open of next require delineation standard. "
+    },
+    {
+      "id": "intent-03",
+      "summary": "Draft closeout record shape to seed archive record as citation-ready evidence.",
+      "why_it_matters": "Once taxonomy is decided a standard shape for retention can be drafted."
+    },
+    {
+      "id": "intent-04",
+      "summary": "Reduce PM agent prose only where equivalent behavior is now enforced by schema, validator, route config, or explicit state.",
+      "why_it_matters": "Operational aspects and governance characteristics get ontology, behavior gets prose."
+    },
+    {
+      "id": "intent-05",
+      "summary": "Affected/non-affected surfaces and stop_conditions must be accounted for, but it should not force invented surfaces.",
+      "why_it_matters": "That prevents hallucination while still forcing coverage."
+    },
+    {
+      "id": "intent-06",
+      "summary": "Add a disposition enum for PM report source coverage.",
+      "why_it_matters": "Increase coverage precision in PM report."
+    },
+    {
+      "id": "intent-07",
+      "summary": "Keep Implementation 02 contracts provisional but valid: outputs should be concrete enough to validate and test, while remaining easy to revise as the harness ontology matures.",
+      "why_it_matters": "This is a greenfield system, so the slice should produce working inspectable surfaces without pretending the first version is permanent."
     }
   ],
-  "project_manager_report": "pending_first_runtime_pm_report",
+  "project_manager_report": "./implementation_02_admissibility_report.json",
   "seams": [
     {
-      "id": "",
-      "title": "",
-      "description": "",
-      "status": "",
-      "evidence_target": ""
+      "id": "seam-01",
+      "title": "Archive record schema",
+      "description": "Defines the citation-ready archive record shape for bounded implementation closeout and saved run evidence.",
+      "status": "active",
+      "evidence_target": ["Archive record validates against schema and can cite source run artifacts."]
+    },
+    {
+      "id": "seam-02",
+      "title": "Artifact classification",
+      "description": "Classifies saved run files as task, context, provider, report, validation, ledger, or archive evidence.",
+      "status": "proposed",
+      "evidence_target": ["Run artifacts receive stable artifact_type values, run evidence being the most important."]
+    },
+    {
+      "id": "seam-03",
+      "title": "PM coverage disposition",
+      "description": "Adds explicit source coverage disposition so PM reports distinguish used, insufficient, irrelevant, invalid, and missing sources.",
+      "status": "proposed",
+      "evidence_target": ["ProjectManagerReport validation accepts valid dispositions and rejects empty required coverage."]
+    },
+    {
+      "id": "seam-04",
+      "title": "PM prose migration",
+      "description": "Removes PM prose that is now enforced by schema, validator, route config, or explicit state while preserving thesis-attractor and tension-surfacing judgment prose.",
+      "status": "proposed",
+      "evidence_target": ["PM agent contract is shorter and still produces valid admissibility reports."]
+    },
+    {
+      "id": "seam-05",
+      "title": "AM creation",
+      "description": "Create the Archive manager agent.json and associated Pydantic model and schema.",
+      "status": "active",
+      "evidence_target": ["AM agent json and Pydantic models."]
     }
   ],
-  "non_goals": [],
+  "non_goals": [
+    "Planning Manager.",
+    "Implementation Manager", 
+    "Red Team Manager.",
+    "Worker/apply behavior.",
+    "External tooling beyond the archive/report surfaces required for this slice."
+  ],
   "acceptance_criteria": [
     {
-      "id": "",
-      "criterion": "",
-      "required_evidence": []
-    }
-  ],
-  "current_repo_runtime_state": [
+      "id": "ac-01",
+      "criterion": "Archive record schema exists and validates an example closeout record.",
+      "required_evidence": [
+        "Archive record model/schema",
+        "archive record example",
+        "validation passing"
+      ]
+    },
     {
-      "surface": "",
-      "state": "",
-      "notes": ""
-    }
-  ],
-  "assumptions_and_unknowns": [
+      "id": "ac-02",
+      "criterion": "Artifact taxonomy classifies the saved run files needed for Implementation 01 closeout.",
+      "required_evidence": [
+        "artifact classification enum or schema",
+        "test or fixture using a prior run bundle"
+      ]
+    },
     {
-      "id": "",
-      "type": "",
-      "statement": "",
-      "risk_if_wrong": ""
+      "id": "ac-03",
+      "criterion": "PM source coverage supports explicit disposition instead of only consumed true/false.",
+      "required_evidence": [
+        "ProjectManagerReport schema/model update",
+        "passing validator tests",
+        "updated example report"
+      ]
+    },
+    {
+      "id": "ac-04",
+      "criterion": "PM agent prose is reduced only where enforcement now exists in code or state.",
+      "required_evidence": [
+        "updated project_manager.agent.json",
+        "valid PM smoke-test report after pruning"
+      ]
     }
   ],
-  "affected_surfaces": [],
-  "non_affected_surfaces": [],
-  "completion_rules": [],
+  "affected_surfaces": [
+    "archive_manager.agent.json",
+    "archive_manager_agent.py",
+    "ArchiveManagerAgent.schema.json",
+    "archive_manager_report.example.json",
+    "archive_manager_report.py",
+    "ArchiveManagerReport.schema.json",
+    "project_manager_report.py",
+    "ProjectManagerReport.schema.json",
+    "Compilers and validators.",
+    "Possibly provider renderer."
+  ],
+  "non_affected_surfaces": [
+    "Provider specific payload model, call runner and raw response model."
+  ],
+  "completion_rules": [
+    "Scaffolds and templates are not admissible."
+  ],
   "approval_gates": [
     {
-      "id": "",
-      "boundary": "",
-      "requires": ""
+      "id": "ag-01",
+      "boundary": "AM Report.",
+      "requires": "An admissible AM report that allows a future PM report can cite the archive record instead of reconstructing the whole saga from raw run artifacts."
     }
   ],
-  "closeout_notes": []
+  "closeout_notes": ["null."]
 }

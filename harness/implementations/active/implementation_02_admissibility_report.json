@@ -1,0 +1,91 @@
+{
+  "metadata": {
+    "document_id": "project_manager_report.json",
+    "title": "Project Manager Report",
+    "source_format": "json",
+    "document_authority": "output_policy_artifact"
+  },
+  "report_status": "admissible",
+  "report_summary": "The supplied prior saved run artifacts support the bounded historical smoke-test claim for Implementation 01: a prior PM route run demonstrates call, return, parse, validation, and save viability using saved task, context, report, provider, validation, and ledger artifacts. This supports only the historical bounded claim and does not extend to full harness completion or later routes.",
+  "report_source_coverage": {
+    "static_context_packet": {
+      "consumed": true,
+      "basis": [
+        "Reviewed the compiled static_context_packet.json, including project_spec thesis, runtime discipline, acceptance probes, known_failures, open_decisions, and the missing active implementation sources.",
+        "Used the declared project thesis and evidence boundaries to keep the conclusion limited to historical smoke-test viability and not to later routes or future-run proof."
+      ]
+    },
+    "task": {
+      "consumed": true,
+      "basis": [
+        "Reviewed the current task requesting a minimal PM smoke-test closeout report for Implementation 01 and explicitly limiting the claim to prior saved run artifacts proving call/return/parse/validation/save viability."
+      ]
+    },
+    "repo_snapshot_packet": {
+      "consumed": true,
+      "basis": [
+        "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.json, which is the prior PM report artifact for the bounded smoke test.",
+        "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.validation.json, which shows validation_passed=true and proof_frontier_blocked=true for that prior report artifact.",
+        "Reviewed harness/runs/20260614-192022-agent-route/raw_model_response.json, which shows the raw provider response completed before harness validation and save.",
+        "Reviewed harness/state/ledgers/api_call_ledger.jsonl, which records the prior plan-route call with contract_status=admissibility_blocked and the saved artifact paths for the same run."
+      ]
+    },
+    "git_context": {
+      "consumed": true,
+      "basis": [
+        "Reviewed the supplied git context showing branch two at commit 15b4bbb23a51645d167034a24c9d05a1a2b1ecb5 with a clean worktree.",
+        "Used git context only as current-state metadata; it does not change the historical evidence supported by the supplied prior run artifacts."
+      ]
+    }
+  },
+  "trajectory_review": {
+    "current_posture": "The current request is a closeout-style historical evidence review. The repo git context is clean, and the supplied prior run artifacts show a completed PM route with saved artifacts and validation for the bounded smoke-test slice.",
+    "thesis_attractor": "A governed CLI harness that makes task, context, report, provider, validation, and save evidence inspectable so bounded implementation slices can be proven without implying unsupported future capability.",
+    "drift_detection": {
+      "drift_detected": false,
+      "description": "No drift detected for the bounded historical claim; the request stays within prior-run evidence and does not ask this report to prove its own future persistence."
+    },
+    "structural_tension": "The only tension is scope discipline: the evidence supports Implementation 01 smoke-test viability, but not full harness completion or later route implementation."
+  },
+  "proof_frontier": {
+    "constraint_conflicts": [],
+    "dominant_tension_justification": "There is no authority conflict. The limiting frontier is simply the boundary between historical smoke-test proof and unsupported future capability claims.",
+    "blocked": false,
+    "blocking_reason": null,
+    "missing_basis": [],
+    "next_admissible_transformation": "Archive the bounded smoke-test evidence as a closeout record for Implementation 01 and keep later routes out of scope for this report.",
+    "affected_surfaces": [
+      "historical smoke-test evidence",
+      "PM route closeout",
+      "saved artifact citation",
+      "scope-bounded implementation review"
+    ],
+    "non_affected_surfaces": [
+      "Archive Manager implementation",
+      "planner behavior",
+      "worker/apply behavior",
+      "reviewer behavior",
+      "future route viability"
+    ],
+    "stop_conditions": [
+      "Stop if the report tries to generalize beyond the bounded historical smoke-test claim.",
+      "Stop if future-run proof is required from this report."
+    ],
+    "authority_constraints": [
+      "global_harness authority for report shape and role boundaries",
+      "harness_target authority for the project thesis and evidence boundaries",
+      "operational_state authority for the current task and prior saved run artifacts",
+      "output_policy_artifact authority for the PM report contract"
+    ]
+  },
+  "report_artifact_path": "*/20260614-193305-agent-route/project_manager_report.json",
+  "report_artifact_sha256": "6a2599ecc48baa1e61fc6e27f214312abaca5e317cb5e52f0c7539a82e0b03f7",
+  "schema_name": "project_manager_report",
+  "schema_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/contracts/ProjectManagerReport.schema.json",
+  "schema_sha256": "a7862bb021921a0eac4994ed1acc486dcba3cd225a341ff539fcd3d4a2437882",
+  "validator": "harness.contracts.project_manager_report_extractor.extract_project_manager_report",
+  "validation_timestamp_utc": "2026-06-14T19:33:12.947132Z",
+  "validation_passed": true,
+  "report_status": "admissible",
+  "proof_frontier_blocked": false
+}
