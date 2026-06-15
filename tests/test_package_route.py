@@ -26,11 +26,13 @@ from harness.contracts.project_manager_report_validation import (
 from harness.runtime.artifact_facts import sha256_file
 from harness.runtime.api_call_ledger import DEFAULT_RUNTIME_CALL_LEDGER_PATH
 from harness.runtime import package_route
+from tests.agent_test_support import create_test_project_manager_agent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
-AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 RAW_RESPONSE_FIXTURE_PATH = REPO_ROOT / "tests" / "fixtures" / "raw_model_response.json"
 RUNTIME_BUDGET_PATH = HARNESS_ROOT / "runtime" / "runtime_budget.policy.json"
 LEDGER_PATH = DEFAULT_RUNTIME_CALL_LEDGER_PATH
@@ -310,6 +312,8 @@ class PackageRouteTests(unittest.TestCase):
         "harness",
         "plan",
         "Review the current project trajectory.",
+        "--agent",
+        str(AGENT_PATH),
       ],
       expected_banner="PASS: Plan route completed.",
       expected_route="plan",

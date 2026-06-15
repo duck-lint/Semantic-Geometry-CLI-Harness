@@ -22,12 +22,14 @@ from harness.runtime.api_call_packet_builder import build_api_call_packet
 from harness.runtime.api_call_ledger import DEFAULT_RUNTIME_CALL_LEDGER_PATH
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.task import task_from_cli
+from tests.agent_test_support import create_test_project_manager_agent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.json"
-AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 PM_SCHEMA_PATH = HARNESS_ROOT / "contracts" / "ProjectManagerReport.schema.json"
 PAYLOAD_SCHEMA_PATH = (
   HARNESS_ROOT / "providers" / "openai" / "OpenAIResponsePayload.schema.json"

@@ -27,12 +27,14 @@ from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.orchestrator import build_pre_call_artifacts
 from harness.runtime.task import Task, task_from_cli
+from tests.agent_test_support import create_test_project_manager_agent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.json"
-AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 AGENT_CONTEXT_SCHEMA_PATH = HARNESS_ROOT / "agents" / "AgentContextPacket.schema.json"
 API_CALL_SCHEMA_PATH = HARNESS_ROOT / "runtime" / "ApiCallPacket.schema.json"
 RUNTIME_BUDGET_PATH = HARNESS_ROOT / "runtime" / "runtime_budget.policy.json"
@@ -79,7 +81,7 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       task_from_cli("")
 
   def test_current_pm_agent_file_validates(self) -> None:
-    agent = ProjectManagerAgent.model_validate(load_json(AGENT_PATH))
+    agent = ProjectManagerAgent.model_validate(load_json(LIVE_AGENT_PATH))
 
     self.assertEqual(agent.metadata.id, "project_manager.agent.json")
     self.assertEqual(agent.provider, "openai")

@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "document_id": "implementation_plan.template.json",
+    "title": "Implementation <#> Plan",
+    "purpose": "This file outlines an implementation plan.",
+    "source_format": "json",
+    "document_authority": "operational_state.template"
+  },
+  "implementation_intent": [
+    {
+      "id": "",
+      "summary": "",
+      "why_it_matters": ""
+    }
+  ],
+  "project_manager_report": "pending_first_runtime_pm_report",
+  "seams": [
+    {
+      "id": "",
+      "title": "",
+      "description": "",
+      "status": "",
+      "evidence_target": ""
+    }
+  ],
+  "non_goals": [],
+  "acceptance_criteria": [
+    {
+      "id": "",
+      "criterion": "",
+      "required_evidence": []
+    }
+  ],
+  "current_repo_runtime_state": [
+    {
+      "surface": "",
+      "state": "",
+      "notes": ""
+    }
+  ],
+  "assumptions_and_unknowns": [
+    {
+      "id": "",
+      "type": "",
+      "statement": "",
+      "risk_if_wrong": ""
+    }
+  ],
+  "affected_surfaces": [],
+  "non_affected_surfaces": [],
+  "completion_rules": [],
+  "approval_gates": [
+    {
+      "id": "",
+      "boundary": "",
+      "requires": ""
+    }
+  ],
+  "closeout_notes": []
+}

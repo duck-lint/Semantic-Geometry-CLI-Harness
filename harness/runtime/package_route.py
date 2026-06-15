@@ -372,9 +372,16 @@ def build_argument_parser() -> argparse.ArgumentParser:
 
 
 def build_plan_argument_parser() -> argparse.ArgumentParser:
-  return _build_base_argument_parser(
+  parser = _build_base_argument_parser(
     "Run the Project Manager plan alias over the selected PM agent route.",
   )
+  parser.add_argument(
+    "--agent",
+    type=Path,
+    default=DEFAULT_PM_AGENT_PATH,
+    help="Path to the Project Manager agent contract.",
+  )
+  return parser
 
 
 def _build_base_argument_parser(description: str) -> argparse.ArgumentParser:
@@ -459,7 +466,7 @@ def _run_plan_route(argv: list[str]) -> int:
     route_name="Plan",
     route="plan",
     task_text=args.task_text,
-    agent_path=DEFAULT_PM_AGENT_PATH,
+    agent_path=args.agent,
     runs_root=args.runs_root,
     repo_root=args.repo_root,
   )

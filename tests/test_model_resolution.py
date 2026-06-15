@@ -22,12 +22,14 @@ from harness.runtime.model_resolution import (
 from harness.runtime.provider_runtime_policy import ProviderRuntimePolicy
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.task import task_from_cli
+from tests.agent_test_support import create_test_project_manager_agent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.json"
-AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 PROVIDER_POLICY_PATH = HARNESS_ROOT / "runtime" / "provider_runtime.policy.json"
 PROVIDER_POLICY_SCHEMA_PATH = (
   HARNESS_ROOT / "runtime" / "ProviderRuntimePolicy.schema.json"

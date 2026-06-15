@@ -22,12 +22,14 @@ from harness.repo_snapshot.repo_snapshot_packet import RepoSnapshotPacket
 from harness.runtime.api_call_packet_builder import build_api_call_packet
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.task import task_from_cli
+from tests.agent_test_support import create_test_project_manager_agent
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.json"
-AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 REPO_SNAPSHOT_SCHEMA_PATH = (
   HARNESS_ROOT / "repo_snapshot" / "RepoSnapshotPacket.schema.json"
 )
