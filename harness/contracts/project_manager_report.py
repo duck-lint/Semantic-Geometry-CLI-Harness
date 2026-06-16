@@ -30,9 +30,34 @@ SourceCoverageDisposition = Literal[
 class ReportSourceCoverageEntry(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
-  consumed: bool
-  disposition: SourceCoverageDisposition
-  basis: list[str] = Field(min_length=1)
+  consumed: bool = Field(
+    description=(
+      "Whether the Project Manager materially reviewed the source. This does "
+      "not indicate that the source is binding authority."
+    )
+  )
+  disposition: SourceCoverageDisposition = Field(
+    description=(
+      "How the Project Manager handled this source in this report. 'used' "
+      "means the source materially supported a report claim, not that it is "
+      "binding authority. 'inspected_insufficient' means the source was "
+      "reviewed but did not substantiate the requested claim family. "
+      "'inspected_not_relevant' means it was reviewed but was outside the "
+      "task. 'inspected_contradictory' means it contradicted the requested "
+      "claim family without independently determining report_status. "
+      "'missing' and 'invalid' describe source availability or validity, not "
+      "authority. 'not_required_for_task' means the source was unnecessary "
+      "for the current task."
+    )
+  )
+  basis: list[str] = Field(
+    min_length=1,
+    description=(
+      "Concrete free-text explanation of the disposition. It may name a "
+      "governance evidence_class or valid_claim_family when useful, but the "
+      "text is descriptive and is not parsed for validation."
+    ),
+  )
 
   @model_validator(mode="after")
   def enforce_consumed_disposition_consistency(self):

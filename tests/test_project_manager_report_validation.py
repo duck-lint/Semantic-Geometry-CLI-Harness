@@ -3,8 +3,12 @@ from __future__ import annotations
 import json
 import unittest
 from pathlib import Path
+from typing import get_args
 
-from harness.contracts.project_manager_report import ProjectManagerReport
+from harness.contracts.project_manager_report import (
+  ProjectManagerReport,
+  SourceCoverageDisposition,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -266,6 +270,90 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
           report.report_source_coverage.repo_snapshot_packet.disposition,
           disposition,
         )
+
+  def test_source_coverage_basis_is_opaque_free_text(self) -> None:
+    report = ProjectManagerReport.model_validate(
+      build_report_data(
+        report_status="needs_clarification",
+        blocked=False,
+        blocking_reason=None,
+        missing_basis=["Clarify the target surface."],
+        constraint_conflicts=[],
+        next_admissible_transformation="Ask the user to name the target surface.",
+        repo_snapshot_packet_disposition="inspected_insufficient",
+        repo_snapshot_packet_basis=[
+          "Reviewed it carefully; this explanation intentionally contains no taxonomy terms.",
+        ],
+      )
+    )
+
+    self.assertEqual(
+      report.report_source_coverage.repo_snapshot_packet.basis,
+      [
+        "Reviewed it carefully; this explanation intentionally contains no taxonomy terms.",
+      ],
+    )
+
+  def test_used_may_describe_non_authoritative_derived_evidence(self) -> None:
+    report = ProjectManagerReport.model_validate(
+      build_report_data(
+        report_status="admissible",
+        blocked=False,
+        blocking_reason=None,
+        missing_basis=[],
+        constraint_conflicts=[],
+        next_admissible_transformation="Preserve the bounded call record.",
+        repo_snapshot_packet_disposition="used",
+        repo_snapshot_packet_basis=[
+          "Used non-authoritative ledger_artifact evidence for the valid claim family api_call_was_recorded.",
+        ],
+      )
+    )
+
+    self.assertEqual(
+      report.report_source_coverage.repo_snapshot_packet.disposition,
+      "used",
+    )
+    self.assertEqual(report.report_status, "admissible")
+
+  def test_inspected_contradictory_does_not_force_rejected_status(self) -> None:
+    report = ProjectManagerReport.model_validate(
+      build_report_data(
+        report_status="admissible",
+        blocked=False,
+        blocking_reason=None,
+        missing_basis=[],
+        constraint_conflicts=[],
+        next_admissible_transformation="Proceed using the controlling source.",
+        repo_snapshot_packet_disposition="inspected_contradictory",
+        repo_snapshot_packet_basis=[
+          "The supplied derived artifact contradicted the requested claim family, but no authority conflict was established.",
+        ],
+      )
+    )
+
+    self.assertEqual(
+      report.report_source_coverage.repo_snapshot_packet.disposition,
+      "inspected_contradictory",
+    )
+    self.assertEqual(report.report_status, "admissible")
+
+  def test_schema_describes_disposition_taxonomy_boundary(self) -> None:
+    schema = ProjectManagerReport.model_json_schema()
+    coverage_entry = schema["$defs"]["ReportSourceCoverageEntry"]
+    disposition_description = coverage_entry["properties"]["disposition"][
+      "description"
+    ]
+    basis_description = coverage_entry["properties"]["basis"]["description"]
+
+    self.assertEqual(
+      tuple(coverage_entry["properties"]["disposition"]["enum"]),
+      get_args(SourceCoverageDisposition),
+    )
+    self.assertIn("not that it is binding authority", disposition_description)
+    self.assertIn("did not substantiate the requested claim family", disposition_description)
+    self.assertIn("without independently determining report_status", disposition_description)
+    self.assertIn("not parsed for validation", basis_description)
 
   def test_report_source_coverage_accepts_unconsumed_dispositions(self) -> None:
     for disposition in ("missing", "invalid", "not_required_for_task"):

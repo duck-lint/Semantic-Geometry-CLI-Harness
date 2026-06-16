@@ -14,9 +14,44 @@ BindingAuthority = Literal[
 ]
 
 DerivedRuntimeArtifact = Literal[
-    "compiled_runtime_artifact",
-    "output_policy_artifact",
-    "raw_provider_artifact",
+  "compiled_runtime_artifact",
+  "output_policy_artifact",
+  "raw_provider_artifact",
+  "validation_artifact",
+  "ledger_artifact",
+  "archive_record",
+]
+
+CompiledRuntimeClaim = Literal[
+  "context_was_compiled",
+  "payload_was_constructed",
+]
+
+OutputPolicyClaim = Literal[
+  "agent_output_was_parsed",
+  "agent_output_matched_schema",
+  "bounded_report_claim_was_emitted",
+]
+
+RawProviderClaim = Literal[
+  "provider_returned_response",
+  "audit_trace_exists",
+]
+
+ValidationClaim = Literal[
+  "schema_validation_passed_or_failed",
+  "probe_result_was_recorded",
+]
+
+LedgerClaim = Literal[
+  "api_call_was_recorded",
+  "route_invocation_was_recorded",
+  "token_usage_was_recorded",
+]
+
+ArchiveClaim = Literal[
+  "bounded_historical_claim_was_preserved",
+  "future_reports_may_cite_record_without_reconstructing_raw_artifacts",
 ]
 
 AgentContracts = Literal[
@@ -39,6 +74,15 @@ ApprovalSensitiveSurfaces = Literal[
   "compatibility_commitments"
   ]
 
+RuntimeEvidence = Literal[
+      "compiled_runtime_artifact",
+      "output_policy_artifact",
+      "raw_provider_artifact",
+      "validation_artifact",
+      "ledger_artifact",
+      "archive_record"
+]
+
 class Metadata(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
@@ -57,6 +101,27 @@ class DocumentAuthorityClasses(BaseModel):
   derived_runtime_artifacts: list[DerivedRuntimeArtifact]
 
 
+class ValidClaimFamilies(BaseModel):
+  model_config = ConfigDict(extra="forbid")
+
+  compiled_runtime_artifact: list[CompiledRuntimeClaim]
+  output_policy_artifact: list[OutputPolicyClaim]
+  raw_provider_artifact: list[RawProviderClaim]
+  validation_artifact: list[ValidationClaim]
+  ledger_artifact: list[LedgerClaim]
+  archive_record: list[ArchiveClaim]
+
+
+class EvidenceClasses(BaseModel):
+  model_config = ConfigDict(extra="forbid")
+
+  runtime_evidence: list[DerivedRuntimeArtifact]
+  valid_claim_families: ValidClaimFamilies
+  boundary_rule: Literal[
+    "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority."
+  ]
+
+
 class GovernancePrimitives(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
@@ -65,3 +130,4 @@ class GovernancePrimitives(BaseModel):
   document_authority_classes: DocumentAuthorityClasses
   agent_contracts: list[AgentContracts]
   approval_sensitive_surfaces: list[ApprovalSensitiveSurfaces] = []
+  evidence_classes: EvidenceClasses

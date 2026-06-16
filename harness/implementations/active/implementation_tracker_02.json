@@ -31,7 +31,7 @@
       "seam": "03",
       "agent": "Codex",
       "change": "PM coverage disposition",
-      "evidence": "PASS: python -m unittest -v tests.test_project_manager_report_validation tests.test_project_manager_report_extractor tests.test_project_manager_report_validation_artifact tests.test_openai_response_payload_compiler tests.test_package_route (67 tests); PASS: python -m unittest discover -s tests -v (167 tests); implementation_02_admissibility_report.json validates against ProjectManagerReport.schema.json and ProjectManagerReport Pydantic.",
+      "evidence": "PASS: python -m unittest -v tests.test_governance_primitives tests.test_project_manager_report_validation tests.test_project_manager_report_extractor tests.test_project_manager_report_validation_artifact tests.test_static_context_packet_compiler tests.test_openai_response_payload_compiler tests.test_package_route (86 tests); PASS: python -m unittest discover -s tests -v (173 tests); tracked PM report and governance taxonomy validate via JSON Schema and Pydantic; basis remains opaque free text with no semantic parsing.",
       "status": "reviewing"
     },
     {

@@ -44,7 +44,7 @@
       "why_it_matters": "This is a greenfield system, so the slice should produce working inspectable surfaces without pretending the first version is permanent."
     }
   ],
-  "project_manager_report": "./implementation_02_admissibility_report.json",
+  "project_manager_report": "./project_manager_admissibility_report_20260614.json",
   "seams": [
     {
       "id": "seam-01",
@@ -67,8 +67,9 @@
       "status": "complete",
       "evidence_target": [
         "ProjectManagerReport validation accepts all valid dispositions, rejects empty required coverage and consumed/disposition mismatches, and preserves the existing proof-frontier and constraint-conflict truth tables.",
-        "Focused validation passes 67 tests and full unittest discovery passes 167 tests.",
-        "The migrated Implementation 02 PM smoke report validates against both ProjectManagerReport.schema.json and the ProjectManagerReport Pydantic model."
+        "Disposition remains source-handling state while governance evidence_class and valid_claim_families remain artifact and claim classification; basis text is descriptive and opaque to validators.",
+        "Focused taxonomy and PM validation passes 86 tests and full unittest discovery passes 173 tests.",
+        "The migrated Implementation 02 PM smoke report and governance taxonomy validate against their JSON Schemas and Pydantic models."
       ]
     },
     {

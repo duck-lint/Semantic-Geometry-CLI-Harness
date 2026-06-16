@@ -27,10 +27,10 @@
       "consumed": true,
       "disposition": "used",
       "basis": [
-        "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.json, which is the prior PM report artifact for the bounded smoke test.",
-        "Reviewed harness/runs/20260614-192022-agent-route/project_manager_report.validation.json, which shows validation_passed=true and proof_frontier_blocked=true for that prior report artifact.",
-        "Reviewed harness/runs/20260614-192022-agent-route/raw_model_response.json, which shows the raw provider response completed before harness validation and save.",
-        "Reviewed harness/state/ledgers/api_call_ledger.jsonl, which records the prior plan-route call with contract_status=admissibility_blocked and the saved artifact paths for the same run."
+        "Used the non-authoritative output_policy_artifact harness/runs/20260614-192022-agent-route/project_manager_report.json for the valid claim family bounded_report_claim_was_emitted.",
+        "Used the non-authoritative validation_artifact harness/runs/20260614-192022-agent-route/project_manager_report.validation.json for the valid claim family schema_validation_passed_or_failed.",
+        "Used the non-authoritative raw_provider_artifact harness/runs/20260614-192022-agent-route/raw_model_response.json for the valid claim family provider_returned_response.",
+        "Used the non-authoritative ledger_artifact harness/state/ledgers/api_call_ledger.jsonl for the valid claim families api_call_was_recorded and route_invocation_was_recorded; none of these derived artifacts establish project authority."
       ]
     },
     "git_context": {
@@ -81,15 +81,5 @@
       "operational_state authority for the current task and prior saved run artifacts",
       "output_policy_artifact authority for the PM report contract"
     ]
-  },
-  "report_artifact_path": "*/20260614-193305-agent-route/project_manager_report.json",
-  "report_artifact_sha256": "6a2599ecc48baa1e61fc6e27f214312abaca5e317cb5e52f0c7539a82e0b03f7",
-  "schema_name": "project_manager_report",
-  "schema_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/contracts/ProjectManagerReport.schema.json",
-  "schema_sha256": "a7862bb021921a0eac4994ed1acc486dcba3cd225a341ff539fcd3d4a2437882",
-  "validator": "harness.contracts.project_manager_report_extractor.extract_project_manager_report",
-  "validation_timestamp_utc": "2026-06-14T19:33:12.947132Z",
-  "validation_passed": true,
-  "report_status": "admissible",
-  "proof_frontier_blocked": false
+  }
 }

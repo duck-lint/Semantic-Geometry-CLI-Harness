@@ -22,7 +22,10 @@
             "enum": [
               "compiled_runtime_artifact",
               "output_policy_artifact",
-              "raw_provider_artifact"
+              "raw_provider_artifact",
+              "validation_artifact",
+              "ledger_artifact",
+              "archive_record"
             ],
             "type": "string"
           },
@@ -35,6 +38,41 @@
         "derived_runtime_artifacts"
       ],
       "title": "DocumentAuthorityClasses",
+      "type": "object"
+    },
+    "EvidenceClasses": {
+      "additionalProperties": false,
+      "properties": {
+        "runtime_evidence": {
+          "items": {
+            "enum": [
+              "compiled_runtime_artifact",
+              "output_policy_artifact",
+              "raw_provider_artifact",
+              "validation_artifact",
+              "ledger_artifact",
+              "archive_record"
+            ],
+            "type": "string"
+          },
+          "title": "Runtime Evidence",
+          "type": "array"
+        },
+        "valid_claim_families": {
+          "$ref": "#/$defs/ValidClaimFamilies"
+        },
+        "boundary_rule": {
+          "const": "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority.",
+          "title": "Boundary Rule",
+          "type": "string"
+        }
+      },
+      "required": [
+        "runtime_evidence",
+        "valid_claim_families",
+        "boundary_rule"
+      ],
+      "title": "EvidenceClasses",
       "type": "object"
     },
     "Metadata": {
@@ -80,6 +118,89 @@
         "document_authority"
       ],
       "title": "Metadata",
+      "type": "object"
+    },
+    "ValidClaimFamilies": {
+      "additionalProperties": false,
+      "properties": {
+        "compiled_runtime_artifact": {
+          "items": {
+            "enum": [
+              "context_was_compiled",
+              "payload_was_constructed"
+            ],
+            "type": "string"
+          },
+          "title": "Compiled Runtime Artifact",
+          "type": "array"
+        },
+        "output_policy_artifact": {
+          "items": {
+            "enum": [
+              "agent_output_was_parsed",
+              "agent_output_matched_schema",
+              "bounded_report_claim_was_emitted"
+            ],
+            "type": "string"
+          },
+          "title": "Output Policy Artifact",
+          "type": "array"
+        },
+        "raw_provider_artifact": {
+          "items": {
+            "enum": [
+              "provider_returned_response",
+              "audit_trace_exists"
+            ],
+            "type": "string"
+          },
+          "title": "Raw Provider Artifact",
+          "type": "array"
+        },
+        "validation_artifact": {
+          "items": {
+            "enum": [
+              "schema_validation_passed_or_failed",
+              "probe_result_was_recorded"
+            ],
+            "type": "string"
+          },
+          "title": "Validation Artifact",
+          "type": "array"
+        },
+        "ledger_artifact": {
+          "items": {
+            "enum": [
+              "api_call_was_recorded",
+              "route_invocation_was_recorded",
+              "token_usage_was_recorded"
+            ],
+            "type": "string"
+          },
+          "title": "Ledger Artifact",
+          "type": "array"
+        },
+        "archive_record": {
+          "items": {
+            "enum": [
+              "bounded_historical_claim_was_preserved",
+              "future_reports_may_cite_record_without_reconstructing_raw_artifacts"
+            ],
+            "type": "string"
+          },
+          "title": "Archive Record",
+          "type": "array"
+        }
+      },
+      "required": [
+        "compiled_runtime_artifact",
+        "output_policy_artifact",
+        "raw_provider_artifact",
+        "validation_artifact",
+        "ledger_artifact",
+        "archive_record"
+      ],
+      "title": "ValidClaimFamilies",
       "type": "object"
     }
   },
@@ -127,13 +248,17 @@
       },
       "title": "Approval Sensitive Surfaces",
       "type": "array"
+    },
+    "evidence_classes": {
+      "$ref": "#/$defs/EvidenceClasses"
     }
   },
   "required": [
     "$schema",
     "metadata",
     "document_authority_classes",
-    "agent_contracts"
+    "agent_contracts",
+    "evidence_classes"
   ],
   "title": "GovernancePrimitives",
   "type": "object"

@@ -18,6 +18,7 @@ from harness.project_spec.static_context_packet_compiler import (
   load_and_validate_manifest,
 )
 from harness.project_spec.static_context_packet_manifest import Source
+from harness.runtime.governance_primitives import GovernancePrimitives
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -111,6 +112,13 @@ class StaticContextPacketCompilerTests(unittest.TestCase):
       self.assertEqual(
         packet.sources["governance_primitives"]["metadata"]["document_id"],
         "governance_primitives.json",
+      )
+      governance = GovernancePrimitives.model_validate(
+        packet.sources["governance_primitives"]
+      )
+      self.assertIn(
+        "ledger_artifact",
+        governance.evidence_classes.runtime_evidence,
       )
       self.assertEqual(
         packet.sources["project_spec"]["metadata"]["document_id"],

@@ -12,7 +12,7 @@
       "consumed": true,
       "disposition": "used",
       "basis": [
-        "Used to identify project thesis, invariants, open decisions, and known failures."
+        "Used binding harness_target and global_harness sources inside static_context_packet to identify project thesis, invariants, open decisions, and evidence boundaries."
       ]
     },
     "task": {
@@ -26,7 +26,7 @@
       "consumed": true,
       "disposition": "inspected_insufficient",
       "basis": [
-        "Used repo_snapshot_packet as historical artifact evidence for the current PM slice.",
+        "Inspected repo_snapshot_packet, but its raw_provider_artifact evidence class can substantiate provider_returned_response and audit_trace_exists, not the requested claim family that schema validation passed.",
         "Historical artifact paths named in the repo snapshot packet included harness/runs/20260612-214948-agent-route/project_manager_report.json and harness/runs/20260612-214948-agent-route/raw_model_response.json."
       ]
     },
@@ -34,7 +34,7 @@
       "consumed": true,
       "disposition": "used",
       "basis": [
-        "Used git_context to distinguish current worktree provenance from saved run artifacts."
+        "Used non-authoritative git_context as current-state provenance for the bounded claim that the supplied worktree metadata was reviewed; it does not establish project intent."
       ]
     }
   },
