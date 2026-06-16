@@ -17,62 +17,15 @@
           "title": "Binding Authority",
           "type": "array"
         },
-        "derived_runtime_artifacts": {
-          "items": {
-            "enum": [
-              "compiled_runtime_artifact",
-              "output_policy_artifact",
-              "raw_provider_artifact",
-              "validation_artifact",
-              "ledger_artifact",
-              "archive_record"
-            ],
-            "type": "string"
-          },
-          "title": "Derived Runtime Artifacts",
-          "type": "array"
+        "runtime_evidence": {
+          "$ref": "#/$defs/ValidClaimFamilies"
         }
       },
       "required": [
         "binding_authority",
-        "derived_runtime_artifacts"
+        "runtime_evidence"
       ],
       "title": "DocumentAuthorityClasses",
-      "type": "object"
-    },
-    "EvidenceClasses": {
-      "additionalProperties": false,
-      "properties": {
-        "runtime_evidence": {
-          "items": {
-            "enum": [
-              "compiled_runtime_artifact",
-              "output_policy_artifact",
-              "raw_provider_artifact",
-              "validation_artifact",
-              "ledger_artifact",
-              "archive_record"
-            ],
-            "type": "string"
-          },
-          "title": "Runtime Evidence",
-          "type": "array"
-        },
-        "valid_claim_families": {
-          "$ref": "#/$defs/ValidClaimFamilies"
-        },
-        "boundary_rule": {
-          "const": "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority.",
-          "title": "Boundary Rule",
-          "type": "string"
-        }
-      },
-      "required": [
-        "runtime_evidence",
-        "valid_claim_families",
-        "boundary_rule"
-      ],
-      "title": "EvidenceClasses",
       "type": "object"
     },
     "Metadata": {
@@ -160,7 +113,7 @@
         "validation_artifact": {
           "items": {
             "enum": [
-              "schema_validation_passed_or_failed",
+              "schema_validation_passed",
               "probe_result_recorded"
             ],
             "type": "string"
@@ -216,6 +169,11 @@
     "document_authority_classes": {
       "$ref": "#/$defs/DocumentAuthorityClasses"
     },
+    "boundary_rule": {
+      "const": "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority.",
+      "title": "Boundary Rule",
+      "type": "string"
+    },
     "agent_contracts": {
       "items": {
         "enum": [
@@ -248,17 +206,14 @@
       },
       "title": "Approval Sensitive Surfaces",
       "type": "array"
-    },
-    "evidence_classes": {
-      "$ref": "#/$defs/EvidenceClasses"
     }
   },
   "required": [
     "$schema",
     "metadata",
     "document_authority_classes",
-    "agent_contracts",
-    "evidence_classes"
+    "boundary_rule",
+    "agent_contracts"
   ],
   "title": "GovernancePrimitives",
   "type": "object"

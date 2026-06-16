@@ -13,15 +13,6 @@ BindingAuthority = Literal[
     "operational_state"
 ]
 
-RuntimeEvidence = Literal[
-  "compiled_runtime_artifact",
-  "output_policy_artifact",
-  "raw_provider_artifact",
-  "validation_artifact",
-  "ledger_artifact",
-  "archive_record"
-]
-
 CompiledRuntimeClaim = Literal[
   "context_was_compiled",
   "payload_was_constructed"
@@ -39,7 +30,7 @@ RawProviderClaim = Literal[
 ]
 
 ValidationClaim = Literal[
-  "schema_validation_passed_or_failed",
+  "schema_validation_passed",
   "probe_result_recorded"
 ]
 
@@ -74,7 +65,7 @@ ApprovalSensitiveSurfaces = Literal[
   "compatibility_commitments"
   ]
 
-RuntimeEvidence = Literal[
+DerivedRuntimeArtifact = Literal[
   "compiled_runtime_artifact",
   "output_policy_artifact",
   "raw_provider_artifact",
@@ -98,6 +89,8 @@ class DocumentAuthorityClasses(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   binding_authority: list[BindingAuthority]
+  runtime_evidence: ValidClaimFamilies
+
 
 class ValidClaimFamilies(BaseModel):
   model_config = ConfigDict(extra="forbid")
@@ -110,22 +103,14 @@ class ValidClaimFamilies(BaseModel):
   archive_record: list[ArchiveClaim]
 
 
-class EvidenceClasses(BaseModel):
-  model_config = ConfigDict(extra="forbid")
-
-  runtime_evidence: list[DerivedRuntimeArtifact]
-  valid_claim_families: ValidClaimFamilies
-  boundary_rule: Literal[
-    "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority."
-  ]
-
-
 class GovernancePrimitives(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   schema_ref: str = Field(..., alias='$schema')
   metadata: Metadata
   document_authority_classes: DocumentAuthorityClasses
+  boundary_rule: Literal[
+    "Evidence classes may substantiate bounded runtime, validation, provenance, or historical claims. They do not create project authority, amend project intent, authorize route changes, or override binding authority."
+  ]
   agent_contracts: list[AgentContracts]
   approval_sensitive_surfaces: list[ApprovalSensitiveSurfaces] = []
-  evidence_classes: EvidenceClasses

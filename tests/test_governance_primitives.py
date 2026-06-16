@@ -25,6 +25,11 @@ def load_json(path: Path) -> dict:
   return json.loads(path.read_text(encoding="utf-8"))
 
 
+def runtime_evidence_keys(governance: GovernancePrimitives) -> set[str]:
+  runtime_evidence = governance.document_authority_classes.runtime_evidence
+  return set(type(runtime_evidence).model_fields)
+
+
 class GovernancePrimitivesTests(unittest.TestCase):
   def test_current_governance_primitives_validate_with_model_and_schema(self) -> None:
     data = load_json(GOVERNANCE_PATH)
@@ -35,18 +40,18 @@ class GovernancePrimitivesTests(unittest.TestCase):
     governance = GovernancePrimitives.model_validate(data)
 
     self.assertEqual(
-      set(governance.evidence_classes.runtime_evidence),
+      runtime_evidence_keys(governance),
       set(get_args(DerivedRuntimeArtifact)),
     )
 
   def test_evidence_taxonomy_is_distinct_from_report_disposition(self) -> None:
     governance = GovernancePrimitives.model_validate(load_json(GOVERNANCE_PATH))
-    evidence_classes = set(governance.evidence_classes.runtime_evidence)
+    evidence_classes = runtime_evidence_keys(governance)
     dispositions = set(get_args(SourceCoverageDisposition))
 
     self.assertTrue(evidence_classes.isdisjoint(dispositions))
     self.assertEqual(
-      set(governance.evidence_classes.valid_claim_families.ledger_artifact),
+      set(governance.document_authority_classes.runtime_evidence.ledger_artifact),
       {
         "api_call_was_recorded",
         "route_invocation_was_recorded",
@@ -55,7 +60,7 @@ class GovernancePrimitivesTests(unittest.TestCase):
     )
     self.assertIn(
       "do not create project authority",
-      governance.evidence_classes.boundary_rule,
+      governance.boundary_rule,
     )
 
 

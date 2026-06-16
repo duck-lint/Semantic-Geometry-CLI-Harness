@@ -7,7 +7,7 @@
     "document_authority": "runtime_evidence",
     "evidentiary_authority": "validation_artifact",
     "evidence_claims": [
-      "schema_validation_passed_or_failed",
+      "schema_validation_passed",
       "probe_result_recorded"
     ]
   },

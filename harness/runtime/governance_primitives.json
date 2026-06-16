@@ -30,7 +30,7 @@
         "audit_trace_exists"
       ],
       "validation_artifact": [
-        "schema_validation_passed_or_failed",
+        "schema_validation_passed",
         "probe_result_recorded"
       ],
       "ledger_artifact": [

@@ -118,7 +118,7 @@ class StaticContextPacketCompilerTests(unittest.TestCase):
       )
       self.assertIn(
         "ledger_artifact",
-        governance.evidence_classes.runtime_evidence,
+        type(governance.document_authority_classes.runtime_evidence).model_fields,
       )
       self.assertEqual(
         packet.sources["project_spec"]["metadata"]["document_id"],

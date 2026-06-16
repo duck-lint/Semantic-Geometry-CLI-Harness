@@ -28,7 +28,7 @@
       "disposition": "used",
       "basis": [
         "Used the non-authoritative output_policy_artifact harness/runs/20260614-192022-agent-route/project_manager_report.json for the valid claim family bounded_report_claim_was_emitted.",
-        "Used the non-authoritative validation_artifact harness/runs/20260614-192022-agent-route/project_manager_report.validation.json for the valid claim family schema_validation_passed_or_failed.",
+        "Used the non-authoritative validation_artifact harness/runs/20260614-192022-agent-route/project_manager_report.validation.json for the valid claim family schema_validation_passed.",
         "Used the non-authoritative raw_provider_artifact harness/runs/20260614-192022-agent-route/raw_model_response.json for the valid claim family provider_returned_response.",
         "Used the non-authoritative ledger_artifact harness/state/ledgers/api_call_ledger.jsonl for the valid claim families api_call_was_recorded and route_invocation_was_recorded; none of these derived artifacts establish project authority."
       ]
