@@ -161,7 +161,7 @@
           "items": {
             "enum": [
               "schema_validation_passed_or_failed",
-              "probe_result_was_recorded"
+              "probe_result_recorded"
             ],
             "type": "string"
           },

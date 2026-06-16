@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "document_id": "implementation_plan_02.json",
+    "title": "Implementation 02 Plan",
+    "purpose": "This file outlines an implementation plan.",
+    "source_format": "json",
+    "document_authority": "runtime_evidence",
+    "evidentiary_authority": "validation_artifact",
+    "evidence_claims": [
+      "schema_validation_passed_or_failed",
+      "probe_result_recorded"
+    ]
+  },
+  "report_artifact_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/runs/20260615-140656-agent-route/project_manager_report.json",
+  "report_artifact_sha256": "3ea1566a9d0d54b8c58d9805e02520132362e13ff040384008b2c1ad7eef1fa8",
+  "schema_name": "project_manager_report",
+  "schema_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/contracts/ProjectManagerReport.schema.json",
+  "schema_sha256": "38465ba2abf67614a050484cac97beaf5a01844a9fe9dcfcf31bfcd652af9386",
+  "validator": "harness.contracts.project_manager_report_extractor.extract_project_manager_report",
+  "validation_timestamp_utc": "2026-06-15T14:07:13.443764Z",
+  "validation_passed": true,
+  "report_status": "admissible",
+  "proof_frontier_blocked": false
+}

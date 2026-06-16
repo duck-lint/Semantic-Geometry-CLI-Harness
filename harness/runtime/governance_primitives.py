@@ -10,48 +10,48 @@ BindingAuthority = Literal[
     "global_harness",
     "harness_target",
     "runtime_policy",
-    "operational_state",
+    "operational_state"
 ]
 
-DerivedRuntimeArtifact = Literal[
+RuntimeEvidence = Literal[
   "compiled_runtime_artifact",
   "output_policy_artifact",
   "raw_provider_artifact",
   "validation_artifact",
   "ledger_artifact",
-  "archive_record",
+  "archive_record"
 ]
 
 CompiledRuntimeClaim = Literal[
   "context_was_compiled",
-  "payload_was_constructed",
+  "payload_was_constructed"
 ]
 
 OutputPolicyClaim = Literal[
   "agent_output_was_parsed",
   "agent_output_matched_schema",
-  "bounded_report_claim_was_emitted",
+  "bounded_report_claim_was_emitted"
 ]
 
 RawProviderClaim = Literal[
   "provider_returned_response",
-  "audit_trace_exists",
+  "audit_trace_exists"
 ]
 
 ValidationClaim = Literal[
   "schema_validation_passed_or_failed",
-  "probe_result_was_recorded",
+  "probe_result_recorded"
 ]
 
 LedgerClaim = Literal[
   "api_call_was_recorded",
   "route_invocation_was_recorded",
-  "token_usage_was_recorded",
+  "token_usage_was_recorded"
 ]
 
 ArchiveClaim = Literal[
   "bounded_historical_claim_was_preserved",
-  "future_reports_may_cite_record_without_reconstructing_raw_artifacts",
+  "future_reports_may_cite_record_without_reconstructing_raw_artifacts"
 ]
 
 AgentContracts = Literal[
@@ -75,12 +75,12 @@ ApprovalSensitiveSurfaces = Literal[
   ]
 
 RuntimeEvidence = Literal[
-      "compiled_runtime_artifact",
-      "output_policy_artifact",
-      "raw_provider_artifact",
-      "validation_artifact",
-      "ledger_artifact",
-      "archive_record"
+  "compiled_runtime_artifact",
+  "output_policy_artifact",
+  "raw_provider_artifact",
+  "validation_artifact",
+  "ledger_artifact",
+  "archive_record"
 ]
 
 class Metadata(BaseModel):
@@ -98,8 +98,6 @@ class DocumentAuthorityClasses(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
   binding_authority: list[BindingAuthority]
-  derived_runtime_artifacts: list[DerivedRuntimeArtifact]
-
 
 class ValidClaimFamilies(BaseModel):
   model_config = ConfigDict(extra="forbid")
