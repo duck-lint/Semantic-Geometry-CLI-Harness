@@ -91,7 +91,7 @@
         "needs_clarification": "The request is ambiguous enough that user clarification is required before choosing a transition. This is not an established authority conflict. constraint_conflicts must be empty. blocked must be true."
       }
     }
-    },
+  },
   "agent_input_policy": [
     {
       "input_id": "static_context_packet",
@@ -105,7 +105,9 @@
       "resolution": {
         "mode": "paths",
         "paths": [
-          "harness/implementations/active/project_manager_admissibility_report_20260614.json"
+          "harness/implementations/active/project_manager_admissibility_report_20260614.json",
+          "harness/runs/20260615-140656-agent-route/project_manager_report.json",
+          "harness/implementations/active/PM_report_disposition_validation.json"
         ],
         "include_harness": false
       }
