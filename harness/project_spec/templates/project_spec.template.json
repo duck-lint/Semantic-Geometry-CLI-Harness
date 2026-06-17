@@ -9,23 +9,11 @@
   },
   "project_thesis": {
     "project_is": [],
-    "project_is_not": {
-      "excluded_product_forms": [],
-      "excluded_agent_patterns": [],
-      "design_guardrail": []
-    },
-    "project_exists_to": {
-      "delineate_boundaries": [],
-      "instantiate_governance": []
-    },
+    "project_is_not": {},
+    "project_exists_to": {},
     "core_runtime_shape": [],
     "primary_operator": "",
-    "highest_value_workflow": {
-      "command": "",
-      "args": [],
-      "expectations": [],
-      "stop_condition": ""
-    }
+    "highest_value_workflow": {}
   },
   "non_goals": {
     "do_not_build": [],
