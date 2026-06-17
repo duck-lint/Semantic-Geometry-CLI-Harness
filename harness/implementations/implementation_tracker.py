@@ -36,7 +36,7 @@ class TrackerItem(BaseModel):
       "active",
       "blocked",
       "reviewing",
-      "archived"
+      "complete"
   ]
 
 
@@ -59,7 +59,7 @@ class ImplementationTracker(BaseModel):
       "active",
       "blocked",
       "reviewing",
-      "archived"
+      "complete"
   ]
   tracker: list[TrackerItem]
   blockers: list[Blocker]

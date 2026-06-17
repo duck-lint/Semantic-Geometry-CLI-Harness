@@ -24,7 +24,7 @@
       "agent": "Project Authority",
       "change": "Artifact classification",
       "evidence": "new classifications in governance primitives json.",
-      "status": "archived"
+      "status": "complete"
     },
     {
       "date": "20260615",
@@ -32,7 +32,7 @@
       "agent": "Codex",
       "change": "PM coverage disposition",
       "evidence": "PASS: python -m unittest -v tests.test_governance_primitives tests.test_project_manager_report_validation tests.test_project_manager_report_extractor tests.test_project_manager_report_validation_artifact tests.test_static_context_packet_compiler tests.test_openai_response_payload_compiler tests.test_package_route (86 tests); PASS: python -m unittest discover -s tests -v (173 tests); tracked PM report and governance taxonomy validate via JSON Schema and Pydantic; basis remains opaque free text with no semantic parsing.",
-      "status": "archived"
+      "status": "complete"
     },
     {
       "date": "20260615",
@@ -40,7 +40,7 @@
       "agent": "Project Authority",
       "change": "PM prose migration",
       "evidence": "Completion of seam 03 and reduction of prose in project_manager.agent.json",
-      "status": "active"
+      "status": "complete"
     },
     {
       "date": "20260615",
