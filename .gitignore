@@ -9,3 +9,4 @@ __pycache__/
 *.egg
 *.tmp*
 tmp_*
+harness/agents/project_manager.agent.json
