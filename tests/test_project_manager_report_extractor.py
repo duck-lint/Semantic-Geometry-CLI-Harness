@@ -72,7 +72,7 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
         )
       )
 
-  def test_extractor_accepts_rejected_report_with_unblocked_frontier(self) -> None:
+  def test_extractor_accepts_rejected_report_with_blocked_requested_transition(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
       output_path = temp_root / "project_manager_report.json"
@@ -85,8 +85,8 @@ class ProjectManagerReportExtractorTests(unittest.TestCase):
 
       self.assertTrue(output_path.is_file())
       self.assertEqual(report.report_status, "rejected")
-      self.assertFalse(report.proof_frontier.blocked)
-      self.assertIsNone(report.proof_frontier.blocking_reason)
+      self.assertTrue(report.proof_frontier.blocked)
+      self.assertIsNotNone(report.proof_frontier.blocking_reason)
       self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
       self.assertTrue(report.report_source_coverage.repo_snapshot_packet.consumed)
       self.assertEqual(

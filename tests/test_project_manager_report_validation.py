@@ -77,7 +77,13 @@ def build_report_data(
       "document_id": "project_manager_report.json",
       "title": "Project Manager Report",
       "source_format": "json",
-      "document_authority": "output_policy_artifact",
+      "document_authority": "runtime_evidence",
+      "evidentiary_authority": "output_policy_artifact",
+      "evidence_claims": [
+        "agent_output_was_parsed",
+        "agent_output_matched_schema",
+        "bounded_report_claim_was_emitted",
+      ],
     },
     "report_status": report_status,
     "report_summary": "Short report summary.",
@@ -146,8 +152,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     report = ProjectManagerReport.model_validate(
       build_report_data(
         report_status="needs_clarification",
-        blocked=False,
-        blocking_reason=None,
+        blocked=True,
+        blocking_reason="Clarification is required before choosing a transition.",
         missing_basis=["Clarify the target surface."],
         constraint_conflicts=[],
         next_admissible_transformation="Ask the user to name the target surface.",
@@ -181,8 +187,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
           ProjectManagerReport.model_validate(
             build_report_data(
               report_status="needs_clarification",
-              blocked=False,
-              blocking_reason=None,
+              blocked=True,
+              blocking_reason="Clarification is required before choosing a transition.",
               missing_basis=["Clarify the target surface."],
               constraint_conflicts=[],
               next_admissible_transformation="Ask the user to name the target surface.",
@@ -202,8 +208,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
       with self.subTest(source_id=source_id):
         report_data = build_report_data(
           report_status="needs_clarification",
-          blocked=False,
-          blocking_reason=None,
+          blocked=True,
+          blocking_reason="Clarification is required before choosing a transition.",
           missing_basis=["Clarify the target surface."],
           constraint_conflicts=[],
           next_admissible_transformation="Ask the user to name the target surface.",
@@ -216,8 +222,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
   def test_report_source_coverage_requires_disposition(self) -> None:
     report_data = build_report_data(
       report_status="needs_clarification",
-      blocked=False,
-      blocking_reason=None,
+      blocked=True,
+      blocking_reason="Clarification is required before choosing a transition.",
       missing_basis=["Clarify the target surface."],
       constraint_conflicts=[],
       next_admissible_transformation="Ask the user to name the target surface.",
@@ -230,8 +236,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
   def test_report_source_coverage_rejects_unknown_disposition(self) -> None:
     report_data = build_report_data(
       report_status="needs_clarification",
-      blocked=False,
-      blocking_reason=None,
+      blocked=True,
+      blocking_reason="Clarification is required before choosing a transition.",
       missing_basis=["Clarify the target surface."],
       constraint_conflicts=[],
       next_admissible_transformation="Ask the user to name the target surface.",
@@ -253,8 +259,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
         report = ProjectManagerReport.model_validate(
           build_report_data(
             report_status="needs_clarification",
-            blocked=False,
-            blocking_reason=None,
+            blocked=True,
+            blocking_reason="Clarification is required before choosing a transition.",
             missing_basis=["Clarify the target surface."],
             constraint_conflicts=[],
             next_admissible_transformation="Ask the user to name the target surface.",
@@ -275,8 +281,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     report = ProjectManagerReport.model_validate(
       build_report_data(
         report_status="needs_clarification",
-        blocked=False,
-        blocking_reason=None,
+        blocked=True,
+        blocking_reason="Clarification is required before choosing a transition.",
         missing_basis=["Clarify the target surface."],
         constraint_conflicts=[],
         next_admissible_transformation="Ask the user to name the target surface.",
@@ -338,22 +344,29 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     )
     self.assertEqual(report.report_status, "admissible")
 
-  def test_schema_describes_disposition_taxonomy_boundary(self) -> None:
+  def test_schema_preserves_disposition_taxonomy_values_and_metadata_claims(self) -> None:
     schema = ProjectManagerReport.model_json_schema()
+    metadata = schema["$defs"]["Metadata"]["properties"]
     coverage_entry = schema["$defs"]["ReportSourceCoverageEntry"]
-    disposition_description = coverage_entry["properties"]["disposition"][
-      "description"
-    ]
-    basis_description = coverage_entry["properties"]["basis"]["description"]
 
+    self.assertEqual(metadata["document_authority"]["const"], "runtime_evidence")
+    self.assertEqual(
+      metadata["evidentiary_authority"]["const"],
+      "output_policy_artifact",
+    )
+    self.assertEqual(
+      tuple(metadata["evidence_claims"]["items"]["enum"]),
+      (
+        "agent_output_was_parsed",
+        "agent_output_matched_schema",
+        "bounded_report_claim_was_emitted",
+      ),
+    )
     self.assertEqual(
       tuple(coverage_entry["properties"]["disposition"]["enum"]),
       get_args(SourceCoverageDisposition),
     )
-    self.assertIn("not that it is binding authority", disposition_description)
-    self.assertIn("did not substantiate the requested claim family", disposition_description)
-    self.assertIn("without independently determining report_status", disposition_description)
-    self.assertIn("not parsed for validation", basis_description)
+    self.assertEqual(coverage_entry["properties"]["basis"]["minItems"], 1)
 
   def test_report_source_coverage_accepts_unconsumed_dispositions(self) -> None:
     for disposition in ("missing", "invalid", "not_required_for_task"):
@@ -361,8 +374,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
         report = ProjectManagerReport.model_validate(
           build_report_data(
             report_status="needs_clarification",
-            blocked=False,
-            blocking_reason=None,
+            blocked=True,
+            blocking_reason="Clarification is required before choosing a transition.",
             missing_basis=["Clarify the target surface."],
             constraint_conflicts=[],
             next_admissible_transformation="Ask the user to name the target surface.",
@@ -396,8 +409,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
           ProjectManagerReport.model_validate(
             build_report_data(
               report_status="needs_clarification",
-              blocked=False,
-              blocking_reason=None,
+              blocked=True,
+              blocking_reason="Clarification is required before choosing a transition.",
               missing_basis=["Clarify the target surface."],
               constraint_conflicts=[],
               next_admissible_transformation="Ask the user to name the target surface.",
@@ -409,8 +422,8 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
   def test_required_static_context_cannot_be_unconsumed(self) -> None:
     report_data = build_report_data(
       report_status="needs_clarification",
-      blocked=False,
-      blocking_reason=None,
+      blocked=True,
+      blocking_reason="Clarification is required before choosing a transition.",
       missing_basis=["Clarify the target surface."],
       constraint_conflicts=[],
       next_admissible_transformation="Ask the user to name the target surface.",
@@ -424,15 +437,15 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     with self.assertRaises(ValueError):
       ProjectManagerReport.model_validate(report_data)
 
-  def test_rejected_can_be_unblocked_with_next_move(self) -> None:
+  def test_rejected_blocks_requested_transition_with_next_move(self) -> None:
     raw_response = load_json(CANONICAL_REJECTED_UNBLOCKED_RESPONSE_PATH)
     report = ProjectManagerReport.model_validate(
       json.loads(raw_response["output_text"])
     )
 
     self.assertEqual(report.report_status, "rejected")
-    self.assertFalse(report.proof_frontier.blocked)
-    self.assertIsNone(report.proof_frontier.blocking_reason)
+    self.assertTrue(report.proof_frontier.blocked)
+    self.assertIsNotNone(report.proof_frontier.blocking_reason)
     self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
     self.assertTrue(
       any(
@@ -446,12 +459,12 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
       "Classify the ledger as evidence of a recorded API call, not as proof of runtime state; if runtime proof is needed, require the corresponding saved run artifacts and validation/probe outputs.",
     )
 
-  def test_needs_clarification_can_be_unblocked_with_next_move(self) -> None:
+  def test_needs_clarification_blocks_requested_transition_with_next_move(self) -> None:
     report = ProjectManagerReport.model_validate(
       build_report_data(
         report_status="needs_clarification",
-        blocked=False,
-        blocking_reason=None,
+        blocked=True,
+        blocking_reason="Clarification is required before choosing a transition.",
         missing_basis=["Clarify the target surface."],
         constraint_conflicts=[],
         next_admissible_transformation="Ask the user to name the target surface.",
@@ -459,16 +472,16 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     )
 
     self.assertEqual(report.report_status, "needs_clarification")
-    self.assertFalse(report.proof_frontier.blocked)
+    self.assertTrue(report.proof_frontier.blocked)
     self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
     self.assertEqual(report.proof_frontier.missing_basis, ["Clarify the target surface."])
 
-  def test_admissibility_blocked_can_be_unblocked_with_next_move(self) -> None:
+  def test_admissibility_blocked_blocks_requested_transition_with_next_move(self) -> None:
     report = ProjectManagerReport.model_validate(
       build_report_data(
         report_status="admissibility_blocked",
-        blocked=False,
-        blocking_reason=None,
+        blocked=True,
+        blocking_reason="Saved runtime artifacts are absent.",
         missing_basis=["Saved runtime artifacts are absent."],
         constraint_conflicts=[],
         next_admissible_transformation=(
@@ -478,7 +491,7 @@ class ProjectManagerReportValidationTests(unittest.TestCase):
     )
 
     self.assertEqual(report.report_status, "admissibility_blocked")
-    self.assertFalse(report.proof_frontier.blocked)
+    self.assertTrue(report.proof_frontier.blocked)
     self.assertIsNotNone(report.report_source_coverage.repo_snapshot_packet)
     self.assertEqual(
       report.proof_frontier.next_admissible_transformation,

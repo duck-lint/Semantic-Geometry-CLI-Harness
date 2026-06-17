@@ -1,7 +1,6 @@
 {
-  "$schema": "./ProjectManagerReport.schema.json",
   "metadata": {
-    "document_id": "project_manager_report.example.json",
+    "document_id": "project_manager_report.json",
     "title": "Project Manager Report",
     "source_format": "json",
     "document_authority": "runtime_evidence",
