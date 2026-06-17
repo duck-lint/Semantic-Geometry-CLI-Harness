@@ -10,3 +10,4 @@ __pycache__/
 *.tmp*
 tmp_*
 harness/agents/project_manager.agent.json
+harness/agents/archive_manager.agent.json
