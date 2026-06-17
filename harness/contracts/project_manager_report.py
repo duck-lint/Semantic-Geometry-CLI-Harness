@@ -12,6 +12,16 @@ EvidenceClaims = Literal[
   "bounded_report_claim_was_emitted"
 ]
 
+SourceCoverageDisposition = Literal[
+  "used",
+  "inspected_insufficient",
+  "inspected_not_relevant",
+  "inspected_contradictory",
+  "missing",
+  "invalid",
+  "not_required_for_task",
+]
+
 
 class Metadata(BaseModel):
   model_config = ConfigDict(extra="forbid")
@@ -22,17 +32,6 @@ class Metadata(BaseModel):
   document_authority: Literal["runtime_evidence"]
   evidentiary_authority: Literal["output_policy_artifact"]
   evidence_claims: list[EvidenceClaims]
-
-
-SourceCoverageDisposition = Literal[
-  "used",
-  "inspected_insufficient",
-  "inspected_not_relevant",
-  "inspected_contradictory",
-  "missing",
-  "invalid",
-  "not_required_for_task",
-]
 
 
 class ReportSourceCoverageEntry(BaseModel):

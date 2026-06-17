@@ -1,0 +1,394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ArchiveRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "record_id": {
+          "title": "Record Id",
+          "type": "string"
+        },
+        "record_type": {
+          "title": "Record Type",
+          "type": "string"
+        },
+        "claim": {
+          "title": "Claim",
+          "type": "string"
+        },
+        "supporting_artifact_references": {
+          "items": {
+            "$ref": "#/$defs/SupportingArtifactReference"
+          },
+          "title": "Supporting Artifact References",
+          "type": "array"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Basis",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limits",
+          "type": "array"
+        },
+        "future_citation_use": {
+          "$ref": "#/$defs/FutureCitationUse"
+        }
+      },
+      "required": [
+        "record_id",
+        "record_type",
+        "claim",
+        "supporting_artifact_references",
+        "basis",
+        "limits",
+        "future_citation_use"
+      ],
+      "title": "ArchiveRecord",
+      "type": "object"
+    },
+    "FutureCitationUse": {
+      "additionalProperties": false,
+      "properties": {
+        "pm_may_cite_for": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pm May Cite For",
+          "type": "array"
+        },
+        "pm_must_not_cite_for": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pm Must Not Cite For",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pm_may_cite_for",
+        "pm_must_not_cite_for"
+      ],
+      "title": "FutureCitationUse",
+      "type": "object"
+    },
+    "GitContext": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed": {
+          "title": "Consumed",
+          "type": "boolean"
+        },
+        "disposition": {
+          "enum": [
+            "used",
+            "inspected_insufficient",
+            "inspected_not_relevant",
+            "inspected_contradictory",
+            "missing",
+            "invalid",
+            "not_required_for_task"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis",
+          "type": "array"
+        }
+      },
+      "required": [
+        "consumed",
+        "disposition",
+        "basis"
+      ],
+      "title": "GitContext",
+      "type": "object"
+    },
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "const": "archive_manager_report.json",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "title": {
+          "const": "Archive Manager Report",
+          "title": "Title",
+          "type": "string"
+        },
+        "source_format": {
+          "const": "json",
+          "title": "Source Format",
+          "type": "string"
+        },
+        "document_authority": {
+          "const": "generated_artifact",
+          "title": "Document Authority",
+          "type": "string"
+        },
+        "evidentiary_authority": {
+          "const": "output_policy_artifact",
+          "title": "Evidentiary Authority",
+          "type": "string"
+        },
+        "evidence_claims": {
+          "items": {
+            "enum": [
+              "agent_output_was_parsed",
+              "agent_output_matched_schema",
+              "bounded_archive_record_was_emitted"
+            ],
+            "type": "string"
+          },
+          "title": "Evidence Claims",
+          "type": "array"
+        }
+      },
+      "required": [
+        "document_id",
+        "title",
+        "source_format",
+        "document_authority",
+        "evidentiary_authority",
+        "evidence_claims"
+      ],
+      "title": "Metadata",
+      "type": "object"
+    },
+    "RepoSnapshotPacket": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed": {
+          "title": "Consumed",
+          "type": "boolean"
+        },
+        "disposition": {
+          "enum": [
+            "used",
+            "inspected_insufficient",
+            "inspected_not_relevant",
+            "inspected_contradictory",
+            "missing",
+            "invalid",
+            "not_required_for_task"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis",
+          "type": "array"
+        }
+      },
+      "required": [
+        "consumed",
+        "disposition",
+        "basis"
+      ],
+      "title": "RepoSnapshotPacket",
+      "type": "object"
+    },
+    "ReportSourceCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "static_context_packet": {
+          "$ref": "#/$defs/StaticContextPacket"
+        },
+        "task": {
+          "$ref": "#/$defs/Task"
+        },
+        "repo_snapshot_packet": {
+          "$ref": "#/$defs/RepoSnapshotPacket"
+        },
+        "git_context": {
+          "$ref": "#/$defs/GitContext"
+        }
+      },
+      "required": [
+        "static_context_packet",
+        "task",
+        "repo_snapshot_packet",
+        "git_context"
+      ],
+      "title": "ReportSourceCoverage",
+      "type": "object"
+    },
+    "SourceRun": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "task": {
+          "title": "Task",
+          "type": "string"
+        },
+        "git_commit": {
+          "title": "Git Commit",
+          "type": "string"
+        },
+        "worktree_state": {
+          "title": "Worktree State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "task",
+        "git_commit",
+        "worktree_state"
+      ],
+      "title": "SourceRun",
+      "type": "object"
+    },
+    "StaticContextPacket": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed": {
+          "title": "Consumed",
+          "type": "boolean"
+        },
+        "disposition": {
+          "enum": [
+            "used",
+            "inspected_insufficient",
+            "inspected_not_relevant",
+            "inspected_contradictory",
+            "missing",
+            "invalid",
+            "not_required_for_task"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis",
+          "type": "array"
+        }
+      },
+      "required": [
+        "consumed",
+        "disposition",
+        "basis"
+      ],
+      "title": "StaticContextPacket",
+      "type": "object"
+    },
+    "SupportingArtifactReference": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_path": {
+          "title": "Artifact Path",
+          "type": "string"
+        },
+        "source_run": {
+          "$ref": "#/$defs/SourceRun"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Basis",
+          "type": "array"
+        },
+        "limits": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limits",
+          "type": "array"
+        }
+      },
+      "required": [
+        "artifact_path",
+        "source_run",
+        "basis",
+        "limits"
+      ],
+      "title": "SupportingArtifactReference",
+      "type": "object"
+    },
+    "Task": {
+      "additionalProperties": false,
+      "properties": {
+        "consumed": {
+          "title": "Consumed",
+          "type": "boolean"
+        },
+        "disposition": {
+          "enum": [
+            "used",
+            "inspected_insufficient",
+            "inspected_not_relevant",
+            "inspected_contradictory",
+            "missing",
+            "invalid",
+            "not_required_for_task"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "basis": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Basis",
+          "type": "array"
+        }
+      },
+      "required": [
+        "consumed",
+        "disposition",
+        "basis"
+      ],
+      "title": "Task",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "report_summary": {
+      "title": "Report Summary",
+      "type": "string"
+    },
+    "report_source_coverage": {
+      "$ref": "#/$defs/ReportSourceCoverage"
+    },
+    "archive_record": {
+      "$ref": "#/$defs/ArchiveRecord"
+    }
+  },
+  "required": [
+    "metadata",
+    "report_summary",
+    "report_source_coverage",
+    "archive_record"
+  ],
+  "title": "ArchiveManagerReport",
+  "type": "object"
+}

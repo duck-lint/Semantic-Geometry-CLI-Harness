@@ -1,4 +1,5 @@
 {
+  "$schema": "./ArchiveManagerReport.schema.json",
   "metadata": {
     "document_id": "archive_manager_report.json",
     "title": "Archive Manager Report",
@@ -36,7 +37,7 @@
     },
     "git_context": {
       "consumed": true,
-      "disposition": "used_with_limits",
+      "disposition": "used",
       "basis": [
         "Used as current-state provenance for commit, branch, and worktree state."
       ]
