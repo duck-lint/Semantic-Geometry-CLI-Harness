@@ -46,16 +46,35 @@
           "type": "string"
         },
         "document_authority": {
-          "const": "output_policy_artifact",
+          "const": "runtime_evidence",
           "title": "Document Authority",
           "type": "string"
+        },
+        "evidentiary_authority": {
+          "const": "output_policy_artifact",
+          "title": "Evidentiary Authority",
+          "type": "string"
+        },
+        "evidence_claims": {
+          "items": {
+            "enum": [
+              "agent_output_was_parsed",
+              "agent_output_matched_schema",
+              "bounded_report_claim_was_emitted"
+            ],
+            "type": "string"
+          },
+          "title": "Evidence Claims",
+          "type": "array"
         }
       },
       "required": [
         "document_id",
         "title",
         "source_format",
-        "document_authority"
+        "document_authority",
+        "evidentiary_authority",
+        "evidence_claims"
       ],
       "title": "Metadata",
       "type": "object"
@@ -208,12 +227,10 @@
       "additionalProperties": false,
       "properties": {
         "consumed": {
-          "description": "Whether the Project Manager materially reviewed the source. This does not indicate that the source is binding authority.",
           "title": "Consumed",
           "type": "boolean"
         },
         "disposition": {
-          "description": "How the Project Manager handled this source in this report. 'used' means the source materially supported a report claim, not that it is binding authority. 'inspected_insufficient' means the source was reviewed but did not substantiate the requested claim family. 'inspected_not_relevant' means it was reviewed but was outside the task. 'inspected_contradictory' means it contradicted the requested claim family without independently determining report_status. 'missing' and 'invalid' describe source availability or validity, not authority. 'not_required_for_task' means the source was unnecessary for the current task.",
           "enum": [
             "used",
             "inspected_insufficient",
@@ -227,7 +244,6 @@
           "type": "string"
         },
         "basis": {
-          "description": "Concrete free-text explanation of the disposition. It may name a governance evidence_class or valid_claim_family when useful, but the text is descriptive and is not parsed for validation.",
           "items": {
             "type": "string"
           },

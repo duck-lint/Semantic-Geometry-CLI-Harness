@@ -6,6 +6,12 @@ from __future__ import annotations
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+EvidenceClaims = Literal[
+  "agent_output_was_parsed",
+  "agent_output_matched_schema",
+  "bounded_report_claim_was_emitted"
+]
+
 
 class Metadata(BaseModel):
   model_config = ConfigDict(extra="forbid")
@@ -13,7 +19,9 @@ class Metadata(BaseModel):
   document_id: Literal["project_manager_report.json"]
   title: Literal["Project Manager Report"]
   source_format: Literal["json"]
-  document_authority: Literal["output_policy_artifact"]
+  document_authority: Literal["runtime_evidence"]
+  evidentiary_authority: Literal["output_policy_artifact"]
+  evidence_claims: list[EvidenceClaims]
 
 
 SourceCoverageDisposition = Literal[
@@ -30,34 +38,9 @@ SourceCoverageDisposition = Literal[
 class ReportSourceCoverageEntry(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
-  consumed: bool = Field(
-    description=(
-      "Whether the Project Manager materially reviewed the source. This does "
-      "not indicate that the source is binding authority."
-    )
-  )
-  disposition: SourceCoverageDisposition = Field(
-    description=(
-      "How the Project Manager handled this source in this report. 'used' "
-      "means the source materially supported a report claim, not that it is "
-      "binding authority. 'inspected_insufficient' means the source was "
-      "reviewed but did not substantiate the requested claim family. "
-      "'inspected_not_relevant' means it was reviewed but was outside the "
-      "task. 'inspected_contradictory' means it contradicted the requested "
-      "claim family without independently determining report_status. "
-      "'missing' and 'invalid' describe source availability or validity, not "
-      "authority. 'not_required_for_task' means the source was unnecessary "
-      "for the current task."
-    )
-  )
-  basis: list[str] = Field(
-    min_length=1,
-    description=(
-      "Concrete free-text explanation of the disposition. It may name a "
-      "governance evidence_class or valid_claim_family when useful, but the "
-      "text is descriptive and is not parsed for validation."
-    ),
-  )
+  consumed: bool
+  disposition: SourceCoverageDisposition
+  basis: list[str] = Field(min_length=1)
 
   @model_validator(mode="after")
   def enforce_consumed_disposition_consistency(self):
@@ -149,15 +132,8 @@ class ProjectManagerReport(BaseModel):
 
     frontier = self.proof_frontier
 
-    # Disposition and frontier openness are separate axes.
-    if frontier.blocked:
-      if not frontier.blocking_reason:
-        raise ValueError("blocked proof_frontier requires blocking_reason.")
-    elif frontier.blocking_reason is not None:
-      raise ValueError(
-        "unblocked proof_frontier must not include blocking_reason."
-      )
-
+    # Requested-transition admissibility and next-frontier openness are separate axes.
+    # A report may block the requested transition while still naming a next admissible transformation.
     if self.report_status == "admissible":
       if frontier.blocked:
         raise ValueError(
@@ -185,6 +161,18 @@ class ProjectManagerReport(BaseModel):
         )
 
       return self
+
+    # All non-admissible statuses block the requested transition.
+    # This does NOT mean the frontier is closed. They may still name a next admissible move.
+    if not frontier.blocked:
+      raise ValueError(
+        f"{self.report_status} reports require proof_frontier.blocked=true."
+      )
+
+    if not frontier.blocking_reason:
+      raise ValueError(
+        f"{self.report_status} reports require blocking_reason."
+      )
 
     if self.report_status == "admissibility_blocked":
       if not frontier.missing_basis:

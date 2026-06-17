@@ -1,9 +1,16 @@
 {
+  "$schema": "./ProjectManagerReport.schema.json",
   "metadata": {
-    "document_id": "project_manager_report.json",
+    "document_id": "project_manager_report.example.json",
     "title": "Project Manager Report",
     "source_format": "json",
-    "document_authority": "output_policy_artifact"
+    "document_authority": "runtime_evidence",
+    "evidentiary_authority": "output_policy_artifact",
+    "evidence_claims": [
+      "agent_output_was_parsed",
+      "agent_output_matched_schema",
+      "bounded_report_claim_was_emitted"
+    ]
   },
   "report_status": "admissibility_blocked",
   "report_summary": "Short report summary.",

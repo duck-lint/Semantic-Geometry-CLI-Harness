@@ -1,9 +1,15 @@
 {
   "metadata": {
-    "document_id": "project_manager_report.json",
-    "title": "Project Manager Report",
+    "document_id": "archive_manager_report.json",
+    "title": "Archive Manager Report",
     "source_format": "json",
-    "document_authority": "output_policy_artifact"
+    "document_authority": "runtime_evidence",
+    "evidentiary_authority": "output_policy_artifact",
+    "evidence_claims": [
+      "agent_output_was_parsed",
+      "agent_output_matched_schema",
+      "bounded_report_claim_was_emitted"
+    ]
   },
   "archive_record": {
     "record_id": "implementation_01_pm_route_closeout",
