@@ -22,11 +22,13 @@ class SourceCoverage(BaseModel):
 
   basis: str
   truthfulness_check: str
+  disposition_semantics: str
 
 
 class TrajectoryReview(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
+  basis: str
   current_posture: str
   thesis_attractor: str
   drift_detection: str
@@ -36,6 +38,7 @@ class TrajectoryReview(BaseModel):
 class ProofFrontier(BaseModel):
   model_config = ConfigDict(extra="forbid")
 
+  basis: str
   constraint_conflicts: str
   dominant_tension_justification: str
   missing_basis: str
@@ -44,6 +47,7 @@ class ProofFrontier(BaseModel):
   non_affected_surfaces: str
   stop_conditions: str
   authority_constraints: str
+  failed_runtime: str
 
 
 class ArtifactTruthfulness(BaseModel):
@@ -53,6 +57,11 @@ class ArtifactTruthfulness(BaseModel):
   output_policy_artifacts: str
   raw_provider_artifacts: str
   non_runtime_templates: str
+  validation_artifacts: str
+  ledger_artifacts: str
+  archive_records: str
+  disposition_usage: str
+  agent_input_policy: str
 
 
 class StatusSemantics(BaseModel):
@@ -72,6 +81,7 @@ class ReportDerivationLenses(BaseModel):
   proof_frontier: ProofFrontier
   artifact_truthfulness: ArtifactTruthfulness
   status_semantics: StatusSemantics
+  report_flavour: str
 
 
 class InstructionContract(BaseModel):

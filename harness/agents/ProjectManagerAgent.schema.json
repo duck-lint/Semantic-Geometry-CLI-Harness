@@ -120,13 +120,38 @@
         "non_runtime_templates": {
           "title": "Non Runtime Templates",
           "type": "string"
+        },
+        "validation_artifacts": {
+          "title": "Validation Artifacts",
+          "type": "string"
+        },
+        "ledger_artifacts": {
+          "title": "Ledger Artifacts",
+          "type": "string"
+        },
+        "archive_records": {
+          "title": "Archive Records",
+          "type": "string"
+        },
+        "disposition_usage": {
+          "title": "Disposition Usage",
+          "type": "string"
+        },
+        "agent_input_policy": {
+          "title": "Agent Input Policy",
+          "type": "string"
         }
       },
       "required": [
         "compiled_runtime_artifacts",
         "output_policy_artifacts",
         "raw_provider_artifacts",
-        "non_runtime_templates"
+        "non_runtime_templates",
+        "validation_artifacts",
+        "ledger_artifacts",
+        "archive_records",
+        "disposition_usage",
+        "agent_input_policy"
       ],
       "title": "ArtifactTruthfulness",
       "type": "object"
@@ -231,6 +256,10 @@
     "ProofFrontier": {
       "additionalProperties": false,
       "properties": {
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
         "constraint_conflicts": {
           "title": "Constraint Conflicts",
           "type": "string"
@@ -262,9 +291,14 @@
         "authority_constraints": {
           "title": "Authority Constraints",
           "type": "string"
+        },
+        "failed_runtime": {
+          "title": "Failed Runtime",
+          "type": "string"
         }
       },
       "required": [
+        "basis",
         "constraint_conflicts",
         "dominant_tension_justification",
         "missing_basis",
@@ -272,7 +306,8 @@
         "affected_surfaces",
         "non_affected_surfaces",
         "stop_conditions",
-        "authority_constraints"
+        "authority_constraints",
+        "failed_runtime"
       ],
       "title": "ProofFrontier",
       "type": "object"
@@ -294,6 +329,10 @@
         },
         "status_semantics": {
           "$ref": "#/$defs/StatusSemantics"
+        },
+        "report_flavour": {
+          "title": "Report Flavour",
+          "type": "string"
         }
       },
       "required": [
@@ -301,7 +340,8 @@
         "trajectory_review",
         "proof_frontier",
         "artifact_truthfulness",
-        "status_semantics"
+        "status_semantics",
+        "report_flavour"
       ],
       "title": "ReportDerivationLenses",
       "type": "object"
@@ -316,11 +356,16 @@
         "truthfulness_check": {
           "title": "Truthfulness Check",
           "type": "string"
+        },
+        "disposition_semantics": {
+          "title": "Disposition Semantics",
+          "type": "string"
         }
       },
       "required": [
         "basis",
-        "truthfulness_check"
+        "truthfulness_check",
+        "disposition_semantics"
       ],
       "title": "SourceCoverage",
       "type": "object"
@@ -357,6 +402,10 @@
     "TrajectoryReview": {
       "additionalProperties": false,
       "properties": {
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
         "current_posture": {
           "title": "Current Posture",
           "type": "string"
@@ -375,6 +424,7 @@
         }
       },
       "required": [
+        "basis",
         "current_posture",
         "thesis_attractor",
         "drift_detection",
