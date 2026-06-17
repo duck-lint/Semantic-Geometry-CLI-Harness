@@ -3,55 +3,89 @@
     "document_id": "archive_manager_report.json",
     "title": "Archive Manager Report",
     "source_format": "json",
-    "document_authority": "runtime_evidence",
+    "document_authority": "generated_artifact",
     "evidentiary_authority": "output_policy_artifact",
     "evidence_claims": [
       "agent_output_was_parsed",
       "agent_output_matched_schema",
-      "bounded_report_claim_was_emitted"
+      "bounded_archive_record_was_emitted"
     ]
+  },
+  "report_summary": "Short report summary.",
+  "report_source_coverage": {
+    "static_context_packet": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used to identify archive policy, future citation boundaries, and project-level constraints."
+      ]
+    },
+    "task": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used to identify the requested archive action and the intended bounded claim."
+      ]
+    },
+    "repo_snapshot_packet": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used as the primary compiled repo-state evidence surface for archived artifacts, run outputs, file paths, hashes, and worktree state."
+      ]
+    },
+    "git_context": {
+      "consumed": true,
+      "disposition": "used_with_limits",
+      "basis": [
+        "Used as current-state provenance for commit, branch, and worktree state."
+      ]
+    }
   },
   "archive_record": {
     "record_id": "implementation_01_pm_route_closeout",
     "record_type": "implementation_closeout",
-    "status": "archived",
     "claim": "Bounded claim this archive record supports.",
-    "source_run": {
-      "run_id": "20260614-155205-agent-route",
-      "task": "Original task or task pointer.",
-      "git_commit": "commit hash",
-      "worktree_state": "clean/dirty"
-    },
-    "archived_artifacts": [
-      "task.json",
-      "static_context_packet.json",
-      "project_manager_report.json",
-      "project_manager_report.validation.json",
-      "provider_payload.json",
-      "raw_model_response.json"
+    "supporting_artifact_references": [
+      {
+        "artifact_path": "task.json",
+        "source_run": {
+          "run_id": "20260614-155205-agent-route",
+          "task": "Original task or task pointer.",
+          "git_commit": "commit hash",
+          "worktree_state": "clean/dirty"
+        },
+        "basis": [
+          "Artifact records the original user task supplied to the route."
+        ],
+        "limits": [
+          "Does not prove any implementation or validation result by itself."
+        ]
+      }
     ],
-    "validation_evidence": [
-      "Validation or probe result names and statuses."
+    "basis": [
+      "The archived artifacts were named in the supplied repo_snapshot_packet.",
+      "The archive record is bounded to the listed artifacts and stated claim families.",
+      "Future citation use is restricted to the supported claim families named in this record."
     ],
-    "decision_record": {
-      "decision": "What transition or closeout this archive records.",
-      "basis": [
-        "Why the decision is supported."
-      ],
-      "limits": [
-        "What this archive record does not prove."
-      ]
-    },
+    "limits": [
+      "This archive does not prove unrelated routes work.",
+      "This archive does not prove full harness runtime completion.",
+      "This archive does not prove implementation correctness beyond the listed evidence classes.",
+      "This archive does not prove future repo state."
+    ],
     "future_citation_use": {
       "pm_may_cite_for": [
         "Implementation 01 closeout.",
-        "PM route produced and validated saved artifacts.",
-        "Archive Manager became admissible as next slice."
+        "PM route produced saved artifacts.",
+        "PM report matched its schema according to the archived validation artifact.",
+        "Archive Manager emitted a bounded archive record."
       ],
       "pm_must_not_cite_for": [
         "Planner route works.",
-        "Archive Manager implementation exists before Implementation 02.",
-        "Full harness runtime is complete."
+        "Archive Manager implementation existed before the relevant implementation slice.",
+        "Full harness runtime is complete.",
+        "The implementation is semantically correct beyond supplied validation evidence."
       ]
     }
   }

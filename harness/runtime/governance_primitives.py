@@ -21,7 +21,8 @@ CompiledRuntimeClaim = Literal[
 OutputPolicyClaim = Literal[
   "agent_output_was_parsed",
   "agent_output_matched_schema",
-  "bounded_report_claim_was_emitted"
+  "bounded_report_claim_was_emitted",
+  "bounded_archive_record_was_emitted"
 ]
 
 RawProviderClaim = Literal[
