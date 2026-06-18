@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "document_id": "implementation_plan_02.json",
+    "title": "Implementation 02 Plan",
+    "purpose": "This file outlines an implementation plan.",
+    "source_format": "json",
+    "document_authority": "runtime_evidence",
+    "evidentiary_authority": "validation_artifact",
+    "evidence_claims": [
+      "schema_validation_passed",
+      "probe_result_recorded"
+    ]
+  },
+  "validation_copy": {
+    "report_artifact_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/runs/20260618-021720-agent-route/archive_manager_report.json",
+    "report_artifact_sha256": "89f4ac84823109ab6f035b50211de0d9b686117f8d4b1c63a1c2e492ba1976a1",
+    "schema_name": "archive_manager_report",
+    "schema_path": "F:/PROJECT-REPOS/Semantic-Geometry-CLI-Harness/harness/contracts/ArchiveManagerReport.schema.json",
+    "schema_sha256": "e543066a96540051529a5351b329ce8be865c3d84ba9118882b6e043e8f2c0cf",
+    "validator": "harness.contracts.archive_manager_report_extractor.extract_archive_manager_report",
+    "validation_timestamp_utc": "2026-06-18T02:17:33.254655Z",
+    "validation_passed": true,
+    "archive_record_id": "archive_manager_contract_surface_smoke_test",
+    "archive_record_type": "decision_preservation"
+  }
+}

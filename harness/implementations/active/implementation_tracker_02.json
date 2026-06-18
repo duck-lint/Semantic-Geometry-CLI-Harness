@@ -16,7 +16,7 @@
       "agent": "Project Authority",
       "change": "Archive record schema",
       "evidence": "evidence of completion",
-      "status": "proposed"
+      "status": "complete"
     },
     {
       "date": "20260615",
@@ -48,7 +48,7 @@
       "agent": "Project Authority",
       "change": "AM creation",
       "evidence": "archive_manager.agent.json, archive_manager_agent.py, ArchiveManagerAgent.schema.json, archive_manager_report.example.json, archive_manager_report.py, ArchiveManagerReport.schema.json complete and functional for live API call.",
-      "status": "proposed"
+      "status": "active"
     }
   ],
   "blockers": [

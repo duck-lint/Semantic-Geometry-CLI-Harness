@@ -1,0 +1,160 @@
+{
+  "metadata": {
+    "document_id": "archive_manager_report.json",
+    "title": "Archive Manager Report",
+    "source_format": "json",
+    "document_authority": "generated_artifact",
+    "evidentiary_authority": "output_policy_artifact",
+    "evidence_claims": [
+      "agent_output_was_parsed",
+      "agent_output_matched_schema",
+      "bounded_archive_record_was_emitted"
+    ]
+  },
+  "report_summary": "This archive run preserves a bounded historical claim about the Archive Manager slice: the repo now contains the Archive Manager report contract, its Pydantic model/extractor/validation helper, and an example report scaffold that together define how a future validated archive report is shaped. The main evidence used is the supplied static context packet, the selected repo snapshot files for the archive manager contract surface, the current task, and git context. The citation boundary is narrow: this record supports only the existence and shape of the archive-reporting surface and must not be cited as proving live runtime execution, full harness completion, or any future route behavior.",
+  "report_source_coverage": {
+    "static_context_packet": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used to identify the project thesis, implementation slice, archive purpose, evidence-class boundaries, and citation limits for a bounded archive record.",
+        "Used to keep the record narrower than the full harness thesis and to avoid treating scaffolds, examples, or model output as project authority."
+      ]
+    },
+    "task": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used as the current task identity ('smoke test') and as the trigger for producing a bounded archive report instead of expanding scope.",
+        "Used to preserve that this run is a smoke-test-style archive activity, not a claim of full runtime completion."
+      ]
+    },
+    "repo_snapshot_packet": {
+      "consumed": true,
+      "disposition": "used",
+      "basis": [
+        "Used to inspect the archive-manager contract files that were explicitly supplied: schema, example, Pydantic model, extractor, and validation helper.",
+        "Used to support the claim that the archive-reporting surface exists and is schema-backed, without inferring that the extractor has been successfully executed in this run."
+      ]
+    },
+    "git_context": {
+      "consumed": true,
+      "disposition": "inspected_contradictory",
+      "basis": [
+        "Git context was inspected for provenance, but the worktree is dirty with unrelated edits in tests/test_package_route.py and tests/test_pre_call_packet_assembly.py, so it cannot be used as a clean-state proof.",
+        "The commit and branch were noted for run identity, but the dirty state limits what this archive can prove about repository-wide stability."
+      ]
+    }
+  },
+  "archive_record": {
+    "record_id": "archive_manager_contract_surface_smoke_test",
+    "record_type": "decision_preservation",
+    "claim": "The repository now contains a concrete Archive Manager contract surface for emitting bounded archive records, consisting of the JSON schema, Pydantic model, extractor, validation helper, and example report scaffold.",
+    "supporting_artifact_references": [
+      {
+        "artifact_path": "harness/contracts/ArchiveManagerReport.schema.json",
+        "source_run": {
+          "run_id": "20260618-021720-agent-route",
+          "task": "smoke test",
+          "git_commit": "e7febf3888101535c3273d516f8e01521e1c6bc8",
+          "worktree_state": "dirty"
+        },
+        "basis": [
+          "Provides the authoritative JSON Schema that defines the archive report shape, required fields, and nested artifact-reference structure."
+        ],
+        "limits": [
+          "Does not prove the schema was validated against a live emitted report in this run.",
+          "Does not prove semantic correctness beyond the declared structure."
+        ]
+      },
+      {
+        "artifact_path": "harness/contracts/archive_manager_report.py",
+        "source_run": {
+          "run_id": "20260618-021720-agent-route",
+          "task": "smoke test",
+          "git_commit": "e7febf3888101535c3273d516f8e01521e1c6bc8",
+          "worktree_state": "dirty"
+        },
+        "basis": [
+          "Provides the generated Pydantic model that mirrors the schema and encodes consumed/disposition consistency checks."
+        ],
+        "limits": [
+          "Does not prove the model was instantiated successfully from a live runtime report in this run.",
+          "Does not prove validator completeness beyond the coded checks."
+        ]
+      },
+      {
+        "artifact_path": "harness/contracts/archive_manager_report_extractor.py",
+        "source_run": {
+          "run_id": "20260618-021720-agent-route",
+          "task": "smoke test",
+          "git_commit": "e7febf3888101535c3273d516f8e01521e1c6bc8",
+          "worktree_state": "dirty"
+        },
+        "basis": [
+          "Provides the extraction/validation pathway for parsing raw model output into a validated ArchiveManagerReport and writing validation evidence."
+        ],
+        "limits": [
+          "Does not prove the extractor was executed successfully in this run.",
+          "Does not prove any upstream raw provider response existed or was correct."
+        ]
+      },
+      {
+        "artifact_path": "harness/contracts/archive_manager_report_validation.py",
+        "source_run": {
+          "run_id": "20260618-021720-agent-route",
+          "task": "smoke test",
+          "git_commit": "e7febf3888101535c3273d516f8e01521e1c6bc8",
+          "worktree_state": "dirty"
+        },
+        "basis": [
+          "Provides the validation artifact model and default validation-artifact path helper for archive report validation evidence."
+        ],
+        "limits": [
+          "Does not prove a validation artifact was actually written in this run.",
+          "Does not prove report content passed validation."
+        ]
+      },
+      {
+        "artifact_path": "harness/contracts/archive_manager_report.example.json",
+        "source_run": {
+          "run_id": "20260618-021720-agent-route",
+          "task": "smoke test",
+          "git_commit": "e7febf3888101535c3273d516f8e01521e1c6bc8",
+          "worktree_state": "dirty"
+        },
+        "basis": [
+          "Provides an admissible example of the intended archive report shape and evidence claims."
+        ],
+        "limits": [
+          "Does not prove the example is live runtime output.",
+          "Does not prove the example reflects this specific run's content."
+        ]
+      }
+    ],
+    "basis": [
+      "The supplied repo snapshot explicitly includes the archive manager schema/model/extractor/validation/example files, which together establish a concrete archive-reporting implementation slice.",
+      "The static context packet identifies Implementation 02 as Archive Manager and frames archive records as citation-ready bounded historical claims, matching the contract surface in the repo snapshot.",
+      "The current task is a minimal smoke-test input, so the correct historical claim remains narrow and implementation-slice-specific."
+    ],
+    "limits": [
+      "This record does not prove the extractor or schema were exercised successfully by a live runtime call in this run.",
+      "This record does not prove repository-wide completion, planner/reviewer/worker support, or future archive capability beyond the concrete contract surface.",
+      "This record does not prove clean git state; the supplied git context is dirty and therefore limits provenance strength.",
+      "This record must not be cited as evidence of semantic correctness of the archive manager beyond the supplied contract files and example scaffold."
+    ],
+    "future_citation_use": {
+      "pm_may_cite_for": [
+        "The repository contains an Archive Manager contract surface for bounded archive records.",
+        "The archive manager slice includes schema, Pydantic model, extraction, and validation helpers.",
+        "Implementation 02 was oriented toward archive closeout and citation-ready historical preservation."
+      ],
+      "pm_must_not_cite_for": [
+        "The Archive Manager has been runtime-validated in this run.",
+        "The full harness or any unrelated route is complete.",
+        "The repository is in a clean or fully verified state.",
+        "The contract files alone prove end-to-end archive emission success."
+      ]
+    }
+  }
+}

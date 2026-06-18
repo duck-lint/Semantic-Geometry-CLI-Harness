@@ -15,6 +15,7 @@ from harness.agents.agent_context_compiler import (
   compile_agent_context_packet,
 )
 from harness.agents.agent_context_packet import AgentContextPacket
+from harness.agents.agent_contract import AgentContract
 from harness.agents.project_manager_agent import ProjectManagerAgent
 from harness.project_spec.static_context_packet_compiler import (
   compile_static_context_packet,
@@ -34,6 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.json"
 LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AM_AGENT_PATH = HARNESS_ROOT / "agents" / "archive_manager.agent.json"
 AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
 AGENT_CONTEXT_SCHEMA_PATH = HARNESS_ROOT / "agents" / "AgentContextPacket.schema.json"
 API_CALL_SCHEMA_PATH = HARNESS_ROOT / "runtime" / "ApiCallPacket.schema.json"
@@ -90,6 +92,17 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       ["static_context_packet", "repo_snapshot_packet"],
     )
 
+  def test_current_archive_manager_agent_file_validates(self) -> None:
+    agent = AgentContract.model_validate(load_json(LIVE_AM_AGENT_PATH))
+
+    self.assertEqual(agent.metadata.id, "archive_manager.agent.json")
+    self.assertEqual(agent.provider, "openai")
+    self.assertEqual(
+      [entry.input_id for entry in agent.agent_input_policy],
+      ["static_context_packet", "repo_snapshot_packet"],
+    )
+    self.assertEqual(agent.agent_output_policy[0].output_id, "archive_manager_report")
+
   def test_agent_context_compiles_from_pm_input_policy(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -128,6 +141,47 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       self.assertNotIn("git_context", packet.model_dump(mode="json"))
       self.assertNotIn("supplementary_context", packet.model_dump(mode="json"))
       self.assertNotIn("runtime_budget", packet.model_dump(mode="json"))
+
+  def test_agent_context_compiles_from_archive_manager_input_policy(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      output_path = temp_root / "agent_context_packet.json"
+      static_output_path = temp_root / "static_context_packet.json"
+
+      packet = compile_agent_context_packet(
+        agent_path=LIVE_AM_AGENT_PATH,
+        output_path=output_path,
+        manifest_path=MANIFEST_PATH,
+        harness_root=REPO_ROOT,
+        target_repo_root=REPO_ROOT,
+        static_context_output_path=static_output_path,
+      )
+
+      self.assertTrue(output_path.is_file())
+      self.assertTrue(static_output_path.is_file())
+      self.assertIsInstance(packet, AgentContextPacket)
+      self.assertEqual(packet.agent_contract.metadata.id, "archive_manager.agent.json")
+      self.assertEqual(packet.agent_contract.provider, "openai")
+      self.assertEqual(len(packet.input_coverage), 2)
+      self.assertTrue(all(entry.status == "included" for entry in packet.input_coverage))
+      self.assertIsNotNone(packet.resolved_inputs.repo_snapshot_packet)
+
+      repo_snapshot_packet = packet.resolved_inputs.repo_snapshot_packet
+      self.assertIsNotNone(repo_snapshot_packet)
+      self.assertEqual(
+        [file.path for file in repo_snapshot_packet.files],
+        [
+          "harness/contracts/ArchiveManagerReport.schema.json",
+          "harness/contracts/archive_manager_report.example.json",
+          "harness/contracts/archive_manager_report.py",
+          "harness/contracts/archive_manager_report_extractor.py",
+          "harness/contracts/archive_manager_report_validation.py",
+          "harness/implementations/active/implementation_plan_02.json",
+          "harness/implementations/active/implementation_tracker_02.json",
+          "harness/implementations/active/probes/PM_report_disposition_validation.json",
+          "harness/implementations/active/project_manager_admissibility_report_20260614.json",
+        ],
+      )
 
   def test_agent_context_fails_for_invalid_static_context(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:

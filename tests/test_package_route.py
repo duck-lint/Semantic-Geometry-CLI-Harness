@@ -563,11 +563,10 @@ class PackageRouteTests(unittest.TestCase):
         "harness",
         "archive",
         "Archive the current PM route closeout.",
-        "--agent",
-        str(AM_AGENT_PATH),
       ],
       expected_banner="PASS: Archive route completed.",
       expected_route="archive",
+      agent_path=LIVE_AM_AGENT_PATH,
     )
 
   def test_package_cli_runs_non_pm_agent_route(self) -> None:
