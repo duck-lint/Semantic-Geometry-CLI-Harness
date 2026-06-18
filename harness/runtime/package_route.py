@@ -38,7 +38,7 @@ from harness.providers.openai.openai_response_payload_compiler import (
 )
 from harness.runtime.api_call_packet import ApiCallPacket
 from harness.runtime.api_call_packet_builder import build_api_call_packet
-from harness.runtime.git_context import collect_git_context
+from harness.runtime.git_context import collect_git_context, collect_git_delta_context
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.task import Task, task_from_cli
 
@@ -65,6 +65,12 @@ class PackageRouteStepError(RuntimeError):
   def __init__(self, step: str, message: str) -> None:
     super().__init__(message)
     self.step = step
+
+
+@dataclass(frozen=True, slots=True)
+class RoutePositionals:
+  task_text: str
+  base_commit: str | None = None
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -132,6 +138,7 @@ def run_package_route(
   agent_path: Path,
   runs_root: Path,
   repo_root: Path,
+  base_commit: str | None = None,
 ) -> PackageRouteResult:
   harness_root = Path(__file__).resolve().parents[1]
   task = task_from_cli(task_text.strip())
@@ -147,7 +154,17 @@ def run_package_route(
   _write_json(task_path, task.model_dump(mode="json", by_alias=True))
 
   runtime_budget = _load_runtime_budget_policy(harness_root)
-  git_context = collect_git_context(repo_root.resolve())
+  if base_commit is None:
+    git_context = collect_git_context(repo_root.resolve())
+    git_delta_context = None
+  else:
+    git_context = None
+    git_delta_context = collect_git_delta_context(repo_root.resolve(), base_commit)
+    if not git_delta_context.available:
+      raise PackageRouteStepError(
+        "collect_git_delta_context",
+        git_delta_context.failure or "Git delta context is unavailable.",
+      )
 
   try:
     agent_context_packet = compile_agent_context_packet(
@@ -181,6 +198,7 @@ def run_package_route(
       agent_context_packet=agent_context_packet,
       runtime_budget=runtime_budget,
       git_context=git_context,
+      git_delta_context=git_delta_context,
       output_path=api_call_path,
     )
   except (OSError, TypeError, ValidationError, ValueError) as error:
@@ -251,7 +269,10 @@ def run_package_route(
       if entry.required and entry.status == "included"
     }
     required_consumed_sources.add("task")
-    if api_call_packet.git_context is not None:
+    if (
+      api_call_packet.git_context is not None
+      or api_call_packet.git_delta_context is not None
+    ):
       required_consumed_sources.add("git_context")
 
     report = handler.extractor(
@@ -325,6 +346,14 @@ def run_package_route(
   artifact_paths.append(report_path)
   artifact_paths.append(validation_path)
   contract_status = handler.contract_status(report)
+  ledger_git_commit = None
+  ledger_worktree_dirty = None
+  if git_context is not None:
+    ledger_git_commit = git_context.commit
+    ledger_worktree_dirty = git_context.is_dirty
+  elif git_delta_context is not None:
+    ledger_git_commit = git_delta_context.head_commit
+    ledger_worktree_dirty = git_delta_context.worktree_state == "dirty"
 
   try:
     finalize_runtime_call_ledger(
@@ -341,8 +370,8 @@ def run_package_route(
       report_artifact_sha256=report_artifact_sha256,
       validation_artifact_path=_display_path(validation_path, repo_root.resolve()),
       validation_artifact_sha256=validation_artifact_sha256,
-      git_commit=git_context.commit,
-      worktree_dirty=git_context.is_dirty,
+      git_commit=ledger_git_commit,
+      worktree_dirty=ledger_worktree_dirty,
       path=DEFAULT_RUNTIME_CALL_LEDGER_PATH,
     )
   except RuntimeError as error:
@@ -408,7 +437,7 @@ def _build_base_argument_parser(description: str) -> argparse.ArgumentParser:
   repo_root = script_path.parents[2]
 
   parser = argparse.ArgumentParser(description=description)
-  parser.add_argument("task_text", nargs="?", default=None)
+  parser.add_argument("route_args", nargs="*")
   parser.add_argument(
     "--runs-root",
     type=Path,
@@ -424,6 +453,25 @@ def _build_base_argument_parser(description: str) -> argparse.ArgumentParser:
   return parser
 
 
+def _parse_route_positionals(route_args: list[str]) -> RoutePositionals:
+  if len(route_args) == 1 and route_args[0].strip():
+    return RoutePositionals(task_text=route_args[0])
+
+  if (
+    len(route_args) == 2
+    and route_args[0].strip()
+    and route_args[1].strip()
+  ):
+    return RoutePositionals(task_text=route_args[1], base_commit=route_args[0])
+
+  if not route_args or all(not argument.strip() for argument in route_args):
+    raise ValueError("package CLI requires task text.")
+
+  raise ValueError(
+    "package CLI accepts either task text or base commit plus task text."
+  )
+
+
 def _run_cli_route(
   *,
   route_name: str,
@@ -432,6 +480,7 @@ def _run_cli_route(
   agent_path: Path,
   runs_root: Path,
   repo_root: Path,
+  base_commit: str | None = None,
 ) -> int:
   try:
     result = run_package_route(
@@ -440,6 +489,7 @@ def _run_cli_route(
       agent_path=agent_path.resolve(),
       runs_root=runs_root.resolve(),
       repo_root=repo_root.resolve(),
+      base_commit=base_commit,
     )
   except PackageRouteStepError as error:
     return _fail(error.step, error)
@@ -476,42 +526,50 @@ def _print_route_result(
 def _run_plan_route(argv: list[str]) -> int:
   args = build_plan_argument_parser().parse_args(argv)
 
-  if args.task_text is None or not args.task_text.strip():
-    print("FAIL: package_cli: package CLI requires task text.", file=sys.stderr)
+  try:
+    positionals = _parse_route_positionals(args.route_args)
+  except ValueError as error:
+    print(f"FAIL: package_cli: {error}", file=sys.stderr)
     return 1
 
   return _run_cli_route(
     route_name="Plan",
     route="plan",
-    task_text=args.task_text,
+    task_text=positionals.task_text,
     agent_path=args.agent,
     runs_root=args.runs_root,
     repo_root=args.repo_root,
+    base_commit=positionals.base_commit,
   )
 
 
 def _run_archive_route(argv: list[str]) -> int:
   args = build_archive_argument_parser().parse_args(argv)
 
-  if args.task_text is None or not args.task_text.strip():
-    print("FAIL: package_cli: package CLI requires task text.", file=sys.stderr)
+  try:
+    positionals = _parse_route_positionals(args.route_args)
+  except ValueError as error:
+    print(f"FAIL: package_cli: {error}", file=sys.stderr)
     return 1
 
   return _run_cli_route(
     route_name="Archive",
     route="archive",
-    task_text=args.task_text,
+    task_text=positionals.task_text,
     agent_path=args.agent,
     runs_root=args.runs_root,
     repo_root=args.repo_root,
+    base_commit=positionals.base_commit,
   )
 
 
 def _run_generic_agent_route(argv: list[str]) -> int:
   args = build_argument_parser().parse_args(argv)
 
-  if args.task_text is None or not args.task_text.strip():
-    print("FAIL: package_cli: package CLI requires task text.", file=sys.stderr)
+  try:
+    positionals = _parse_route_positionals(args.route_args)
+  except ValueError as error:
+    print(f"FAIL: package_cli: {error}", file=sys.stderr)
     return 1
 
   if args.agent is None:
@@ -521,10 +579,11 @@ def _run_generic_agent_route(argv: list[str]) -> int:
   return _run_cli_route(
     route_name="Agent",
     route="agent",
-    task_text=args.task_text,
+    task_text=positionals.task_text,
     agent_path=args.agent,
     runs_root=args.runs_root,
     repo_root=args.repo_root,
+    base_commit=positionals.base_commit,
   )
 
 

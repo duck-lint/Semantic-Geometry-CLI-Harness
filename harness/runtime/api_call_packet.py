@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from harness.agents.agent_context_packet import AgentContextPacket
-from harness.runtime.git_context import GitContext
+from harness.runtime.git_context import GitContext, GitDeltaContext
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.task import Task
@@ -35,6 +35,7 @@ class ApiCallPacket(BaseModel):
   runtime_budget: RuntimeBudgetPolicy | None = None
   agent_context_packet: AgentContextPacket | None = None
   git_context: GitContext | None = None
+  git_delta_context: GitDeltaContext | None = None
   supplementary_context: list[SupplementaryContextEntry] = Field(
     default_factory=list
   )
@@ -49,6 +50,11 @@ class ApiCallPacket(BaseModel):
     if self.call_mode == "direct" and self.agent_context_packet is not None:
       raise ValueError(
         "direct ApiCallPacket must not include agent_context_packet."
+      )
+
+    if self.git_context is not None and self.git_delta_context is not None:
+      raise ValueError(
+        "ApiCallPacket must not include both git_context and git_delta_context."
       )
 
     if (

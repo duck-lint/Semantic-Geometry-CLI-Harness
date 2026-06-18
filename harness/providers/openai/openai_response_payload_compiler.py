@@ -281,6 +281,21 @@ def _render_developer_message(api_call_packet: ApiCallPacket) -> str:
       ]
     )
 
+  if api_call_packet.git_delta_context is not None:
+    sections.extend(
+      [
+        "",
+        "GIT DELTA CONTEXT",
+        (
+          "Treat this supplied git_delta_context as the run's git context "
+          "source with delta semantics. Until report schemas are migrated, "
+          "source_coverage.git_context covers either git_context or "
+          "git_delta_context, depending on which packet lane is present."
+        ),
+        _json_block(api_call_packet.git_delta_context.model_dump(mode="json")),
+      ]
+    )
+
   return "\n".join(sections)
 
 

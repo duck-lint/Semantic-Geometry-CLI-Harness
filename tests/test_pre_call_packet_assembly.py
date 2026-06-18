@@ -24,7 +24,13 @@ from harness.project_spec.static_context_packet_compiler import (
 from harness.runtime.api_call_packet import ApiCallPacket
 from harness.runtime.api_call_packet_builder import build_api_call_packet
 from harness.runtime.api_call_ledger import DEFAULT_RUNTIME_CALL_LEDGER_PATH
-from harness.runtime.git_context import GitContext, collect_git_context
+from harness.runtime.git_context import (
+  GitContext,
+  GitChangedFile,
+  GitDeltaContext,
+  collect_git_context,
+  collect_git_delta_context,
+)
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.orchestrator import build_pre_call_artifacts
@@ -58,6 +64,43 @@ def compile_static_packet(output_path: Path):
     target_repo_root=REPO_ROOT,
     output_path=output_path,
   )
+
+
+def run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+  return subprocess.run(
+    ["git", *args],
+    cwd=repo_root,
+    capture_output=True,
+    text=True,
+    check=False,
+  )
+
+
+def run_git_checked(repo_root: Path, *args: str) -> str:
+  completed = run_git(repo_root, *args)
+  if completed.returncode != 0:
+    raise AssertionError(completed.stderr)
+  return completed.stdout.strip()
+
+
+def git_commit_all(repo_root: Path, message: str) -> str:
+  run_git_checked(repo_root, "add", ".")
+  run_git_checked(
+    repo_root,
+    "-c",
+    "user.name=Harness Test",
+    "-c",
+    "user.email=harness-test@example.test",
+    "commit",
+    "-m",
+    message,
+  )
+  return run_git_checked(repo_root, "rev-parse", "HEAD")
+
+
+def init_git_repo(repo_root: Path) -> None:
+  run_git_checked(repo_root, "init")
+  run_git_checked(repo_root, "checkout", "-b", "main")
 
 
 def setUpModule() -> None:
@@ -458,6 +501,82 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       self.assertFalse(context.available)
       self.assertIsNotNone(context.failure)
 
+  def test_git_delta_context_collects_commits_files_stat_and_worktree(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      repo_root = Path(temp_directory)
+      init_git_repo(repo_root)
+      (repo_root / "README.md").write_text("base\n", encoding="utf-8")
+      base_commit = git_commit_all(repo_root, "Base commit")
+      (repo_root / "README.md").write_text("base\nnext\n", encoding="utf-8")
+      git_commit_all(repo_root, "Add next line")
+      (repo_root / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+
+      context = collect_git_delta_context(repo_root, base_commit)
+
+      self.assertTrue(context.available, context.failure)
+      self.assertEqual(context.base_commit, base_commit)
+      self.assertEqual(context.head_commit, run_git_checked(repo_root, "rev-parse", "HEAD"))
+      self.assertEqual(context.comparison_range, f"{base_commit}..{context.head_commit}")
+      self.assertTrue(context.base_is_ancestor_of_head)
+      self.assertEqual(len(context.commits_since_base), 1)
+      self.assertEqual(context.commits_since_base[0].summary, "Add next line")
+      self.assertEqual(
+        context.changed_files_since_base,
+        [GitChangedFile(status="M", path="README.md")],
+      )
+      self.assertIn("README.md", context.diff_stat_since_base or "")
+      self.assertEqual(context.worktree_state, "dirty")
+      self.assertIn("?? dirty.txt", context.uncommitted_status_summary)
+
+  def test_git_delta_context_reports_invalid_base_as_unavailable(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      repo_root = Path(temp_directory)
+      init_git_repo(repo_root)
+      (repo_root / "README.md").write_text("base\n", encoding="utf-8")
+      git_commit_all(repo_root, "Base commit")
+
+      context = collect_git_delta_context(repo_root, "not-a-commit")
+
+      self.assertFalse(context.available)
+      self.assertIsNotNone(context.failure)
+
+  def test_git_delta_context_marks_non_ancestor_as_lineage_limitation(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      repo_root = Path(temp_directory)
+      init_git_repo(repo_root)
+      (repo_root / "README.md").write_text("base\n", encoding="utf-8")
+      git_commit_all(repo_root, "Base commit")
+      run_git_checked(repo_root, "checkout", "-b", "side")
+      (repo_root / "side.txt").write_text("side\n", encoding="utf-8")
+      side_commit = git_commit_all(repo_root, "Side commit")
+      run_git_checked(repo_root, "checkout", "main")
+      (repo_root / "main.txt").write_text("main\n", encoding="utf-8")
+      git_commit_all(repo_root, "Main commit")
+
+      context = collect_git_delta_context(repo_root, side_commit)
+
+      self.assertTrue(context.available, context.failure)
+      self.assertFalse(context.base_is_ancestor_of_head)
+      self.assertIsNotNone(context.lineage_limitation)
+      self.assertIsNone(context.failure)
+
+  def test_git_delta_context_preserves_rename_path_information(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      repo_root = Path(temp_directory)
+      init_git_repo(repo_root)
+      (repo_root / "old.txt").write_text("base\n", encoding="utf-8")
+      base_commit = git_commit_all(repo_root, "Base commit")
+      run_git_checked(repo_root, "mv", "old.txt", "new.txt")
+      git_commit_all(repo_root, "Rename file")
+
+      context = collect_git_delta_context(repo_root, base_commit)
+
+      self.assertTrue(context.available, context.failure)
+      self.assertEqual(len(context.changed_files_since_base), 1)
+      self.assertTrue(context.changed_files_since_base[0].status.startswith("R"))
+      self.assertIn("old.txt", context.changed_files_since_base[0].path)
+      self.assertIn("new.txt", context.changed_files_since_base[0].path)
+
   def test_packet_schemas_validate_emitted_artifacts(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -744,6 +863,46 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       self.assertEqual(completed.returncode, 1)
       self.assertIn("only allowed for direct calls", completed.stderr)
       self.assertFalse(output_path.exists())
+
+  def test_api_call_packet_may_include_git_delta_context(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      output_path = Path(temp_directory) / "api_call_packet.json"
+
+      packet = build_api_call_packet(
+        task=task_from_cli("Review the delta context."),
+        call_mode="direct",
+        git_delta_context=GitDeltaContext(
+          available=True,
+          base_commit="abc123",
+          head_commit="def456",
+          comparison_range="abc123..def456",
+          base_is_ancestor_of_head=True,
+          worktree_state="clean",
+        ),
+        output_path=output_path,
+      )
+
+      emitted = load_json(output_path)
+      self.assertIsNone(packet.git_context)
+      self.assertIsNotNone(packet.git_delta_context)
+      self.assertIsNone(emitted["git_context"])
+      self.assertEqual(emitted["git_delta_context"]["base_commit"], "abc123")
+
+  def test_api_call_packet_rejects_both_git_context_lanes(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      with self.assertRaises(ValueError):
+        build_api_call_packet(
+          task=task_from_cli("Reject ambiguous git context."),
+          call_mode="direct",
+          git_context=GitContext(available=True, commit="abc123"),
+          git_delta_context=GitDeltaContext(
+            available=True,
+            base_commit="abc123",
+            head_commit="def456",
+            comparison_range="abc123..def456",
+          ),
+          output_path=Path(temp_directory) / "api_call_packet.json",
+        )
 
   def test_api_call_builder_refuses_to_write_packet_without_task(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:

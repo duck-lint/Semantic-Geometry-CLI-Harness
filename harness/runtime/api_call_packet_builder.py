@@ -22,7 +22,11 @@ from harness.runtime.api_call_packet import (
   ApiCallPacketMetadata,
   CallMode,
 )
-from harness.runtime.git_context import GitContext, collect_git_context
+from harness.runtime.git_context import (
+  GitContext,
+  GitDeltaContext,
+  collect_git_context,
+)
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.task import Task, task_from_cli
@@ -52,6 +56,7 @@ def build_api_call_packet(
   output_path: Path,
   runtime_budget: RuntimeBudgetPolicy | None = None,
   git_context: GitContext | None = None,
+  git_delta_context: GitDeltaContext | None = None,
   agent_context_packet: AgentContextPacket | None = None,
   supplementary_context: list[SupplementaryContextEntry] | None = None,
 ) -> ApiCallPacket:
@@ -71,6 +76,7 @@ def build_api_call_packet(
     runtime_budget=runtime_budget,
     agent_context_packet=agent_context_packet,
     git_context=git_context,
+    git_delta_context=git_delta_context,
     supplementary_context=supplementary_context or [],
   )
 

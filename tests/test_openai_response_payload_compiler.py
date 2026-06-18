@@ -20,6 +20,7 @@ from harness.providers.openai.openai_response_payload_compiler import (
 )
 from harness.runtime.api_call_packet_builder import build_api_call_packet
 from harness.runtime.api_call_ledger import DEFAULT_RUNTIME_CALL_LEDGER_PATH
+from harness.runtime.git_context import GitDeltaContext
 from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.task import task_from_cli
 from tests.agent_test_support import create_test_project_manager_agent
@@ -242,6 +243,37 @@ class OpenAIResponsePayloadCompilerTests(unittest.TestCase):
       self.assertIn("RESOLVED INPUT COVERAGE", developer_text)
       self.assertIn("STATIC CONTEXT PACKET", developer_text)
       self.assertIn("Do not silently discard a required proof packet.", developer_text)
+
+  def test_payload_compiler_renders_git_delta_context_with_coverage_instruction(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      packet = build_agent_routed_api_call_packet(temp_root)
+      packet = build_api_call_packet(
+        task=packet.task,
+        call_mode="agent_routed",
+        agent_context_packet=packet.agent_context_packet,
+        runtime_budget=packet.runtime_budget,
+        git_delta_context=GitDeltaContext(
+          available=True,
+          base_commit="abc123",
+          head_commit="def456",
+          comparison_range="abc123..def456",
+          base_is_ancestor_of_head=True,
+          worktree_state="clean",
+        ),
+        output_path=temp_root / "api_call_packet.json",
+      )
+
+      payload = compile_openai_response_payload(
+        api_call_packet_path=temp_root / "api_call_packet.json",
+        output_path=temp_root / "provider_payload.json",
+      )
+
+      developer_text = payload.request.input[0].content[0].text
+      self.assertIsNone(packet.git_context)
+      self.assertIn("GIT DELTA CONTEXT", developer_text)
+      self.assertIn("source_coverage.git_context covers", developer_text)
+      self.assertIn('"comparison_range": "abc123..def456"', developer_text)
 
   def test_payload_compiler_puts_task_authority_in_user_message(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:

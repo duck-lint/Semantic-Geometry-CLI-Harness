@@ -369,6 +369,7 @@ class PackageRouteTests(unittest.TestCase):
     expected_banner: str,
     expected_route: str,
     agent_path: Path = AM_AGENT_PATH,
+    expected_git_delta_context: bool = False,
   ) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -436,11 +437,23 @@ class PackageRouteTests(unittest.TestCase):
           (run_directory / "project_manager_report.validation.json").exists()
         )
 
+        api_call_packet = load_json(run_directory / "api_call_packet.json")
         provider_payload = load_json(run_directory / "provider_payload.json")
         raw_response = load_json(run_directory / "raw_model_response.json")
         report_path = run_directory / "archive_manager_report.json"
         report = load_json(report_path)
         validation_path = default_archive_validation_artifact_path(report_path)
+
+        if expected_git_delta_context:
+          self.assertIsNone(api_call_packet["git_context"])
+          self.assertIsNotNone(api_call_packet["git_delta_context"])
+          self.assertTrue(api_call_packet["git_delta_context"]["available"])
+          developer_text = provider_payload["request"]["input"][0]["content"][0]["text"]
+          self.assertIn("GIT DELTA CONTEXT", developer_text)
+          self.assertIn("source_coverage.git_context covers", developer_text)
+        else:
+          self.assertIsNotNone(api_call_packet["git_context"])
+          self.assertIsNone(api_call_packet["git_delta_context"])
 
         self.assertEqual(
           provider_payload["request"]["text"]["format"]["name"],
@@ -500,6 +513,15 @@ class PackageRouteTests(unittest.TestCase):
         self.assertEqual(ledger_record["schema_name"], "archive_manager_report")
         self.assertTrue(ledger_record["validation_passed"])
         self.assertEqual(ledger_record["contract_status"], "implementation_closeout")
+        if expected_git_delta_context:
+          self.assertEqual(
+            ledger_record["git_commit"],
+            api_call_packet["git_delta_context"]["head_commit"],
+          )
+          self.assertEqual(
+            ledger_record["worktree_dirty"],
+            api_call_packet["git_delta_context"]["worktree_state"] == "dirty",
+          )
         self.assertEqual(
           ledger_record["output_artifact_path"],
           display_path(report_path),
@@ -569,6 +591,31 @@ class PackageRouteTests(unittest.TestCase):
       agent_path=LIVE_AM_AGENT_PATH,
     )
 
+  def test_package_cli_runs_archive_route_with_git_delta_context(self) -> None:
+    base_commit = subprocess.run(
+      ["git", "rev-parse", "HEAD"],
+      cwd=REPO_ROOT,
+      capture_output=True,
+      text=True,
+      check=True,
+    ).stdout.strip()
+
+    self._assert_successful_archive_route(
+      command=[
+        sys.executable,
+        "-m",
+        "harness",
+        "archive",
+        base_commit,
+        "Archive the current PM route closeout.",
+        "--agent",
+        str(AM_AGENT_PATH),
+      ],
+      expected_banner="PASS: Archive route completed.",
+      expected_route="archive",
+      expected_git_delta_context=True,
+    )
+
   def test_package_route_rejects_pm_output_with_non_pm_agent_contract(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -616,6 +663,40 @@ class PackageRouteTests(unittest.TestCase):
       expected_banner="PASS: Agent route completed.",
       expected_route="agent",
     )
+
+  def test_package_route_stops_on_invalid_git_delta_base_before_provider_render(
+    self,
+  ) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      runs_root = Path(temp_directory) / "runs"
+      stderr = io.StringIO()
+
+      with patch(
+        "harness.runtime.package_route.compile_openai_response_payload"
+      ) as render_provider_payload:
+        with redirect_stderr(stderr):
+          code = package_route.main(
+            [
+              "archive",
+              "not-a-real-base-commit",
+              "Archive the current PM route closeout.",
+              "--agent",
+              str(AM_AGENT_PATH),
+              "--runs-root",
+              str(runs_root),
+            ]
+          )
+
+      self.assertEqual(code, 1)
+      self.assertIn("FAIL: collect_git_delta_context:", stderr.getvalue())
+      render_provider_payload.assert_not_called()
+
+      run_directory = only_run_directory(runs_root)
+      artifact_names = {path.name for path in run_directory.iterdir()}
+      self.assertIn("task.json", artifact_names)
+      self.assertNotIn("provider_payload.json", artifact_names)
+      self.assertNotIn("raw_model_response.json", artifact_names)
+      self.assertNotIn("archive_manager_report.json", artifact_names)
 
   def test_package_route_stops_before_provider_render_when_explicit_snapshot_path_is_missing(
     self,

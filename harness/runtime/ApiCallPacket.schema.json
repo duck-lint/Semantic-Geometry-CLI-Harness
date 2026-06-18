@@ -394,6 +394,44 @@
       "title": "ApiCallPacketMetadata",
       "type": "object"
     },
+    "GitChangedFile": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "status"
+      ],
+      "title": "GitChangedFile",
+      "type": "object"
+    },
+    "GitCommitSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "commit",
+        "summary"
+      ],
+      "title": "GitCommitSummary",
+      "type": "object"
+    },
     "GitContext": {
       "additionalProperties": false,
       "properties": {
@@ -461,6 +499,137 @@
         "available"
       ],
       "title": "GitContext",
+      "type": "object"
+    },
+    "GitDeltaContext": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "base_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Commit"
+        },
+        "head_commit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Head Commit"
+        },
+        "comparison_range": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comparison Range"
+        },
+        "base_is_ancestor_of_head": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Is Ancestor Of Head"
+        },
+        "commits_since_base": {
+          "items": {
+            "$ref": "#/$defs/GitCommitSummary"
+          },
+          "title": "Commits Since Base",
+          "type": "array"
+        },
+        "changed_files_since_base": {
+          "items": {
+            "$ref": "#/$defs/GitChangedFile"
+          },
+          "title": "Changed Files Since Base",
+          "type": "array"
+        },
+        "diff_stat_since_base": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Diff Stat Since Base"
+        },
+        "worktree_state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Worktree State"
+        },
+        "uncommitted_status_summary": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Uncommitted Status Summary",
+          "type": "array"
+        },
+        "lineage_limitation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lineage Limitation"
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure"
+        }
+      },
+      "required": [
+        "available"
+      ],
+      "title": "GitDeltaContext",
       "type": "object"
     },
     "MissingSourceEntry": {
@@ -1167,6 +1336,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/GitContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "git_delta_context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GitDeltaContext"
         },
         {
           "type": "null"
