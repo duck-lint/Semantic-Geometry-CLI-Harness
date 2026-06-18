@@ -1,5 +1,4 @@
 {
-  "$schema": "./ArchiveManagerReport.schema.json",
   "metadata": {
     "document_id": "archive_manager_report.json",
     "title": "Archive Manager Report",

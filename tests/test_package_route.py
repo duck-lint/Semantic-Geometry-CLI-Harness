@@ -16,24 +16,35 @@ from harness.providers.openai.openai_call_runner import OpenAICallRunnerError
 from harness.providers.openai.openai_response_payload_compiler import (
   OpenAIResponsePayloadCompilationError,
 )
+from harness.contracts.project_manager_report import ProjectManagerReport
+from harness.contracts.archive_manager_report_validation import (
+  ArchiveManagerReportValidationArtifact,
+  default_validation_artifact_path as default_archive_validation_artifact_path,
+)
 from harness.contracts.project_manager_report_extractor import (
   ProjectManagerReportExtractorError,
 )
 from harness.contracts.project_manager_report_validation import (
   ProjectManagerReportValidationArtifact,
-  default_validation_artifact_path,
+  default_validation_artifact_path as default_project_manager_validation_artifact_path,
 )
 from harness.runtime.artifact_facts import sha256_file
 from harness.runtime.api_call_ledger import DEFAULT_RUNTIME_CALL_LEDGER_PATH
 from harness.runtime import package_route
-from tests.agent_test_support import create_test_project_manager_agent
+from tests.agent_test_support import (
+  create_test_archive_manager_agent,
+  create_test_project_manager_agent,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_ROOT = REPO_ROOT / "harness"
 LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
+LIVE_AM_AGENT_PATH = HARNESS_ROOT / "agents" / "archive_manager.agent.json"
 AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
+AM_AGENT_PATH = create_test_archive_manager_agent(LIVE_AM_AGENT_PATH)
 RAW_RESPONSE_FIXTURE_PATH = REPO_ROOT / "tests" / "fixtures" / "raw_model_response.json"
+AM_EXAMPLE_PATH = HARNESS_ROOT / "contracts" / "archive_manager_report.example.json"
 RUNTIME_BUDGET_PATH = HARNESS_ROOT / "runtime" / "runtime_budget.policy.json"
 LEDGER_PATH = DEFAULT_RUNTIME_CALL_LEDGER_PATH
 
@@ -70,6 +81,35 @@ def write_fake_openai_module(fake_root: Path, raw_response_artifact: dict) -> No
     """
   )
   (fake_root / "openai.py").write_text(module_text, encoding="utf-8")
+
+
+def raw_response_for_archive_report(report: dict) -> dict:
+  return {
+    "metadata": {
+      "document_id": "raw_model_response.json",
+      "title": "OpenAI Raw Model Response",
+      "purpose": "Raw OpenAI Responses API result captured before harness output validation.",
+      "source_format": "json",
+      "document_authority": "raw_provider_artifact",
+    },
+    "provider": "openai",
+    "endpoint": "responses.create",
+    "response_id": "resp_archive_manager_fixture",
+    "model": "gpt-5.4-2026-03-05",
+    "status": "completed",
+    "output_text": json.dumps(report),
+    "raw_response": {
+      "id": "resp_archive_manager_fixture",
+      "status": "completed",
+      "model": "gpt-5.4-2026-03-05",
+    },
+    "source_artifacts": [
+      "provider_payload.json",
+    ],
+    "basis": [
+      "Mocked OpenAI raw response artifact for Archive Manager route tests.",
+    ],
+  }
 
 
 def only_run_directory(runs_root: Path) -> Path:
@@ -179,7 +219,7 @@ class PackageRouteTests(unittest.TestCase):
         provider_payload = load_json(run_directory / "provider_payload.json")
         raw_response = load_json(run_directory / "raw_model_response.json")
         report = load_json(run_directory / "project_manager_report.json")
-        validation_path = default_validation_artifact_path(
+        validation_path = default_project_manager_validation_artifact_path(
           run_directory / "project_manager_report.json"
         )
 
@@ -322,6 +362,170 @@ class PackageRouteTests(unittest.TestCase):
       finally:
         remove_ledger_artifact()
 
+  def _assert_successful_archive_route(
+    self,
+    *,
+    command: list[str],
+    expected_banner: str,
+    expected_route: str,
+    agent_path: Path = AM_AGENT_PATH,
+  ) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      runs_root = temp_root / "runs"
+      fake_openai_root = temp_root / "fake_openai"
+      archive_report = load_json(AM_EXAMPLE_PATH)
+      write_fake_openai_module(
+        fake_openai_root,
+        raw_response_for_archive_report(archive_report),
+      )
+      source_paths = [
+        REPO_ROOT / "README.md",
+        HARNESS_ROOT / "__main__.py",
+        agent_path,
+      ]
+      source_snapshots = {path: path.read_bytes() for path in source_paths}
+      remove_ledger_artifact()
+      ensure_ledger_artifact()
+      try:
+        completed = subprocess.run(
+          [*command, "--runs-root", str(runs_root)],
+          cwd=REPO_ROOT,
+          capture_output=True,
+          text=True,
+          check=False,
+          env={
+            **os.environ,
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPATH": str(fake_openai_root),
+          },
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn(expected_banner, completed.stdout)
+        self.assertIn(f"Selected agent: {display_path(agent_path)}", completed.stdout)
+        self.assertIn("Provider: openai", completed.stdout)
+        self.assertIn(f"Model: {load_json(agent_path)['model']}", completed.stdout)
+        self.assertIn("Run directory:", completed.stdout)
+        self.assertIn(
+          "Archive record id: implementation_01_pm_route_closeout",
+          completed.stdout,
+        )
+        self.assertIn(
+          "Archive record type: implementation_closeout",
+          completed.stdout,
+        )
+
+        run_directory = only_run_directory(runs_root)
+        self.assertEqual(
+          {path.name for path in run_directory.iterdir()},
+          {
+            "task.json",
+            "static_context_packet.json",
+            "repo_snapshot_packet.json",
+            "agent_context_packet.json",
+            "api_call_packet.json",
+            "provider_payload.json",
+            "raw_model_response.json",
+            "archive_manager_report.json",
+            "archive_manager_report.validation.json",
+          },
+        )
+        self.assertFalse((run_directory / "project_manager_report.json").exists())
+        self.assertFalse(
+          (run_directory / "project_manager_report.validation.json").exists()
+        )
+
+        provider_payload = load_json(run_directory / "provider_payload.json")
+        raw_response = load_json(run_directory / "raw_model_response.json")
+        report_path = run_directory / "archive_manager_report.json"
+        report = load_json(report_path)
+        validation_path = default_archive_validation_artifact_path(report_path)
+
+        self.assertEqual(
+          provider_payload["request"]["text"]["format"]["name"],
+          "archive_manager_report",
+        )
+        self.assertEqual(raw_response["provider"], "openai")
+        self.assertEqual(
+          report["archive_record"]["record_id"],
+          "implementation_01_pm_route_closeout",
+        )
+        self.assertEqual(
+          report["archive_record"]["record_type"],
+          "implementation_closeout",
+        )
+        self.assertTrue(report["report_source_coverage"]["repo_snapshot_packet"]["consumed"])
+        self.assertTrue(report["report_source_coverage"]["git_context"]["consumed"])
+
+        self.assertTrue(validation_path.exists())
+        validation_artifact = load_json(validation_path)
+        ArchiveManagerReportValidationArtifact.model_validate(validation_artifact)
+        self.assertEqual(
+          validation_artifact["report_artifact_path"],
+          report_path.resolve().as_posix(),
+        )
+        self.assertEqual(
+          validation_artifact["report_artifact_sha256"],
+          sha256_file(report_path),
+        )
+        self.assertEqual(validation_artifact["schema_name"], "archive_manager_report")
+        self.assertEqual(
+          validation_artifact["schema_path"],
+          (HARNESS_ROOT / "contracts" / "ArchiveManagerReport.schema.json")
+          .resolve()
+          .as_posix(),
+        )
+        self.assertEqual(
+          validation_artifact["schema_sha256"],
+          sha256_file(HARNESS_ROOT / "contracts" / "ArchiveManagerReport.schema.json"),
+        )
+        self.assertTrue(validation_artifact["validation_passed"])
+        self.assertEqual(
+          validation_artifact["archive_record_id"],
+          report["archive_record"]["record_id"],
+        )
+        self.assertEqual(
+          validation_artifact["archive_record_type"],
+          report["archive_record"]["record_type"],
+        )
+
+        self.assertTrue(LEDGER_PATH.exists())
+        ledger_lines = LEDGER_PATH.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(len(ledger_lines), 1)
+        ledger_record = json.loads(ledger_lines[0])
+        self.assertEqual(ledger_record["route"], expected_route)
+        self.assertEqual(ledger_record["agent"], display_path(agent_path))
+        self.assertEqual(ledger_record["model"], load_json(agent_path)["model"])
+        self.assertEqual(ledger_record["schema_name"], "archive_manager_report")
+        self.assertTrue(ledger_record["validation_passed"])
+        self.assertEqual(ledger_record["contract_status"], "implementation_closeout")
+        self.assertEqual(
+          ledger_record["output_artifact_path"],
+          display_path(report_path),
+        )
+        self.assertEqual(
+          ledger_record["report_artifact_path"],
+          display_path(report_path),
+        )
+        self.assertEqual(
+          ledger_record["report_artifact_sha256"],
+          sha256_file(report_path),
+        )
+        self.assertEqual(
+          ledger_record["validation_artifact_path"],
+          display_path(validation_path),
+        )
+        self.assertEqual(
+          ledger_record["validation_artifact_sha256"],
+          sha256_file(validation_path),
+        )
+
+        for path in source_paths:
+          self.assertEqual(path.read_bytes(), source_snapshots[path])
+      finally:
+        remove_ledger_artifact()
+
   def test_package_cli_runs_plan_route(self) -> None:
     self._assert_successful_route(
       command=[
@@ -351,6 +555,21 @@ class PackageRouteTests(unittest.TestCase):
       expected_route="agent",
     )
 
+  def test_package_cli_runs_archive_route(self) -> None:
+    self._assert_successful_archive_route(
+      command=[
+        sys.executable,
+        "-m",
+        "harness",
+        "archive",
+        "Archive the current PM route closeout.",
+        "--agent",
+        str(AM_AGENT_PATH),
+      ],
+      expected_banner="PASS: Archive route completed.",
+      expected_route="archive",
+    )
+
   def test_package_cli_runs_non_pm_agent_route(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -376,6 +595,20 @@ class PackageRouteTests(unittest.TestCase):
         expected_route="agent",
         agent_path=reviewer_agent_path,
       )
+
+  def test_package_cli_runs_generic_archive_agent_route(self) -> None:
+    self._assert_successful_archive_route(
+      command=[
+        sys.executable,
+        "-m",
+        "harness",
+        "--agent",
+        str(AM_AGENT_PATH),
+        "Archive the current PM route closeout.",
+      ],
+      expected_banner="PASS: Agent route completed.",
+      expected_route="agent",
+    )
 
   def test_package_route_stops_before_provider_render_when_explicit_snapshot_path_is_missing(
     self,
@@ -504,6 +737,54 @@ class PackageRouteTests(unittest.TestCase):
       self.assertNotIn("raw_model_response.json", artifact_names)
       self.assertNotIn("project_manager_report.json", artifact_names)
 
+  def test_package_route_rejects_unsupported_output_id_before_provider_render(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      runs_root = temp_root / "runs"
+      unsupported_agent_path = temp_root / "unsupported.agent.json"
+      agent_data = load_json(AGENT_PATH)
+      agent_data["agent_output_policy"][0]["output_id"] = "unknown_report"
+      unsupported_agent_path.write_text(
+        json.dumps(agent_data, indent=2) + "\n",
+        encoding="utf-8",
+      )
+      stderr = io.StringIO()
+      ensure_ledger_artifact()
+      self.addCleanup(remove_ledger_artifact)
+
+      with patch(
+        "harness.runtime.package_route.compile_openai_response_payload"
+      ) as render_provider_payload:
+        with redirect_stderr(stderr):
+          code = package_route.main(
+            [
+              "Review the current project trajectory.",
+              "--agent",
+              str(unsupported_agent_path),
+              "--runs-root",
+              str(runs_root),
+            ]
+          )
+
+      self.assertEqual(code, 1)
+      self.assertIn(
+        "Selected agent output policy is not supported: unknown_report",
+        stderr.getvalue(),
+      )
+      render_provider_payload.assert_not_called()
+
+      run_directory = only_run_directory(runs_root)
+      artifact_names = {path.name for path in run_directory.iterdir()}
+      self.assertIn("task.json", artifact_names)
+      self.assertIn("static_context_packet.json", artifact_names)
+      self.assertIn("repo_snapshot_packet.json", artifact_names)
+      self.assertIn("agent_context_packet.json", artifact_names)
+      self.assertIn("api_call_packet.json", artifact_names)
+      self.assertNotIn("provider_payload.json", artifact_names)
+      self.assertNotIn("raw_model_response.json", artifact_names)
+      self.assertNotIn("project_manager_report.json", artifact_names)
+      self.assertNotIn("archive_manager_report.json", artifact_names)
+
   def test_package_route_stops_on_payload_render_failure(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
@@ -541,6 +822,94 @@ class PackageRouteTests(unittest.TestCase):
       self.assertNotIn("provider_payload.json", artifact_names)
       self.assertNotIn("raw_model_response.json", artifact_names)
       self.assertNotIn("project_manager_report.json", artifact_names)
+
+  def test_package_route_removes_report_when_validation_artifact_check_fails(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      runs_root = temp_root / "runs"
+      stderr = io.StringIO()
+      ensure_ledger_artifact()
+      self.addCleanup(remove_ledger_artifact)
+
+      def fake_run_openai_call(
+        *,
+        provider_payload_path: Path,
+        output_path: Path,
+        payload: object | None = None,
+      ):
+        _ = provider_payload_path
+        _ = payload
+        output_path.write_text(
+          json.dumps(load_json(RAW_RESPONSE_FIXTURE_PATH), indent=2) + "\n",
+          encoding="utf-8",
+        )
+        return None
+
+      def fake_extract_project_manager_report(
+        *,
+        raw_response_path: Path,
+        schema_path: Path,
+        output_path: Path,
+        required_consumed_sources: set[str] | None = None,
+      ) -> ProjectManagerReport:
+        _ = raw_response_path
+        _ = required_consumed_sources
+        report_data = json.loads(load_json(RAW_RESPONSE_FIXTURE_PATH)["output_text"])
+        output_path.write_text(
+          json.dumps(report_data, indent=2) + "\n",
+          encoding="utf-8",
+        )
+        validation_path = default_project_manager_validation_artifact_path(output_path)
+        validation_path.write_text(
+          json.dumps(
+            {
+              "report_artifact_path": output_path.as_posix(),
+              "report_artifact_sha256": sha256_file(output_path),
+              "schema_name": "project_manager_report",
+              "schema_path": schema_path.as_posix(),
+              "schema_sha256": sha256_file(schema_path),
+              "validation_passed": True,
+              "report_status": "admissible",
+              "proof_frontier_blocked": True,
+            },
+            indent=2,
+          )
+          + "\n",
+          encoding="utf-8",
+        )
+        return ProjectManagerReport.model_validate(report_data)
+
+      with patch(
+        "harness.runtime.package_route.run_openai_call",
+        side_effect=fake_run_openai_call,
+      ):
+        with patch(
+          "harness.runtime.package_route.extract_project_manager_report",
+          side_effect=fake_extract_project_manager_report,
+        ):
+          with redirect_stderr(stderr):
+            code = package_route.main(
+              [
+                "Review the current project trajectory.",
+                "--agent",
+                str(AGENT_PATH),
+                "--runs-root",
+                str(runs_root),
+              ]
+            )
+
+      self.assertEqual(code, 1)
+      self.assertIn(
+        "Validation artifact report_status does not match the validated report.",
+        stderr.getvalue(),
+      )
+
+      run_directory = only_run_directory(runs_root)
+      artifact_names = {path.name for path in run_directory.iterdir()}
+      self.assertIn("raw_model_response.json", artifact_names)
+      self.assertNotIn("project_manager_report.json", artifact_names)
+      self.assertNotIn("project_manager_report.validation.json", artifact_names)
+      self.assertFalse(LEDGER_PATH.read_text(encoding="utf-8").strip())
 
   def test_package_route_stops_on_runner_failure(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
@@ -624,6 +993,58 @@ class PackageRouteTests(unittest.TestCase):
       self.assertIn("raw_model_response.json", artifact_names)
       self.assertNotIn("project_manager_report.json", artifact_names)
       self.assertNotIn("project_manager_report.validation.json", artifact_names)
+
+  def test_package_route_stops_on_archive_extraction_failure(self) -> None:
+    with tempfile.TemporaryDirectory() as temp_directory:
+      temp_root = Path(temp_directory)
+      runs_root = temp_root / "runs"
+      fake_openai_root = temp_root / "fake_openai"
+      invalid_report = load_json(AM_EXAMPLE_PATH)
+      del invalid_report["archive_record"]["claim"]
+      write_fake_openai_module(
+        fake_openai_root,
+        raw_response_for_archive_report(invalid_report),
+      )
+      stderr = io.StringIO()
+      ensure_ledger_artifact()
+      self.addCleanup(remove_ledger_artifact)
+
+      completed = subprocess.run(
+        [
+          sys.executable,
+          "-m",
+          "harness",
+          "archive",
+          "Archive the current PM route closeout.",
+          "--agent",
+          str(AM_AGENT_PATH),
+          "--runs-root",
+          str(runs_root),
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+        env={
+          **os.environ,
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": str(fake_openai_root),
+        },
+      )
+
+      stderr.write(completed.stderr)
+      self.assertEqual(completed.returncode, 1)
+      self.assertIn(
+        "FAIL: extract_archive_manager_report: ArchiveManagerReport validation failed",
+        stderr.getvalue(),
+      )
+
+      run_directory = only_run_directory(runs_root)
+      artifact_names = {path.name for path in run_directory.iterdir()}
+      self.assertIn("raw_model_response.json", artifact_names)
+      self.assertNotIn("archive_manager_report.json", artifact_names)
+      self.assertNotIn("archive_manager_report.validation.json", artifact_names)
+      self.assertFalse(LEDGER_PATH.read_text(encoding="utf-8").strip())
 
 
 if __name__ == "__main__":

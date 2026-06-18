@@ -7,7 +7,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 # Support direct execution from harness/runtime while preserving package imports.
 if __package__ in {None, ""}:
@@ -20,6 +20,15 @@ from harness.agents.agent_context_compiler import (
   compile_agent_context_packet,
 )
 from harness.agents.agent_context_packet import AgentContextPacket
+from harness.contracts.archive_manager_report import ArchiveManagerReport
+from harness.contracts.archive_manager_report_extractor import (
+  ArchiveManagerReportExtractorError,
+  extract_archive_manager_report,
+)
+from harness.contracts.archive_manager_report_validation import (
+  ArchiveManagerReportValidationArtifact,
+  default_validation_artifact_path as default_archive_validation_artifact_path,
+)
 from harness.contracts.project_manager_report import ProjectManagerReport
 from harness.contracts.project_manager_report_extractor import (
   ProjectManagerReportExtractorError,
@@ -27,7 +36,7 @@ from harness.contracts.project_manager_report_extractor import (
 )
 from harness.contracts.project_manager_report_validation import (
   ProjectManagerReportValidationArtifact,
-  default_validation_artifact_path,
+  default_validation_artifact_path as default_project_manager_validation_artifact_path,
 )
 from harness.runtime.artifact_facts import sha256_file
 from harness.runtime.api_call_ledger import (
@@ -51,6 +60,22 @@ from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.task import Task, task_from_cli
 
 DEFAULT_PM_AGENT_PATH = Path(__file__).resolve().parents[1] / "agents" / "project_manager.agent.json"
+DEFAULT_AM_AGENT_PATH = Path(__file__).resolve().parents[1] / "agents" / "archive_manager.agent.json"
+
+
+@dataclass(frozen=True, slots=True)
+class ReportHandler:
+  output_id: str
+  output_filename: str
+  extractor: Callable[..., Any]
+  extractor_error: type[Exception]
+  validation_artifact_model: type[Any]
+  default_validation_artifact_path: Callable[[Path], Path]
+  extract_step: str
+  validation_step: str
+  contract_status: Callable[[Any], str | None]
+  display_lines: Callable[[Any], list[str]]
+  validate_specific_artifact: Callable[[Any, Any], None]
 
 
 @dataclass(slots=True)
@@ -63,13 +88,93 @@ class PackageRouteResult:
   api_call_packet: ApiCallPacket
   provider_payload: OpenAIResponsePayload
   raw_model_response: OpenAIRawResponse
-  report: ProjectManagerReport
+  report: Any
+  report_display_lines: list[str]
+  contract_status: str | None
 
 
 class PackageRouteStepError(RuntimeError):
   def __init__(self, step: str, message: str) -> None:
     super().__init__(message)
     self.step = step
+
+
+def _validate_project_manager_artifact(
+  report: ProjectManagerReport,
+  validation_artifact: ProjectManagerReportValidationArtifact,
+) -> None:
+  if validation_artifact.report_status != report.report_status:
+    raise PackageRouteStepError(
+      "validate_project_manager_report_validation_artifact",
+      "Validation artifact report_status does not match the validated report.",
+    )
+
+  if validation_artifact.proof_frontier_blocked != report.proof_frontier.blocked:
+    raise PackageRouteStepError(
+      "validate_project_manager_report_validation_artifact",
+      "Validation artifact proof_frontier_blocked does not match the validated report.",
+    )
+
+
+def _validate_archive_manager_artifact(
+  report: ArchiveManagerReport,
+  validation_artifact: ArchiveManagerReportValidationArtifact,
+) -> None:
+  if validation_artifact.archive_record_id != report.archive_record.record_id:
+    raise PackageRouteStepError(
+      "validate_archive_manager_report_validation_artifact",
+      "Validation artifact archive_record_id does not match the validated report.",
+    )
+
+  if validation_artifact.archive_record_type != report.archive_record.record_type:
+    raise PackageRouteStepError(
+      "validate_archive_manager_report_validation_artifact",
+      "Validation artifact archive_record_type does not match the validated report.",
+    )
+
+
+def _project_manager_display_lines(report: ProjectManagerReport) -> list[str]:
+  return [
+    f"Report status: {report.report_status}",
+    f"Blocked: {report.proof_frontier.blocked}",
+  ]
+
+
+def _archive_manager_display_lines(report: ArchiveManagerReport) -> list[str]:
+  return [
+    f"Archive record id: {report.archive_record.record_id}",
+    f"Archive record type: {report.archive_record.record_type}",
+  ]
+
+
+REPORT_HANDLERS: dict[str, ReportHandler] = {
+  "project_manager_report": ReportHandler(
+    output_id="project_manager_report",
+    output_filename="project_manager_report.json",
+    extractor=lambda **kwargs: extract_project_manager_report(**kwargs),
+    extractor_error=ProjectManagerReportExtractorError,
+    validation_artifact_model=ProjectManagerReportValidationArtifact,
+    default_validation_artifact_path=default_project_manager_validation_artifact_path,
+    extract_step="extract_project_manager_report",
+    validation_step="validate_project_manager_report_validation_artifact",
+    contract_status=lambda report: report.report_status,
+    display_lines=_project_manager_display_lines,
+    validate_specific_artifact=_validate_project_manager_artifact,
+  ),
+  "archive_manager_report": ReportHandler(
+    output_id="archive_manager_report",
+    output_filename="archive_manager_report.json",
+    extractor=lambda **kwargs: extract_archive_manager_report(**kwargs),
+    extractor_error=ArchiveManagerReportExtractorError,
+    validation_artifact_model=ArchiveManagerReportValidationArtifact,
+    default_validation_artifact_path=default_archive_validation_artifact_path,
+    extract_step="extract_archive_manager_report",
+    validation_step="validate_archive_manager_report_validation_artifact",
+    contract_status=lambda report: report.archive_record.record_type,
+    display_lines=_archive_manager_display_lines,
+    validate_specific_artifact=_validate_archive_manager_artifact,
+  ),
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -87,6 +192,14 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
   with path.open("w", encoding="utf-8") as file:
     json.dump(data, file, indent=2)
     file.write("\n")
+
+
+def _remove_generated_report_artifacts(paths: list[Path]) -> None:
+  for path in paths:
+    try:
+      path.unlink(missing_ok=True)
+    except OSError:
+      pass
 
 
 def _new_run_directory(runs_root: Path) -> Path:
@@ -140,9 +253,6 @@ def run_package_route(
   api_call_path = run_directory / "api_call_packet.json"
   provider_payload_path = run_directory / "provider_payload.json"
   raw_model_response_path = run_directory / "raw_model_response.json"
-  report_path = run_directory / "project_manager_report.json"
-  validation_path = default_validation_artifact_path(report_path)
-  schema_path = harness_root / "contracts" / "ProjectManagerReport.schema.json"
 
   _write_json(task_path, task.model_dump(mode="json", by_alias=True))
 
@@ -188,6 +298,25 @@ def run_package_route(
 
   artifact_paths.append(api_call_path)
 
+  output_policy = agent_context_packet.agent_contract.agent_output_policy
+  if len(output_policy) != 1:
+    raise PackageRouteStepError(
+      "select_report_handler",
+      "Selected agent must declare exactly one output policy entry.",
+    )
+
+  output_policy_entry = output_policy[0]
+  handler = REPORT_HANDLERS.get(output_policy_entry.output_id)
+  if handler is None:
+    raise PackageRouteStepError(
+      "select_report_handler",
+      f"Selected agent output policy is not supported: {output_policy_entry.output_id}",
+    )
+
+  report_path = run_directory / handler.output_filename
+  validation_path = handler.default_validation_artifact_path(report_path)
+  schema_path = (harness_root / "agents" / output_policy_entry.schema_ref).resolve()
+
   provider = agent_context_packet.agent_contract.provider
   if provider != "openai":
     raise PackageRouteStepError(
@@ -225,13 +354,6 @@ def run_package_route(
 
   artifact_paths.append(raw_model_response_path)
 
-  output_policy = agent_context_packet.agent_contract.agent_output_policy
-  if len(output_policy) != 1 or output_policy[0].output_id != "project_manager_report":
-    raise PackageRouteStepError(
-      "extract_project_manager_report",
-      "Selected agent output policy is not supported by the current package route.",
-    )
-
   try:
     required_consumed_sources = {
       entry.input_id
@@ -242,86 +364,77 @@ def run_package_route(
     if api_call_packet.git_context is not None:
       required_consumed_sources.add("git_context")
 
-    report = extract_project_manager_report(
+    report = handler.extractor(
       raw_response_path=raw_model_response_path,
       schema_path=schema_path,
       output_path=report_path,
       required_consumed_sources=required_consumed_sources,
     )
   except (
-    ProjectManagerReportExtractorError,
+    handler.extractor_error,
     OSError,
     TypeError,
     ValidationError,
     ValueError,
   ) as error:
-    raise PackageRouteStepError("extract_project_manager_report", str(error)) from error
-
-  artifact_paths.append(report_path)
+    raise PackageRouteStepError(handler.extract_step, str(error)) from error
 
   try:
-    validation_artifact = ProjectManagerReportValidationArtifact.model_validate(
+    validation_artifact = handler.validation_artifact_model.model_validate(
       _load_json(validation_path)
     )
+
+    if not validation_artifact.validation_passed:
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact reports failure.",
+      )
+
+    if validation_artifact.report_artifact_path != report_path.as_posix():
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact report_artifact_path does not match the report path.",
+      )
+
+    if validation_artifact.schema_path != schema_path.as_posix():
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact schema_path does not match the selected schema path.",
+      )
+
+    if validation_artifact.schema_name != provider_payload.request.text.format.name:
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact schema_name does not match the rendered output schema name.",
+      )
+
+    report_artifact_sha256 = sha256_file(report_path)
+    validation_artifact_sha256 = sha256_file(validation_path)
+    schema_sha256 = sha256_file(schema_path)
+
+    if validation_artifact.report_artifact_sha256 != report_artifact_sha256:
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact report hash does not match the report file.",
+      )
+
+    if validation_artifact.schema_sha256 != schema_sha256:
+      raise PackageRouteStepError(
+        handler.validation_step,
+        "Validation artifact schema hash does not match the selected schema file.",
+      )
+
+    handler.validate_specific_artifact(report, validation_artifact)
+  except PackageRouteStepError:
+    _remove_generated_report_artifacts([report_path, validation_path])
+    raise
   except (OSError, TypeError, ValidationError, ValueError) as error:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      str(error),
-    ) from error
+    _remove_generated_report_artifacts([report_path, validation_path])
+    raise PackageRouteStepError(handler.validation_step, str(error)) from error
 
-  if not validation_artifact.validation_passed:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact reports failure.",
-    )
-
-  if validation_artifact.report_artifact_path != report_path.as_posix():
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact report_artifact_path does not match the report path.",
-    )
-
-  if validation_artifact.schema_path != schema_path.as_posix():
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact schema_path does not match the PM schema path.",
-    )
-
-  if validation_artifact.schema_name != provider_payload.request.text.format.name:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact schema_name does not match the rendered output schema name.",
-    )
-
-  if validation_artifact.report_status != report.report_status:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact report_status does not match the validated report.",
-    )
-
-  if validation_artifact.proof_frontier_blocked != report.proof_frontier.blocked:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact proof_frontier_blocked does not match the validated report.",
-    )
-
-  report_artifact_sha256 = sha256_file(report_path)
-  validation_artifact_sha256 = sha256_file(validation_path)
-  schema_sha256 = sha256_file(schema_path)
-
-  if validation_artifact.report_artifact_sha256 != report_artifact_sha256:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact report hash does not match the report file.",
-    )
-
-  if validation_artifact.schema_sha256 != schema_sha256:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact schema hash does not match the PM schema file.",
-    )
-
+  artifact_paths.append(report_path)
   artifact_paths.append(validation_path)
+  contract_status = handler.contract_status(report)
 
   try:
     finalize_runtime_call_ledger(
@@ -332,7 +445,7 @@ def run_package_route(
       context_packet_sha256=sha256_file(agent_context_path),
       validation_passed=validation_artifact.validation_passed,
       provider_response=raw_model_response,
-      contract_status=report.report_status,
+      contract_status=contract_status,
       output_artifact_path=_display_path(report_path, repo_root.resolve()),
       report_artifact_path=_display_path(report_path, repo_root.resolve()),
       report_artifact_sha256=report_artifact_sha256,
@@ -355,6 +468,8 @@ def run_package_route(
     provider_payload=provider_payload,
     raw_model_response=raw_model_response,
     report=report,
+    report_display_lines=handler.display_lines(report),
+    contract_status=contract_status,
   )
 
 
@@ -380,6 +495,19 @@ def build_plan_argument_parser() -> argparse.ArgumentParser:
     type=Path,
     default=DEFAULT_PM_AGENT_PATH,
     help="Path to the Project Manager agent contract.",
+  )
+  return parser
+
+
+def build_archive_argument_parser() -> argparse.ArgumentParser:
+  parser = _build_base_argument_parser(
+    "Run the Archive Manager archive alias over the selected Archive Manager agent route.",
+  )
+  parser.add_argument(
+    "--agent",
+    type=Path,
+    default=DEFAULT_AM_AGENT_PATH,
+    help="Path to the Archive Manager agent contract.",
   )
   return parser
 
@@ -451,8 +579,8 @@ def _print_route_result(
   print("Artifacts:")
   for artifact_path in result.artifact_paths:
     print(f"  {artifact_path.name}")
-  print(f"Report status: {result.report.report_status}")
-  print(f"Blocked: {result.report.proof_frontier.blocked}")
+  for line in result.report_display_lines:
+    print(line)
 
 
 def _run_plan_route(argv: list[str]) -> int:
@@ -465,6 +593,23 @@ def _run_plan_route(argv: list[str]) -> int:
   return _run_cli_route(
     route_name="Plan",
     route="plan",
+    task_text=args.task_text,
+    agent_path=args.agent,
+    runs_root=args.runs_root,
+    repo_root=args.repo_root,
+  )
+
+
+def _run_archive_route(argv: list[str]) -> int:
+  args = build_archive_argument_parser().parse_args(argv)
+
+  if args.task_text is None or not args.task_text.strip():
+    print("FAIL: package_cli: package CLI requires task text.", file=sys.stderr)
+    return 1
+
+  return _run_cli_route(
+    route_name="Archive",
+    route="archive",
     task_text=args.task_text,
     agent_path=args.agent,
     runs_root=args.runs_root,
@@ -497,6 +642,8 @@ def main(argv: list[str] | None = None) -> int:
   argv_list = list(sys.argv[1:] if argv is None else argv)
   if argv_list and argv_list[0] == "plan":
     return _run_plan_route(argv_list[1:])
+  if argv_list and argv_list[0] == "archive":
+    return _run_archive_route(argv_list[1:])
   return _run_generic_agent_route(argv_list)
 
 
