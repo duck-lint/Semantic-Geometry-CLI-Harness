@@ -1,0 +1,499 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "AgentInputPolicyEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "input_id": {
+          "minLength": 1,
+          "title": "Input Id",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "schema_ref": {
+          "minLength": 1,
+          "title": "Schema Ref",
+          "type": "string"
+        },
+        "resolution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AgentInputResolution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "input_id",
+        "required",
+        "schema_ref"
+      ],
+      "title": "AgentInputPolicyEntry",
+      "type": "object"
+    },
+    "AgentInputResolution": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "paths",
+            "globs",
+            "all_admissible"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "include_harness": {
+          "default": false,
+          "title": "Include Harness",
+          "type": "boolean"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Paths",
+          "type": "array"
+        },
+        "globs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Globs",
+          "type": "array"
+        },
+        "max_file_bytes": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max File Bytes"
+        },
+        "max_total_bytes": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Total Bytes"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "title": "AgentInputResolution",
+      "type": "object"
+    },
+    "ArchiveManagerOutputPolicyEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "output_id": {
+          "const": "archive_manager_report",
+          "title": "Output Id",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "schema_ref": {
+          "const": "../contracts/ArchiveManagerReport.schema.json",
+          "title": "Schema Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "output_id",
+        "required",
+        "schema_ref"
+      ],
+      "title": "ArchiveManagerOutputPolicyEntry",
+      "type": "object"
+    },
+    "ArchiveRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "record_id": {
+          "title": "Record Id",
+          "type": "string"
+        },
+        "record_type": {
+          "title": "Record Type",
+          "type": "string"
+        },
+        "claim": {
+          "title": "Claim",
+          "type": "string"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "limits": {
+          "title": "Limits",
+          "type": "string"
+        },
+        "truthfulness_check": {
+          "title": "Truthfulness Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record_id",
+        "record_type",
+        "claim",
+        "basis",
+        "limits",
+        "truthfulness_check"
+      ],
+      "title": "ArchiveRecord",
+      "type": "object"
+    },
+    "ArtifactTruthfulness": {
+      "additionalProperties": false,
+      "properties": {
+        "compiled_runtime_artifacts": {
+          "title": "Compiled Runtime Artifacts",
+          "type": "string"
+        },
+        "output_policy_artifacts": {
+          "title": "Output Policy Artifacts",
+          "type": "string"
+        },
+        "raw_provider_artifacts": {
+          "title": "Raw Provider Artifacts",
+          "type": "string"
+        },
+        "validation_artifacts": {
+          "title": "Validation Artifacts",
+          "type": "string"
+        },
+        "ledger_artifacts": {
+          "title": "Ledger Artifacts",
+          "type": "string"
+        },
+        "archive_records": {
+          "title": "Archive Records",
+          "type": "string"
+        },
+        "non_runtime_templates": {
+          "title": "Non Runtime Templates",
+          "type": "string"
+        }
+      },
+      "required": [
+        "compiled_runtime_artifacts",
+        "output_policy_artifacts",
+        "raw_provider_artifacts",
+        "validation_artifacts",
+        "ledger_artifacts",
+        "archive_records",
+        "non_runtime_templates"
+      ],
+      "title": "ArtifactTruthfulness",
+      "type": "object"
+    },
+    "FutureCitationUse": {
+      "additionalProperties": false,
+      "properties": {
+        "pm_may_cite_for": {
+          "title": "Pm May Cite For",
+          "type": "string"
+        },
+        "pm_must_not_cite_for": {
+          "title": "Pm Must Not Cite For",
+          "type": "string"
+        },
+        "truthfulness_check": {
+          "title": "Truthfulness Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pm_may_cite_for",
+        "pm_must_not_cite_for",
+        "truthfulness_check"
+      ],
+      "title": "FutureCitationUse",
+      "type": "object"
+    },
+    "InstructionContract": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "posture": {
+          "title": "Posture",
+          "type": "string"
+        },
+        "objective": {
+          "title": "Objective",
+          "type": "string"
+        },
+        "operating_context": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Operating Context",
+          "type": "array"
+        },
+        "archive_manager_conduct": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Archive Manager Conduct",
+          "type": "array"
+        },
+        "report_derivation_lenses": {
+          "$ref": "#/$defs/ReportDerivationLenses"
+        }
+      },
+      "required": [
+        "role",
+        "posture",
+        "objective",
+        "operating_context",
+        "archive_manager_conduct",
+        "report_derivation_lenses"
+      ],
+      "title": "InstructionContract",
+      "type": "object"
+    },
+    "Metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "const": "archive_manager.agent.json",
+          "title": "Id",
+          "type": "string"
+        },
+        "agent_name": {
+          "const": "Archive Manager",
+          "title": "Agent Name",
+          "type": "string"
+        },
+        "document_authority": {
+          "const": "global_harness",
+          "title": "Document Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "agent_name",
+        "document_authority"
+      ],
+      "title": "Metadata",
+      "type": "object"
+    },
+    "ReportDerivationLenses": {
+      "additionalProperties": false,
+      "properties": {
+        "report_summary": {
+          "$ref": "#/$defs/ReportSummary"
+        },
+        "source_coverage": {
+          "$ref": "#/$defs/SourceCoverage"
+        },
+        "archive_record": {
+          "$ref": "#/$defs/ArchiveRecord"
+        },
+        "supporting_artifact_references": {
+          "$ref": "#/$defs/SupportingArtifactReferences"
+        },
+        "source_run": {
+          "$ref": "#/$defs/SourceRun"
+        },
+        "future_citation_use": {
+          "$ref": "#/$defs/FutureCitationUse"
+        },
+        "artifact_truthfulness": {
+          "$ref": "#/$defs/ArtifactTruthfulness"
+        }
+      },
+      "required": [
+        "report_summary",
+        "source_coverage",
+        "archive_record",
+        "supporting_artifact_references",
+        "source_run",
+        "future_citation_use",
+        "artifact_truthfulness"
+      ],
+      "title": "ReportDerivationLenses",
+      "type": "object"
+    },
+    "ReportSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "truthfulness_check": {
+          "title": "Truthfulness Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "basis",
+        "truthfulness_check"
+      ],
+      "title": "ReportSummary",
+      "type": "object"
+    },
+    "SourceCoverage": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "truthfulness_check": {
+          "title": "Truthfulness Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "basis",
+        "truthfulness_check"
+      ],
+      "title": "SourceCoverage",
+      "type": "object"
+    },
+    "SourceRun": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "task": {
+          "title": "Task",
+          "type": "string"
+        },
+        "git_commit": {
+          "title": "Git Commit",
+          "type": "string"
+        },
+        "worktree_state": {
+          "title": "Worktree State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "task",
+        "git_commit",
+        "worktree_state"
+      ],
+      "title": "SourceRun",
+      "type": "object"
+    },
+    "SupportingArtifactReferences": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_path": {
+          "title": "Artifact Path",
+          "type": "string"
+        },
+        "source_run": {
+          "title": "Source Run",
+          "type": "string"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "limits": {
+          "title": "Limits",
+          "type": "string"
+        },
+        "truthfulness_check": {
+          "title": "Truthfulness Check",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_path",
+        "source_run",
+        "basis",
+        "limits",
+        "truthfulness_check"
+      ],
+      "title": "SupportingArtifactReferences",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "title": "$Schema",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "provider": {
+      "enum": [
+        "openai",
+        "anthropic"
+      ],
+      "title": "Provider",
+      "type": "string"
+    },
+    "model": {
+      "minLength": 1,
+      "title": "Model",
+      "type": "string"
+    },
+    "instruction_contract": {
+      "$ref": "#/$defs/InstructionContract"
+    },
+    "agent_input_policy": {
+      "items": {
+        "$ref": "#/$defs/AgentInputPolicyEntry"
+      },
+      "title": "Agent Input Policy",
+      "type": "array"
+    },
+    "agent_output_policy": {
+      "items": {
+        "$ref": "#/$defs/ArchiveManagerOutputPolicyEntry"
+      },
+      "title": "Agent Output Policy",
+      "type": "array"
+    }
+  },
+  "required": [
+    "$schema",
+    "metadata",
+    "provider",
+    "model",
+    "instruction_contract",
+    "agent_input_policy",
+    "agent_output_policy"
+  ],
+  "title": "ArchiveManager",
+  "type": "object"
+}

@@ -13,13 +13,13 @@ if __package__ in {None, ""}:
 
 from pydantic import ValidationError
 
-from harness.agents.agent_contract import AgentContract
 from harness.agents.agent_context_packet import (
   AgentContextInputCoverageEntry,
   AgentContextPacket,
   AgentContextPacketMetadata,
   AgentResolvedInputs,
 )
+from harness.agents.agent_runtime_registry import validate_agent_contract
 from harness.project_spec.static_context_packet import StaticContextPacket
 from harness.project_spec.static_context_packet_compiler import (
   StaticContextCompilationError,
@@ -325,7 +325,7 @@ def compile_agent_context_packet(
   static_context_override_path: Path | None = None,
 ) -> AgentContextPacket:
   script_path = Path(__file__).resolve()
-  agent = AgentContract.model_validate(_load_json(agent_path))
+  agent = validate_agent_contract(_load_json(agent_path))
   if repo_root is None and any(
     policy.input_id == "repo_snapshot_packet"
     for policy in agent.agent_input_policy

@@ -569,9 +569,10 @@ class PackageRouteTests(unittest.TestCase):
       agent_path=LIVE_AM_AGENT_PATH,
     )
 
-  def test_package_cli_runs_non_pm_agent_route(self) -> None:
+  def test_package_route_rejects_pm_output_with_non_pm_agent_contract(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
       temp_root = Path(temp_directory)
+      runs_root = temp_root / "runs"
       reviewer_agent_path = temp_root / "reviewer.agent.json"
       reviewer_agent_data = load_json(AGENT_PATH)
       reviewer_agent_data["metadata"]["id"] = "reviewer.agent.json"
@@ -580,20 +581,27 @@ class PackageRouteTests(unittest.TestCase):
         json.dumps(reviewer_agent_data, indent=2) + "\n",
         encoding="utf-8",
       )
+      stderr = io.StringIO()
 
-      self._assert_successful_route(
-        command=[
-          sys.executable,
-          "-m",
-          "harness",
-          "--agent",
-          str(reviewer_agent_path),
-          "Review the current project trajectory.",
-        ],
-        expected_banner="PASS: Agent route completed.",
-        expected_route="agent",
-        agent_path=reviewer_agent_path,
-      )
+      with patch(
+        "harness.runtime.package_route.compile_openai_response_payload"
+      ) as render_provider_payload:
+        with redirect_stderr(stderr):
+          code = package_route.main(
+            [
+              "Review the current project trajectory.",
+              "--agent",
+              str(reviewer_agent_path),
+              "--runs-root",
+              str(runs_root),
+            ]
+          )
+
+      self.assertEqual(code, 1)
+      self.assertIn("FAIL: compile_agent_context_packet:", stderr.getvalue())
+      self.assertIn("ProjectManagerAgent", stderr.getvalue())
+      self.assertIn("metadata.id", stderr.getvalue())
+      render_provider_payload.assert_not_called()
 
   def test_package_cli_runs_generic_archive_agent_route(self) -> None:
     self._assert_successful_archive_route(
@@ -617,8 +625,6 @@ class PackageRouteTests(unittest.TestCase):
       runs_root = temp_root / "runs"
       missing_agent_path = temp_root / "reviewer_missing_snapshot.agent.json"
       agent_data = load_json(AGENT_PATH)
-      agent_data["metadata"]["id"] = "reviewer_missing_snapshot.agent.json"
-      agent_data["metadata"]["agent_name"] = "reviewer"
       agent_data["agent_input_policy"][1]["resolution"] = {
         "mode": "paths",
         "paths": ["missing.txt"],
@@ -883,7 +889,7 @@ class PackageRouteTests(unittest.TestCase):
         side_effect=fake_run_openai_call,
       ):
         with patch(
-          "harness.runtime.package_route.extract_project_manager_report",
+          "harness.agents.agent_runtime_registry.extract_project_manager_report",
           side_effect=fake_extract_project_manager_report,
         ):
           with redirect_stderr(stderr):
@@ -970,7 +976,7 @@ class PackageRouteTests(unittest.TestCase):
         side_effect=fake_run_openai_call,
       ):
         with patch(
-          "harness.runtime.package_route.extract_project_manager_report",
+          "harness.agents.agent_runtime_registry.extract_project_manager_report",
           side_effect=ProjectManagerReportExtractorError("boom"),
         ):
           with redirect_stderr(stderr):

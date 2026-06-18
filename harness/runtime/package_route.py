@@ -7,7 +7,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 # Support direct execution from harness/runtime while preserving package imports.
 if __package__ in {None, ""}:
@@ -20,24 +20,7 @@ from harness.agents.agent_context_compiler import (
   compile_agent_context_packet,
 )
 from harness.agents.agent_context_packet import AgentContextPacket
-from harness.contracts.archive_manager_report import ArchiveManagerReport
-from harness.contracts.archive_manager_report_extractor import (
-  ArchiveManagerReportExtractorError,
-  extract_archive_manager_report,
-)
-from harness.contracts.archive_manager_report_validation import (
-  ArchiveManagerReportValidationArtifact,
-  default_validation_artifact_path as default_archive_validation_artifact_path,
-)
-from harness.contracts.project_manager_report import ProjectManagerReport
-from harness.contracts.project_manager_report_extractor import (
-  ProjectManagerReportExtractorError,
-  extract_project_manager_report,
-)
-from harness.contracts.project_manager_report_validation import (
-  ProjectManagerReportValidationArtifact,
-  default_validation_artifact_path as default_project_manager_validation_artifact_path,
-)
+from harness.agents.agent_runtime_registry import AGENT_ROUTE_SPECS
 from harness.runtime.artifact_facts import sha256_file
 from harness.runtime.api_call_ledger import (
   DEFAULT_RUNTIME_CALL_LEDGER_PATH,
@@ -63,21 +46,6 @@ DEFAULT_PM_AGENT_PATH = Path(__file__).resolve().parents[1] / "agents" / "projec
 DEFAULT_AM_AGENT_PATH = Path(__file__).resolve().parents[1] / "agents" / "archive_manager.agent.json"
 
 
-@dataclass(frozen=True, slots=True)
-class ReportHandler:
-  output_id: str
-  output_filename: str
-  extractor: Callable[..., Any]
-  extractor_error: type[Exception]
-  validation_artifact_model: type[Any]
-  default_validation_artifact_path: Callable[[Path], Path]
-  extract_step: str
-  validation_step: str
-  contract_status: Callable[[Any], str | None]
-  display_lines: Callable[[Any], list[str]]
-  validate_specific_artifact: Callable[[Any, Any], None]
-
-
 @dataclass(slots=True)
 class PackageRouteResult:
   selected_agent: Path
@@ -97,84 +65,6 @@ class PackageRouteStepError(RuntimeError):
   def __init__(self, step: str, message: str) -> None:
     super().__init__(message)
     self.step = step
-
-
-def _validate_project_manager_artifact(
-  report: ProjectManagerReport,
-  validation_artifact: ProjectManagerReportValidationArtifact,
-) -> None:
-  if validation_artifact.report_status != report.report_status:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact report_status does not match the validated report.",
-    )
-
-  if validation_artifact.proof_frontier_blocked != report.proof_frontier.blocked:
-    raise PackageRouteStepError(
-      "validate_project_manager_report_validation_artifact",
-      "Validation artifact proof_frontier_blocked does not match the validated report.",
-    )
-
-
-def _validate_archive_manager_artifact(
-  report: ArchiveManagerReport,
-  validation_artifact: ArchiveManagerReportValidationArtifact,
-) -> None:
-  if validation_artifact.archive_record_id != report.archive_record.record_id:
-    raise PackageRouteStepError(
-      "validate_archive_manager_report_validation_artifact",
-      "Validation artifact archive_record_id does not match the validated report.",
-    )
-
-  if validation_artifact.archive_record_type != report.archive_record.record_type:
-    raise PackageRouteStepError(
-      "validate_archive_manager_report_validation_artifact",
-      "Validation artifact archive_record_type does not match the validated report.",
-    )
-
-
-def _project_manager_display_lines(report: ProjectManagerReport) -> list[str]:
-  return [
-    f"Report status: {report.report_status}",
-    f"Blocked: {report.proof_frontier.blocked}",
-  ]
-
-
-def _archive_manager_display_lines(report: ArchiveManagerReport) -> list[str]:
-  return [
-    f"Archive record id: {report.archive_record.record_id}",
-    f"Archive record type: {report.archive_record.record_type}",
-  ]
-
-
-REPORT_HANDLERS: dict[str, ReportHandler] = {
-  "project_manager_report": ReportHandler(
-    output_id="project_manager_report",
-    output_filename="project_manager_report.json",
-    extractor=lambda **kwargs: extract_project_manager_report(**kwargs),
-    extractor_error=ProjectManagerReportExtractorError,
-    validation_artifact_model=ProjectManagerReportValidationArtifact,
-    default_validation_artifact_path=default_project_manager_validation_artifact_path,
-    extract_step="extract_project_manager_report",
-    validation_step="validate_project_manager_report_validation_artifact",
-    contract_status=lambda report: report.report_status,
-    display_lines=_project_manager_display_lines,
-    validate_specific_artifact=_validate_project_manager_artifact,
-  ),
-  "archive_manager_report": ReportHandler(
-    output_id="archive_manager_report",
-    output_filename="archive_manager_report.json",
-    extractor=lambda **kwargs: extract_archive_manager_report(**kwargs),
-    extractor_error=ArchiveManagerReportExtractorError,
-    validation_artifact_model=ArchiveManagerReportValidationArtifact,
-    default_validation_artifact_path=default_archive_validation_artifact_path,
-    extract_step="extract_archive_manager_report",
-    validation_step="validate_archive_manager_report_validation_artifact",
-    contract_status=lambda report: report.archive_record.record_type,
-    display_lines=_archive_manager_display_lines,
-    validate_specific_artifact=_validate_archive_manager_artifact,
-  ),
-}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -306,7 +196,7 @@ def run_package_route(
     )
 
   output_policy_entry = output_policy[0]
-  handler = REPORT_HANDLERS.get(output_policy_entry.output_id)
+  handler = AGENT_ROUTE_SPECS.get(output_policy_entry.output_id)
   if handler is None:
     raise PackageRouteStepError(
       "select_report_handler",

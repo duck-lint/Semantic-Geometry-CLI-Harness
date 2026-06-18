@@ -15,7 +15,8 @@ from harness.agents.agent_context_compiler import (
   compile_agent_context_packet,
 )
 from harness.agents.agent_context_packet import AgentContextPacket
-from harness.agents.agent_contract import AgentContract
+from harness.agents.agent_runtime_registry import validate_agent_contract
+from harness.agents.archive_manager import ArchiveManager
 from harness.agents.project_manager_agent import ProjectManagerAgent
 from harness.project_spec.static_context_packet_compiler import (
   compile_static_context_packet,
@@ -28,7 +29,10 @@ from harness.runtime.runtime_budget_policy import RuntimeBudgetPolicy
 from harness.runtime.supplementary_context import SupplementaryContextEntry
 from harness.runtime.orchestrator import build_pre_call_artifacts
 from harness.runtime.task import Task, task_from_cli
-from tests.agent_test_support import create_test_project_manager_agent
+from tests.agent_test_support import (
+  create_test_archive_manager_agent,
+  create_test_project_manager_agent,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +41,7 @@ MANIFEST_PATH = HARNESS_ROOT / "project_spec" / "static_context_packet.manifest.
 LIVE_AGENT_PATH = HARNESS_ROOT / "agents" / "project_manager.agent.json"
 LIVE_AM_AGENT_PATH = HARNESS_ROOT / "agents" / "archive_manager.agent.json"
 AGENT_PATH = create_test_project_manager_agent(LIVE_AGENT_PATH)
+AM_AGENT_PATH = create_test_archive_manager_agent(LIVE_AM_AGENT_PATH)
 AGENT_CONTEXT_SCHEMA_PATH = HARNESS_ROOT / "agents" / "AgentContextPacket.schema.json"
 API_CALL_SCHEMA_PATH = HARNESS_ROOT / "runtime" / "ApiCallPacket.schema.json"
 RUNTIME_BUDGET_PATH = HARNESS_ROOT / "runtime" / "runtime_budget.policy.json"
@@ -93,7 +98,9 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
     )
 
   def test_current_archive_manager_agent_file_validates(self) -> None:
-    agent = AgentContract.model_validate(load_json(LIVE_AM_AGENT_PATH))
+    agent_data = load_json(LIVE_AM_AGENT_PATH)
+    agent = ArchiveManager.model_validate(agent_data)
+    generic_agent = validate_agent_contract(agent_data)
 
     self.assertEqual(agent.metadata.id, "archive_manager.agent.json")
     self.assertEqual(agent.provider, "openai")
@@ -102,6 +109,7 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       ["static_context_packet", "repo_snapshot_packet"],
     )
     self.assertEqual(agent.agent_output_policy[0].output_id, "archive_manager_report")
+    self.assertEqual(generic_agent.metadata.id, agent.metadata.id)
 
   def test_agent_context_compiles_from_pm_input_policy(self) -> None:
     with tempfile.TemporaryDirectory() as temp_directory:
@@ -149,7 +157,7 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       static_output_path = temp_root / "static_context_packet.json"
 
       packet = compile_agent_context_packet(
-        agent_path=LIVE_AM_AGENT_PATH,
+        agent_path=AM_AGENT_PATH,
         output_path=output_path,
         manifest_path=MANIFEST_PATH,
         harness_root=REPO_ROOT,
@@ -171,15 +179,7 @@ class PreCallPacketAssemblyTests(unittest.TestCase):
       self.assertEqual(
         [file.path for file in repo_snapshot_packet.files],
         [
-          "harness/contracts/ArchiveManagerReport.schema.json",
           "harness/contracts/archive_manager_report.example.json",
-          "harness/contracts/archive_manager_report.py",
-          "harness/contracts/archive_manager_report_extractor.py",
-          "harness/contracts/archive_manager_report_validation.py",
-          "harness/implementations/active/implementation_plan_02.json",
-          "harness/implementations/active/implementation_tracker_02.json",
-          "harness/implementations/active/probes/PM_report_disposition_validation.json",
-          "harness/implementations/active/project_manager_admissibility_report_20260614.json",
         ],
       )
 

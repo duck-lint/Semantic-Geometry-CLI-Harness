@@ -1,5 +1,5 @@
 {
-  "$schema": "./ProjectManagerAgent.schema.json",
+  "$schema": "../ProjectManagerAgent.schema.json",
   "metadata": {
     "id": "project_manager.agent.json",
     "agent_name": "Project Manager",
